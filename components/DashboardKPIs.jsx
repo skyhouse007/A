@@ -1,7 +1,7 @@
 'use dom'
 import React from 'react';
 
-const DashboardKPIs = () => {
+const DashboardKPIs = ({ theme }) => {
   const kpiData = [
     {
       id: 1,
@@ -9,7 +9,6 @@ const DashboardKPIs = () => {
       value: '$12,450',
       change: '+12.5%',
       trend: 'up',
-      icon: '💰',
       color: '#10b981',
       subtitle: 'vs yesterday'
     },
@@ -19,7 +18,6 @@ const DashboardKPIs = () => {
       value: '248',
       change: '+8.2%',
       trend: 'up',
-      icon: '📋',
       color: '#3b82f6',
       subtitle: 'this week'
     },
@@ -29,7 +27,6 @@ const DashboardKPIs = () => {
       value: '$89,234',
       change: '-2.4%',
       trend: 'down',
-      icon: '📦',
       color: '#f59e0b',
       subtitle: 'current stock'
     },
@@ -39,7 +36,6 @@ const DashboardKPIs = () => {
       value: '24.7%',
       change: '+1.3%',
       trend: 'up',
-      icon: '📊',
       color: '#8b5cf6',
       subtitle: 'gross profit'
     }
@@ -56,11 +52,10 @@ const DashboardKPIs = () => {
         <div
           key={kpi.id}
           style={{
-            background: 'white',
+            background: theme.cardBg,
             borderRadius: '12px',
             padding: '16px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            border: `1px solid ${theme.border}`,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             position: 'relative',
@@ -68,13 +63,13 @@ const DashboardKPIs = () => {
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
             e.target.style.borderColor = kpi.color;
+            e.target.style.boxShadow = `0 4px 12px ${kpi.color}20`;
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-            e.target.style.borderColor = '#e5e7eb';
+            e.target.style.borderColor = theme.border;
+            e.target.style.boxShadow = 'none';
           }}
         >
           {/* Header */}
@@ -85,17 +80,11 @@ const DashboardKPIs = () => {
             marginBottom: '8px'
           }}>
             <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              background: `${kpi.color}15`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '16px'
-            }}>
-              {kpi.icon}
-            </div>
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: kpi.color
+            }}></div>
             
             <div style={{
               padding: '2px 6px',
@@ -113,7 +102,7 @@ const DashboardKPIs = () => {
           <h3 style={{
             fontSize: '12px',
             fontWeight: '500',
-            color: '#6b7280',
+            color: theme.textSecondary,
             margin: '0 0 4px 0',
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
@@ -125,7 +114,7 @@ const DashboardKPIs = () => {
           <div style={{
             fontSize: '20px',
             fontWeight: '700',
-            color: '#111827',
+            color: theme.text,
             lineHeight: '1',
             marginBottom: '4px'
           }}>
@@ -135,7 +124,7 @@ const DashboardKPIs = () => {
           {/* Subtitle */}
           <p style={{
             fontSize: '11px',
-            color: '#9ca3af',
+            color: theme.textSecondary,
             margin: 0,
             fontWeight: '500'
           }}>
