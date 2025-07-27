@@ -1,16 +1,8 @@
 'use dom'
 import React, { useState } from "react";
 
-const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
+const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      setPage("home");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   const notifications = [
     {
@@ -41,25 +33,27 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 50,
+        zIndex: 1000,
         width: '100%',
-        background: '#ffffff',
-        borderBottom: '1px solid #e5e7eb',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        maxWidth: '100vw',
+        background: theme.cardBg,
+        borderBottom: `1px solid ${theme.border}`,
+        boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
         height: '60px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 16px'
+        padding: '0 16px',
+        boxSizing: 'border-box'
       }}
     >
-      {/* Left Section: Logo */}
+      {/* Left: Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{
           width: '32px',
           height: '32px',
           borderRadius: '8px',
-          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          background: theme.accent,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -67,31 +61,54 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
           fontWeight: 'bold',
           fontSize: '16px'
         }}>
-          E
+          B
         </div>
         <div>
           <h1 style={{
             fontSize: '18px',
             fontWeight: '700',
-            color: '#111827',
+            color: theme.text,
             margin: 0,
             lineHeight: '1.2'
           }}>
-            ERP Mobile
+            BizSuite
           </h1>
           <p style={{
-            fontSize: '12px',
-            color: '#6b7280',
+            fontSize: '11px',
+            color: theme.textSecondary,
             margin: 0,
             lineHeight: '1'
           }}>
-            Business Suite
+            Enterprise
           </p>
         </div>
       </div>
 
-      {/* Right Section: Actions */}
+      {/* Right: Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          style={{
+            padding: '8px',
+            borderRadius: '8px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: theme.textSecondary,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = theme.border;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = 'transparent';
+          }}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+
         {/* Notifications */}
         <div style={{ position: 'relative' }}>
           <button
@@ -103,12 +120,12 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '20px',
-              color: '#6b7280',
+              fontSize: '16px',
+              color: theme.textSecondary,
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = '#f3f4f6';
+              e.target.style.background = theme.border;
             }}
             onMouseLeave={(e) => {
               e.target.style.background = 'transparent';
@@ -124,7 +141,7 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
                 height: '8px',
                 background: '#ef4444',
                 borderRadius: '50%',
-                border: '2px solid white'
+                border: `2px solid ${theme.cardBg}`
               }}></div>
             )}
           </button>
@@ -136,23 +153,23 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
               top: '100%',
               right: 0,
               width: '280px',
-              background: 'white',
+              background: theme.cardBg,
               borderRadius: '12px',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+              border: `1px solid ${theme.border}`,
+              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
               zIndex: 1000,
               marginTop: '8px',
               overflow: 'hidden'
             }}>
               <div style={{ 
                 padding: '16px', 
-                borderBottom: '1px solid #e5e7eb',
-                background: '#f9fafb'
+                borderBottom: `1px solid ${theme.border}`,
+                background: theme.bg
               }}>
                 <h3 style={{ 
                   fontSize: '16px', 
                   fontWeight: '600', 
-                  color: '#111827',
+                  color: theme.text,
                   margin: 0
                 }}>
                   Notifications
@@ -164,15 +181,15 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
                     key={notification.id} 
                     style={{
                       padding: '12px 16px',
-                      borderBottom: '1px solid #f3f4f6',
+                      borderBottom: `1px solid ${theme.border}`,
                       cursor: 'pointer',
                       transition: 'background 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.background = '#f9fafb';
+                      e.target.style.background = theme.border;
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.background = 'white';
+                      e.target.style.background = 'transparent';
                     }}
                   >
                     <div style={{ 
@@ -184,14 +201,14 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
                       <span style={{ 
                         fontSize: '14px', 
                         fontWeight: '500', 
-                        color: '#111827',
+                        color: theme.text,
                         flex: 1
                       }}>
                         {notification.title}
                       </span>
                       <span style={{ 
                         fontSize: '12px', 
-                        color: '#6b7280',
+                        color: theme.textSecondary,
                         marginLeft: '8px'
                       }}>
                         {notification.time}
@@ -199,7 +216,7 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
                     </div>
                     <p style={{ 
                       fontSize: '13px', 
-                      color: '#6b7280',
+                      color: theme.textSecondary,
                       margin: 0,
                       lineHeight: '1.4'
                     }}>
@@ -242,7 +259,7 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
               transition: 'background 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = '#f3f4f6';
+              e.target.style.background = theme.border;
             }}
             onMouseLeave={(e) => {
               e.target.style.background = 'transparent';
@@ -252,7 +269,7 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
+              background: theme.accent,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -269,19 +286,19 @@ const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
             style={{
               padding: '8px 16px',
               borderRadius: '8px',
-              background: '#3b82f6',
+              background: theme.accent,
               color: 'white',
               border: 'none',
               cursor: 'pointer',
               fontWeight: '500',
               fontSize: '14px',
-              transition: 'background 0.2s ease'
+              transition: 'opacity 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = '#2563eb';
+              e.target.style.opacity = '0.9';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = '#3b82f6';
+              e.target.style.opacity = '1';
             }}
           >
             Sign In
