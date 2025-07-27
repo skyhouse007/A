@@ -3,6 +3,19 @@ import React, { useState } from "react";
 
 const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const menuItems = [
+    { id: "dashboard", name: "Dashboard", color: "#3b82f6" },
+    { id: "inventoryList", name: "Inventory Management", color: "#10b981" },
+    { id: "salesList", name: "Sales Records", color: "#f59e0b" },
+    { id: "billing", name: "Billing & Invoices", color: "#8b5cf6" },
+    { id: "purchaseForm", name: "Purchase Orders", color: "#06b6d4" },
+    { id: "customers", name: "Customer Management", color: "#ef4444" },
+    { id: "vendors", name: "Vendor Management", color: "#84cc16" },
+    { id: "reports", name: "Reports & Analytics", color: "#f97316" },
+    { id: "settings", name: "Settings", color: "#6b7280" }
+  ];
 
   const notifications = [
     {
@@ -28,6 +41,11 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
     },
   ];
 
+  const handleMenuClick = (pageId) => {
+    setPage(pageId);
+    setShowMenu(false);
+  };
+
   return (
     <header
       style={{
@@ -47,8 +65,133 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
         boxSizing: 'border-box'
       }}
     >
-      {/* Left: Logo */}
+      {/* Left: Hamburger + Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Hamburger Menu */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: theme.textSecondary,
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px',
+              width: '24px',
+              height: '24px',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = theme.border;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+          </button>
+
+          {/* Dropdown Menu */}
+          {showMenu && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              width: '280px',
+              background: theme.cardBg,
+              borderRadius: '12px',
+              border: `1px solid ${theme.border}`,
+              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
+              zIndex: 1000,
+              marginTop: '8px',
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                padding: '16px', 
+                borderBottom: `1px solid ${theme.border}`,
+                background: theme.bg
+              }}>
+                <h3 style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: theme.text,
+                  margin: 0
+                }}>
+                  Navigation
+                </h3>
+              </div>
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {menuItems.map((item) => (
+                  <button 
+                    key={item.id} 
+                    onClick={() => handleMenuClick(item.id)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s ease',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = theme.border;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: item.color,
+                      flexShrink: 0
+                    }}></div>
+                    <span style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '500', 
+                      color: theme.text
+                    }}>
+                      {item.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Logo */}
         <div style={{
           width: '32px',
           height: '32px',
