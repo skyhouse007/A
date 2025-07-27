@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
-import Sidebar from './components/Sidebar.jsx';
+import BottomNavigation from './components/BottomNavigation.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
@@ -17,20 +17,10 @@ function AppContent() {
     currentPage, 
     setCurrentPage, 
     user, 
-    sidebarCollapsed, 
-    setSidebarCollapsed,
     isLoading,
     error,
     apiConnected
   } = useApp();
-  
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [appLoaded, setAppLoaded] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAppLoaded(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
@@ -50,142 +40,119 @@ function AppContent() {
   const renderPageContent = () => {
     switch (currentPage) {
       case "dashboard":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} />
-          </div>
-        );
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} />;
       case "billing":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <Billing />
-          </div>
-        );
+        return <Billing />;
       case "inventoryList":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <InventoryList />
-          </div>
-        );
+        return <InventoryList />;
       case "salesList":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <SalesList />
-          </div>
-        );
+        return <SalesList />;
       case "purchaseForm":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <PurchaseForm />
-          </div>
-        );
+        return <PurchaseForm />;
       default:
         return (
           <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+            background: '#f8fafc',
+            minHeight: 'calc(100vh - 140px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem'
+            padding: '24px'
           }}>
             <div style={{
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9))',
-              backdropFilter: 'blur(20px) saturate(150%)',
-              borderRadius: '24px',
-              padding: '3rem',
-              border: '1px solid rgba(148, 163, 184, 0.2)',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               textAlign: 'center',
-              maxWidth: '500px',
+              maxWidth: '320px',
               width: '100%'
             }}>
               <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '20px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                width: '64px',
+                height: '64px',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
                 fontWeight: 'bold',
-                fontSize: '32px',
-                margin: '0 auto 2rem',
-                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.35)'
+                fontSize: '24px',
+                margin: '0 auto 24px',
+                boxShadow: '0 8px 25px rgba(59, 130, 246, 0.25)'
               }}>
-                D
+                E
               </div>
               <h1 style={{
-                fontSize: '32px',
-                fontWeight: '900',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                marginBottom: '1rem',
-                letterSpacing: '-1px'
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#111827',
+                marginBottom: '8px'
               }}>
-                Welcome to DataPlay AI
+                Welcome to ERP Mobile
               </h1>
               <p style={{
-                fontSize: '16px',
-                color: 'rgba(148, 163, 184, 0.9)',
-                marginBottom: '1.5rem',
-                lineHeight: '1.6'
+                fontSize: '14px',
+                color: '#6b7280',
+                marginBottom: '24px',
+                lineHeight: '1.5'
               }}>
-                Next-generation enterprise dashboard powered by artificial intelligence
+                Your complete business management solution
               </p>
+              
               <div style={{
-                background: 'rgba(99, 102, 241, 0.1)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-                borderRadius: '16px',
-                padding: '1.5rem',
-                marginBottom: '2rem'
+                background: '#f8fafc',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '24px'
               }}>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                  gap: '1rem',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
                   textAlign: 'center'
                 }}>
                   <div>
-                    <div style={{ fontSize: '14px', color: 'rgba(148, 163, 184, 0.8)', marginBottom: '0.25rem' }}>Current Page</div>
-                    <div style={{ fontSize: '16px', color: 'white', fontWeight: '600' }}>{currentPage}</div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+                      Current Page
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#111827', fontWeight: '600' }}>
+                      {currentPage}
+                    </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', color: 'rgba(148, 163, 184, 0.8)', marginBottom: '0.25rem' }}>User Status</div>
-                    <div style={{ fontSize: '16px', color: 'white', fontWeight: '600' }}>{user ? 'Authenticated' : 'Guest'}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '14px', color: 'rgba(148, 163, 184, 0.8)', marginBottom: '0.25rem' }}>Sidebar</div>
-                    <div style={{ fontSize: '16px', color: 'white', fontWeight: '600' }}>{sidebarCollapsed ? 'Collapsed' : 'Expanded'}</div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+                      User Status
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#111827', fontWeight: '600' }}>
+                      {user ? 'Signed In' : 'Guest'}
+                    </div>
                   </div>
                 </div>
               </div>
+              
               <button
                 onClick={() => setCurrentPage('dashboard')}
                 style={{
-                  padding: '16px 32px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  width: '100%',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  background: '#3b82f6',
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
                   fontWeight: '600',
-                  fontSize: '16px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+                  fontSize: '14px',
+                  transition: 'background 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
+                  e.target.style.background = '#2563eb';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                  e.target.style.background = '#3b82f6';
                 }}
               >
                 Go to Dashboard
@@ -196,60 +163,48 @@ function AppContent() {
     }
   };
 
-  // Enhanced loading state
+  // Mobile ERP Loading State
   if (isLoading) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+        background: '#f8fafc',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9))',
-          backdropFilter: 'blur(20px) saturate(150%)',
-          borderRadius: '24px',
-          padding: '3rem',
-          border: '1px solid rgba(148, 163, 184, 0.2)',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          background: 'white',
+          borderRadius: '16px',
+          padding: '32px',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           textAlign: 'center'
         }}>
-          {/* Modern Loading Spinner */}
+          {/* Mobile Loading Spinner */}
           <div style={{
-            width: '60px',
-            height: '60px',
+            width: '48px',
+            height: '48px',
             borderRadius: '50%',
-            background: 'conic-gradient(from 0deg, transparent, #667eea, #764ba2, transparent)',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #3b82f6',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 2rem',
-            position: 'relative'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '4px',
-              left: '4px',
-              right: '4px',
-              bottom: '4px',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9))',
-              borderRadius: '50%'
-            }}></div>
-          </div>
+            margin: '0 auto 16px'
+          }}></div>
           <h2 style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            color: 'white',
-            marginBottom: '0.5rem'
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111827',
+            marginBottom: '8px'
           }}>
-            Loading DataPlay AI
+            Loading ERP Mobile
           </h2>
           {!apiConnected && (
             <p style={{
               fontSize: '14px',
-              color: 'rgba(148, 163, 184, 0.8)',
-              fontWeight: '500'
+              color: '#6b7280'
             }}>
-              Establishing secure connection...
+              Connecting to server...
             </p>
           )}
         </div>
@@ -263,80 +218,84 @@ function AppContent() {
     );
   }
 
-  // Enhanced error state
+  // Mobile ERP Error State
   if (error) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+        background: '#f8fafc',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2rem'
+        padding: '24px'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9))',
-          backdropFilter: 'blur(20px) saturate(150%)',
-          borderRadius: '24px',
-          padding: '3rem',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          background: 'white',
+          borderRadius: '16px',
+          padding: '32px',
+          border: '1px solid #fecaca',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           textAlign: 'center',
-          maxWidth: '500px',
+          maxWidth: '320px',
           width: '100%'
         }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '20px',
-            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            width: '64px',
+            height: '64px',
+            borderRadius: '16px',
+            background: '#fef2f2',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
+            color: '#dc2626',
             fontWeight: 'bold',
-            fontSize: '32px',
-            margin: '0 auto 2rem'
+            fontSize: '24px',
+            margin: '0 auto 16px'
           }}>
-            !
+            ⚠️
           </div>
           <h2 style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            color: '#ef4444',
-            marginBottom: '1rem'
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#dc2626',
+            marginBottom: '8px'
           }}>
             Connection Error
           </h2>
           <p style={{
-            fontSize: '16px',
-            color: 'rgba(148, 163, 184, 0.9)',
-            marginBottom: '0.5rem',
-            lineHeight: '1.6'
+            fontSize: '14px',
+            color: '#6b7280',
+            marginBottom: '16px',
+            lineHeight: '1.5'
           }}>
             {error}
           </p>
           <p style={{
-            fontSize: '14px',
-            color: 'rgba(148, 163, 184, 0.7)',
-            marginBottom: '2rem'
+            fontSize: '12px',
+            color: '#9ca3af',
+            marginBottom: '24px'
           }}>
             Please check your connection and try again.
           </p>
           <button
             onClick={() => window.location.reload()}
             style={{
-              padding: '16px 32px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+              width: '100%',
+              padding: '12px 24px',
+              borderRadius: '12px',
+              background: '#dc2626',
               color: 'white',
               border: 'none',
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '16px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease'
+              fontSize: '14px',
+              transition: 'background 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#b91c1c';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#dc2626';
             }}
           >
             Retry Connection
@@ -349,75 +308,31 @@ function AppContent() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-      transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-      opacity: appLoaded ? 1 : 0
+      background: '#f8fafc',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
+      {/* Mobile Header */}
       <Navbar 
         user={user} 
-        setPage={setCurrentPage} 
-        setShowMobileSidebar={setShowMobileSidebar} 
+        setPage={setCurrentPage}
       />
       
+      {/* Main Content */}
       <div style={{
-        display: 'flex',
-        minHeight: 'calc(100vh - 80px)'
+        flex: 1,
+        paddingBottom: '80px' // Space for bottom navigation
       }}>
-        {/* Desktop Sidebar */}
-        <div style={{
-          display: window.innerWidth >= 768 ? 'block' : 'none',
-          transition: 'all 0.3s ease'
-        }}>
-          <Sidebar 
-            setPage={setCurrentPage}
-            collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-          />
-        </div>
-
-        {/* Mobile Sidebar Overlay */}
-        {showMobileSidebar && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 40,
-            transition: 'all 0.3s ease'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              height: '100%',
-              zIndex: 50,
-              transform: showMobileSidebar ? 'translateX(0)' : 'translateX(-100%)',
-              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}>
-              <Sidebar 
-                setPage={setCurrentPage}
-                collapsed={false}
-                setCollapsed={setSidebarCollapsed}
-                onClose={() => setShowMobileSidebar(false)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Main Content Area */}
-        <div style={{
-          flex: 1,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden'
-        }}>
-          {renderPageContent()}
-        </div>
+        {renderPageContent()}
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation 
+        currentPage={currentPage}
+        setPage={setCurrentPage}
+      />
       
-      <StatusBar style="light" />
+      <StatusBar style="dark" backgroundColor="#ffffff" />
     </div>
   );
 }
@@ -436,6 +351,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#f8fafc',
   }
 });
