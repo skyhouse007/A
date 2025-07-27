@@ -1,40 +1,35 @@
 'use dom'
 import React from "react";
 
-const BottomNavigation = ({ currentPage, setPage }) => {
+const BottomNavigation = ({ currentPage, setPage, theme }) => {
   const navItems = [
     { 
       id: "dashboard", 
       name: "Dashboard", 
-      icon: "📊", 
       color: "#3b82f6",
       isActive: currentPage === "dashboard"
     },
     { 
       id: "inventoryList", 
       name: "Inventory", 
-      icon: "📦", 
       color: "#10b981",
       isActive: currentPage === "inventoryList"
     },
     { 
       id: "salesList", 
       name: "Sales", 
-      icon: "💰", 
       color: "#f59e0b",
       isActive: currentPage === "salesList"
     },
     { 
       id: "billing", 
       name: "Billing", 
-      icon: "📄", 
       color: "#8b5cf6",
       isActive: currentPage === "billing"
     },
     { 
       id: "more", 
       name: "More", 
-      icon: "⋯", 
       color: "#6b7280",
       isActive: false
     }
@@ -42,7 +37,6 @@ const BottomNavigation = ({ currentPage, setPage }) => {
 
   const handleNavClick = (pageId) => {
     if (pageId === "more") {
-      // Could show a more options modal
       return;
     }
     setPage(pageId);
@@ -54,15 +48,15 @@ const BottomNavigation = ({ currentPage, setPage }) => {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'white',
-      borderTop: '1px solid #e5e7eb',
-      boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
+      background: theme.cardBg,
+      borderTop: `1px solid ${theme.border}`,
+      boxShadow: theme.bg === '#111827' ? '0 -4px 6px rgba(0, 0, 0, 0.3)' : '0 -4px 6px rgba(0, 0, 0, 0.1)',
       zIndex: 50,
       height: '80px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
-      paddingBottom: 'env(safe-area-inset-bottom)' // Handle iPhone bottom safe area
+      paddingBottom: 'env(safe-area-inset-bottom)'
     }}>
       {navItems.map((item) => (
         <button
@@ -85,7 +79,7 @@ const BottomNavigation = ({ currentPage, setPage }) => {
           }}
           onMouseEnter={(e) => {
             if (!item.isActive) {
-              e.target.style.background = '#f3f4f6';
+              e.target.style.background = theme.border;
             }
           }}
           onMouseLeave={(e) => {
@@ -94,21 +88,21 @@ const BottomNavigation = ({ currentPage, setPage }) => {
             }
           }}
         >
-          {/* Icon */}
+          {/* Indicator dot */}
           <div style={{
-            fontSize: '20px',
-            opacity: item.isActive ? 1 : 0.6,
-            transition: 'opacity 0.2s ease',
-            filter: item.isActive ? `drop-shadow(0 0 4px ${item.color}50)` : 'none'
-          }}>
-            {item.icon}
-          </div>
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: item.isActive ? item.color : theme.textSecondary,
+            opacity: item.isActive ? 1 : 0.4,
+            transition: 'all 0.2s ease'
+          }}></div>
           
           {/* Label */}
           <span style={{
             fontSize: '11px',
             fontWeight: item.isActive ? '600' : '500',
-            color: item.isActive ? item.color : '#6b7280',
+            color: item.isActive ? item.color : theme.textSecondary,
             transition: 'all 0.2s ease',
             textAlign: 'center',
             lineHeight: '1.2'
@@ -124,9 +118,9 @@ const BottomNavigation = ({ currentPage, setPage }) => {
               left: '50%',
               transform: 'translateX(-50%)',
               width: '24px',
-              height: '3px',
+              height: '2px',
               background: item.color,
-              borderRadius: '2px'
+              borderRadius: '1px'
             }}></div>
           )}
         </button>
