@@ -22,6 +22,8 @@ function AppContent() {
     apiConnected
   } = useApp();
 
+  const [darkMode, setDarkMode] = useState(false);
+
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
     { month: 'Feb', sales: 15000 },
@@ -37,176 +39,78 @@ function AppContent() {
     { item: 'Product C', stock: 100, value: 10000 },
   ];
 
-  const renderPageContent = () => {
-    switch (currentPage) {
-      case "dashboard":
-        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} />;
-      case "billing":
-        return <Billing />;
-      case "inventoryList":
-        return <InventoryList />;
-      case "salesList":
-        return <SalesList />;
-      case "purchaseForm":
-        return <PurchaseForm />;
-      default:
-        return (
-          <div style={{
-            background: '#f8fafc',
-            minHeight: 'calc(100vh - 140px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px'
-          }}>
-            <div style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '32px',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              textAlign: 'center',
-              maxWidth: '320px',
-              width: '100%'
-            }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '24px',
-                margin: '0 auto 24px',
-                boxShadow: '0 8px 25px rgba(59, 130, 246, 0.25)'
-              }}>
-                E
-              </div>
-              <h1 style={{
-                fontSize: '24px',
-                fontWeight: '700',
-                color: '#111827',
-                marginBottom: '8px'
-              }}>
-                Welcome to ERP Mobile
-              </h1>
-              <p style={{
-                fontSize: '14px',
-                color: '#6b7280',
-                marginBottom: '24px',
-                lineHeight: '1.5'
-              }}>
-                Your complete business management solution
-              </p>
-              
-              <div style={{
-                background: '#f8fafc',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '24px'
-              }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '16px',
-                  textAlign: 'center'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
-                      Current Page
-                    </div>
-                    <div style={{ fontSize: '14px', color: '#111827', fontWeight: '600' }}>
-                      {currentPage}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
-                      User Status
-                    </div>
-                    <div style={{ fontSize: '14px', color: '#111827', fontWeight: '600' }}>
-                      {user ? 'Signed In' : 'Guest'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => setCurrentPage('dashboard')}
-                style={{
-                  width: '100%',
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '14px',
-                  transition: 'background 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = '#2563eb';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = '#3b82f6';
-                }}
-              >
-                Go to Dashboard
-              </button>
-            </div>
-          </div>
-        );
+  const theme = {
+    light: {
+      bg: '#ffffff',
+      cardBg: '#ffffff',
+      text: '#1f2937',
+      textSecondary: '#6b7280',
+      border: '#e5e7eb',
+      accent: '#3b82f6'
+    },
+    dark: {
+      bg: '#111827',
+      cardBg: '#1f2937',
+      text: '#ffffff',
+      textSecondary: '#9ca3af',
+      border: '#374151',
+      accent: '#60a5fa'
     }
   };
 
-  // Mobile ERP Loading State
+  const currentTheme = darkMode ? theme.dark : theme.light;
+
+  const renderPageContent = () => {
+    switch (currentPage) {
+      case "dashboard":
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+      case "billing":
+        return <Billing theme={currentTheme} />;
+      case "inventoryList":
+        return <InventoryList theme={currentTheme} />;
+      case "salesList":
+        return <SalesList theme={currentTheme} />;
+      case "purchaseForm":
+        return <PurchaseForm theme={currentTheme} />;
+      default:
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+    }
+  };
+
+  // Loading State
   if (isLoading) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#f8fafc',
+        background: currentTheme.bg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{
-          background: 'white',
-          borderRadius: '16px',
+          background: currentTheme.cardBg,
+          borderRadius: '12px',
           padding: '32px',
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          border: `1px solid ${currentTheme.border}`,
           textAlign: 'center'
         }}>
-          {/* Mobile Loading Spinner */}
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
-            border: '4px solid #e5e7eb',
-            borderTop: '4px solid #3b82f6',
+            border: `3px solid ${currentTheme.border}`,
+            borderTop: `3px solid ${currentTheme.accent}`,
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
           }}></div>
           <h2 style={{
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
-            color: '#111827',
-            marginBottom: '8px'
+            color: currentTheme.text,
+            margin: 0
           }}>
-            Loading ERP Mobile
+            Loading...
           </h2>
-          {!apiConnected && (
-            <p style={{
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
-              Connecting to server...
-            </p>
-          )}
         </div>
         <style>{`
           @keyframes spin {
@@ -218,87 +122,56 @@ function AppContent() {
     );
   }
 
-  // Mobile ERP Error State
+  // Error State
   if (error) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#f8fafc',
+        background: currentTheme.bg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px'
+        padding: '20px'
       }}>
         <div style={{
-          background: 'white',
-          borderRadius: '16px',
+          background: currentTheme.cardBg,
+          borderRadius: '12px',
           padding: '32px',
-          border: '1px solid #fecaca',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #ef4444',
           textAlign: 'center',
-          maxWidth: '320px',
+          maxWidth: '400px',
           width: '100%'
         }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '16px',
-            background: '#fef2f2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#dc2626',
-            fontWeight: 'bold',
-            fontSize: '24px',
-            margin: '0 auto 16px'
-          }}>
-            ⚠️
-          </div>
           <h2 style={{
             fontSize: '18px',
             fontWeight: '600',
-            color: '#dc2626',
+            color: '#ef4444',
             marginBottom: '8px'
           }}>
             Connection Error
           </h2>
           <p style={{
             fontSize: '14px',
-            color: '#6b7280',
-            marginBottom: '16px',
-            lineHeight: '1.5'
+            color: currentTheme.textSecondary,
+            marginBottom: '20px'
           }}>
             {error}
-          </p>
-          <p style={{
-            fontSize: '12px',
-            color: '#9ca3af',
-            marginBottom: '24px'
-          }}>
-            Please check your connection and try again.
           </p>
           <button
             onClick={() => window.location.reload()}
             style={{
               width: '100%',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              background: '#dc2626',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#ef4444',
               color: 'white',
               border: 'none',
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '14px',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = '#b91c1c';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = '#dc2626';
+              fontSize: '14px'
             }}
           >
-            Retry Connection
+            Retry
           </button>
         </div>
       </div>
@@ -308,36 +181,46 @@ function AppContent() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f8fafc',
+      background: currentTheme.bg,
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      width: '100%',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
     }}>
-      {/* Mobile Header */}
+      {/* Header */}
       <Navbar 
         user={user} 
         setPage={setCurrentPage}
+        theme={currentTheme}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
       
-      {/* Main Content */}
+      {/* Main Content - Scrollable */}
       <div style={{
         flex: 1,
-        paddingBottom: '80px' // Space for bottom navigation
+        paddingBottom: '80px', // Space for bottom nav
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        height: 'calc(100vh - 140px)', // Fixed height for scrolling
+        width: '100%'
       }}>
         {renderPageContent()}
       </div>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Bottom Navigation */}
       <BottomNavigation 
         currentPage={currentPage}
         setPage={setCurrentPage}
+        theme={currentTheme}
       />
       
-      <StatusBar style="dark" backgroundColor="#ffffff" />
+      <StatusBar style={darkMode ? "light" : "dark"} backgroundColor={currentTheme.bg} />
     </div>
   );
 }
 
-// Main App component with context provider
 export default function App() {
   return (
     <ErrorBoundary>
@@ -351,6 +234,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
   }
 });
