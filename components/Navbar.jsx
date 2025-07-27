@@ -1,340 +1,454 @@
 'use dom'
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const Navbar = ({ user, setPage, setShowMobileSidebar }) => {
-  const [showNavigationPopup, setShowNavigationPopup] = useState(false);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
+const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  // Handle scroll effect for navbar
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      setPage("home");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
+  const menuItems = [
+    { id: "dashboard", name: "Dashboard", color: "#3b82f6" },
+    { id: "inventoryList", name: "Inventory Management", color: "#10b981" },
+    { id: "salesList", name: "Sales Records", color: "#f59e0b" },
+    { id: "billing", name: "Billing & Invoices", color: "#8b5cf6" },
+    { id: "purchaseForm", name: "Purchase Orders", color: "#06b6d4" },
+    { id: "customers", name: "Customer Management", color: "#ef4444" },
+    { id: "vendors", name: "Vendor Management", color: "#84cc16" },
+    { id: "reports", name: "Reports & Analytics", color: "#f97316" },
+    { id: "settings", name: "Settings", color: "#6b7280" }
+  ];
 
   const notifications = [
     {
       id: 1,
-      title: "AI Analysis Complete",
-      message: "Monthly sales report is ready",
+      title: "Low Stock Alert",
+      message: "Product A: 5 units remaining",
       time: "2m ago",
-      type: "success",
+      urgent: true,
     },
     {
       id: 2,
-      title: "System Update",
-      message: "ERP system updated to v2.1",
-      time: "1h ago",
-      type: "info",
+      title: "New Order",
+      message: "Order #12456 - $2,340",
+      time: "15m ago",
+      urgent: false,
     },
     {
       id: 3,
-      title: "Low Inventory Alert",
-      message: "Product XYZ is running low",
-      time: "3h ago",
-      type: "warning",
+      title: "Payment Received",
+      message: "Invoice INV-001 paid",
+      time: "1h ago",
+      urgent: false,
     },
   ];
 
+  const handleMenuClick = (pageId) => {
+    setPage(pageId);
+    setShowMenu(false);
+  };
+
   return (
-    <>
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          width: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-          padding: '1.5rem',
-          minHeight: '80px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'all 0.5s ease'
-        }}
-      >
-        <div style={{ maxWidth: '100%', padding: '0 1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {/* Left Section: Mobile Menu & Logo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setShowMobileSidebar && setShowMobileSidebar(true)}
-                style={{
-                  padding: '0.5rem',
-                  borderRadius: '0.75rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(0, 0, 0, 0.1)',
-                  cursor: 'pointer',
-                  fontSize: '1.2rem',
-                  color: '#3b82f6',
-                  transition: 'all 0.3s ease'
-                }}
-                aria-label="Open sidebar"
-              >
-                ☰
-              </button>
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        width: '100%',
+        maxWidth: '100vw',
+        background: theme.cardBg,
+        borderBottom: `1px solid ${theme.border}`,
+        boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px',
+        boxSizing: 'border-box'
+      }}
+    >
+      {/* Left: Hamburger + Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Hamburger Menu */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: theme.textSecondary,
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px',
+              width: '24px',
+              height: '24px',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = theme.border;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+            <div style={{
+              width: '16px',
+              height: '2px',
+              background: theme.textSecondary,
+              borderRadius: '1px',
+              transition: 'all 0.2s ease'
+            }}></div>
+          </button>
 
-              {/* Logo */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '0.75rem',
-                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '1.25rem'
+          {/* Dropdown Menu */}
+          {showMenu && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              width: '280px',
+              background: theme.cardBg,
+              borderRadius: '12px',
+              border: `1px solid ${theme.border}`,
+              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
+              zIndex: 1000,
+              marginTop: '8px',
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                padding: '16px', 
+                borderBottom: `1px solid ${theme.border}`,
+                background: theme.bg
+              }}>
+                <h3 style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: theme.text,
+                  margin: 0
                 }}>
-                  D
-                </div>
-                <span style={{
-                  fontSize: '1.5rem',
-                  fontWeight: 'bold',
-                  color: '#1f2937',
-                  display: 'none',
-                  '@media (minWidth: 768px)': {
-                    display: 'block'
-                  }
-                }}>
-                  DataPlay AI
-                </span>
+                  Navigation
+                </h3>
               </div>
-            </div>
-
-            {/* Right Section: Notifications & User */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              {/* Notifications */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  style={{
-                    padding: '0.5rem',
-                    borderRadius: '0.5rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    position: 'relative'
-                  }}
-                >
-                  🔔
-                  <span style={{
-                    position: 'absolute',
-                    top: '-2px',
-                    right: '-2px',
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: '#ef4444',
-                    borderRadius: '50%'
-                  }}></span>
-                </button>
-
-                {/* Notifications Dropdown */}
-                {showNotifications && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    width: '320px',
-                    backgroundColor: 'white',
-                    borderRadius: '0.75rem',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                    zIndex: 1000,
-                    marginTop: '0.5rem',
-                    padding: '1rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937' }}>
-                        Notifications
-                      </h3>
-                      <button
-                        onClick={() => setShowNotifications(false)}
-                        style={{
-                          padding: '0.25rem',
-                          borderRadius: '0.25rem',
-                          backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '0.875rem'
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      {notifications.map((notification) => (
-                        <div key={notification.id} style={{
-                          padding: '0.75rem',
-                          borderRadius: '0.5rem',
-                          backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                          border: '1px solid rgba(0, 0, 0, 0.05)'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1f2937' }}>
-                              {notification.title}
-                            </span>
-                            <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                              {notification.time}
-                            </span>
-                          </div>
-                          <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                            {notification.message}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* User Menu */}
-              {user ? (
-                <div style={{ position: 'relative' }}>
-                  <button
-                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {menuItems.map((item) => (
+                  <button 
+                    key={item.id} 
+                    onClick={() => handleMenuClick(item.id)}
                     style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s ease',
+                      textAlign: 'left',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '0.5rem',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      cursor: 'pointer',
-                      fontSize: '0.875rem',
-                      color: '#374151'
+                      gap: '12px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = theme.border;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
                     }}
                   >
                     <div style={{
-                      width: '32px',
-                      height: '32px',
+                      width: '8px',
+                      height: '8px',
                       borderRadius: '50%',
-                      backgroundColor: '#3b82f6',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 'bold'
+                      background: item.color,
+                      flexShrink: 0
+                    }}></div>
+                    <span style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '500', 
+                      color: theme.text
                     }}>
-                      👤
-                    </div>
-                    <span style={{ display: 'none', '@media (minWidth: 768px)': { display: 'block' } }}>
-                      {user.name || 'User'}
+                      {item.name}
                     </span>
-                    <span style={{ fontSize: '0.75rem' }}>▼</span>
                   </button>
-
-                  {/* User Dropdown */}
-                  {showUserDropdown && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '100%',
-                      right: 0,
-                      width: '200px',
-                      backgroundColor: 'white',
-                      borderRadius: '0.75rem',
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                      zIndex: 1000,
-                      marginTop: '0.5rem',
-                      padding: '0.5rem'
-                    }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <button style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '0.5rem',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          color: '#374151',
-                          textAlign: 'left'
-                        }}>
-                          👤 Profile
-                        </button>
-                        <button style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '0.5rem',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          color: '#374151',
-                          textAlign: 'left'
-                        }}>
-                          ⚙️ Settings
-                        </button>
-                        <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid rgba(0, 0, 0, 0.1)' }} />
-                        <button
-                          onClick={handleLogout}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '0.5rem',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '0.875rem',
-                            color: '#ef4444',
-                            textAlign: 'left'
-                          }}
-                        >
-                          🚪 Sign Out
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={() => setPage("login")}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '0.5rem',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    fontSize: '0.875rem',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  Sign In
-                </button>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      </header>
-    </>
+
+        {/* Logo */}
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '8px',
+          background: theme.accent,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '16px'
+        }}>
+          B
+        </div>
+        <div>
+          <h1 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: theme.text,
+            margin: 0,
+            lineHeight: '1.2'
+          }}>
+            BizSuite
+          </h1>
+          <p style={{
+            fontSize: '11px',
+            color: theme.textSecondary,
+            margin: 0,
+            lineHeight: '1'
+          }}>
+            Enterprise
+          </p>
+        </div>
+      </div>
+
+      {/* Right: Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          style={{
+            padding: '8px',
+            borderRadius: '8px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: theme.textSecondary,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = theme.border;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = 'transparent';
+          }}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+
+        {/* Notifications */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            style={{
+              position: 'relative',
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              color: theme.textSecondary,
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = theme.border;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            🔔
+            {notifications.some(n => n.urgent) && (
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                right: '6px',
+                width: '8px',
+                height: '8px',
+                background: '#ef4444',
+                borderRadius: '50%',
+                border: `2px solid ${theme.cardBg}`
+              }}></div>
+            )}
+          </button>
+
+          {/* Notifications Dropdown */}
+          {showNotifications && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              width: '280px',
+              background: theme.cardBg,
+              borderRadius: '12px',
+              border: `1px solid ${theme.border}`,
+              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
+              zIndex: 1000,
+              marginTop: '8px',
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                padding: '16px', 
+                borderBottom: `1px solid ${theme.border}`,
+                background: theme.bg
+              }}>
+                <h3 style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: theme.text,
+                  margin: 0
+                }}>
+                  Notifications
+                </h3>
+              </div>
+              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {notifications.map((notification) => (
+                  <div 
+                    key={notification.id} 
+                    style={{
+                      padding: '12px 16px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = theme.border;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'flex-start',
+                      marginBottom: '4px'
+                    }}>
+                      <span style={{ 
+                        fontSize: '14px', 
+                        fontWeight: '500', 
+                        color: theme.text,
+                        flex: 1
+                      }}>
+                        {notification.title}
+                      </span>
+                      <span style={{ 
+                        fontSize: '12px', 
+                        color: theme.textSecondary,
+                        marginLeft: '8px'
+                      }}>
+                        {notification.time}
+                      </span>
+                    </div>
+                    <p style={{ 
+                      fontSize: '13px', 
+                      color: theme.textSecondary,
+                      margin: 0,
+                      lineHeight: '1.4'
+                    }}>
+                      {notification.message}
+                    </p>
+                    {notification.urgent && (
+                      <div style={{
+                        display: 'inline-block',
+                        marginTop: '4px',
+                        padding: '2px 6px',
+                        background: '#fef2f2',
+                        color: '#dc2626',
+                        fontSize: '11px',
+                        fontWeight: '500',
+                        borderRadius: '4px',
+                        textTransform: 'uppercase'
+                      }}>
+                        Urgent
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Avatar */}
+        {user ? (
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = theme.border;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: theme.accent,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '14px'
+            }}>
+              {(user.name || 'User').charAt(0).toUpperCase()}
+            </div>
+          </button>
+        ) : (
+          <button
+            onClick={() => setPage("login")}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: theme.accent,
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '14px',
+              transition: 'opacity 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.opacity = '0.9';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.opacity = '1';
+            }}
+          >
+            Sign In
+          </button>
+        )}
+      </div>
+    </header>
   );
 };
 

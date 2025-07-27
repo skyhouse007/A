@@ -1,474 +1,680 @@
 'use dom'
-import React, { useState } from "react";
-import useAxios from "../hooks/useAxios.js";
-import purchaseService from "../services/purchaseService.js";
-import "../styles/purchase.css";
+import React, { useState } from 'react';
 
-const PurchaseForm = ({ onAdd }) => {
-  const [vendor, setVendor] = useState({ 
-    name: "", 
-    contact: "", 
-    gstNo: "", 
-    address: "", 
-    email: "" 
+const PurchaseForm = ({ theme }) => {
+  const [activeTab, setActiveTab] = useState('create');
+  const [formData, setFormData] = useState({
+    vendor: '',
+    orderDate: new Date().toISOString().split('T')[0],
+    deliveryDate: '',
+    items: [{ product: '', quantity: 1, unitPrice: 0 }],
+    notes: ''
   });
-  const [isGST, setIsGST] = useState(true);
-  const [gstType, setGstType] = useState("intrastate");
-  const [gstPercentages, setGstPercentages] = useState({ cgst: "", sgst: "", igst: "" });
-  const [items, setItems] = useState([]);
-  const [currentItem, setCurrentItem] = useState({
-    name: "",
-    material: "",
-    price: 0,
-    variations: [{ color: "", quantity: 0 }],
-  });
-  const [transportCost, setTransportCost] = useState("");
-  const [transportNote, setTransportNote] = useState("");
-  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState("");
-  const [notes, setNotes] = useState("");
-  const [termsAndConditions, setTermsAndConditions] = useState("");
-  const [photo, setPhoto] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [submitting, setSubmitting] = useState(false);
-  const axios = useAxios();
 
-  const handleAddVariation = () => {
-    setCurrentItem(prev => ({
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const existingOrders = [
+    {
+      id: 1,
+      orderNumber: 'PO-001',
+      vendor: 'Tech Supplies Co.',
+      orderDate: '2024-01-15',
+      deliveryDate: '2024-01-25',
+      status: 'pending',
+      total: 2450.00,
+      items: [
+        { product: 'Laptops', quantity: 5, unitPrice: 450.00 },
+        { product: 'Monitors', quantity: 3, unitPrice: 150.00 }
+      ]
+    },
+    {
+      id: 2,
+      orderNumber: 'PO-002',
+      vendor: 'Office Equipment Ltd',
+      orderDate: '2024-01-12',
+      deliveryDate: '2024-01-20',
+      status: 'delivered',
+      total: 850.00,
+      items: [
+        { product: 'Office Chairs', quantity: 10, unitPrice: 85.00 }
+      ]
+    },
+    {
+      id: 3,
+      orderNumber: 'PO-003',
+      vendor: 'Software Solutions Inc',
+      orderDate: '2024-01-10',
+      deliveryDate: '2024-01-18',
+      status: 'cancelled',
+      total: 1200.00,
+      items: [
+        { product: 'Software License', quantity: 2, unitPrice: 600.00 }
+      ]
+    }
+  ];
+
+  const vendors = [
+    'Tech Supplies Co.',
+    'Office Equipment Ltd',
+    'Software Solutions Inc',
+    'Hardware Depot',
+    'Business Solutions LLC'
+  ];
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
       ...prev,
-      variations: [...prev.variations, { color: "", quantity: 0 }],
+      [field]: value
     }));
   };
 
-  const handleVariationChange = (index, field, value) => {
-    const updated = [...currentItem.variations];
-    updated[index][field] = value;
-    setCurrentItem({ ...currentItem, variations: updated });
-  };
-
-  const handleAddItem = () => {
-    if (!currentItem.name || !currentItem.price) {
-      alert("Please enter item name and price.");
-      return;
-    }
-    
-    // Validate that at least one variation has color and quantity
-    const validVariations = currentItem.variations.filter(v => v.color && v.quantity > 0);
-    if (validVariations.length === 0) {
-      alert("Please add at least one variation with color and quantity.");
-      return;
-    }
-    
-    // Create a clean item object with only valid variations
-    const cleanItem = {
-      ...currentItem,
-      variations: validVariations
+  const handleItemChange = (index, field, value) => {
+    const newItems = [...formData.items];
+    newItems[index] = {
+      ...newItems[index],
+      [field]: value
     };
-    
-    setItems([...items, cleanItem]);
-    setCurrentItem({
-      name: "",
-      material: "",
-      price: 0,
-      variations: [{ color: "", quantity: 0 }],
-    });
+    setFormData(prev => ({
+      ...prev,
+      items: newItems
+    }));
   };
 
-  const deleteItem = (index) => {
-    const updated = [...items];
-    updated.splice(index, 1);
-    setItems(updated);
+  const addItem = () => {
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, { product: '', quantity: 1, unitPrice: 0 }]
+    }));
   };
 
-  const handleSubmit = async (e) => {
+  const removeItem = (index) => {
+    if (formData.items.length > 1) {
+      const newItems = formData.items.filter((_, i) => i !== index);
+      setFormData(prev => ({
+        ...prev,
+        items: newItems
+      }));
+    }
+  };
+
+  const calculateTotal = () => {
+    return formData.items.reduce((total, item) => {
+      return total + (item.quantity * item.unitPrice);
+    }, 0);
+  };
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'delivered': return '#10b981';
+      case 'pending': return '#f59e0b';
+      case 'cancelled': return '#ef4444';
+      case 'shipped': return '#3b82f6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusText = (status) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  const filteredOrders = existingOrders.filter(order => 
+    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.vendor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
-    
-    // Validate required fields
-    if (!vendor.name.trim()) {
-      alert("Please enter vendor name");
-      setSubmitting(false);
-      return;
-    }
-    
-    if (items.length === 0) {
-      alert("Please add at least one item before saving");
-      setSubmitting(false);
-      return;
-    }
-    
-    try {
-      const formData = new FormData();
-      formData.append("vendorName", vendor.name);
-      formData.append("vendorContact", vendor.contact);
-      formData.append("vendorGSTNo", vendor.gstNo);
-      formData.append("vendorAddress", vendor.address);
-      formData.append("vendorEmail", vendor.email);
-      formData.append("isGST", isGST);
-      formData.append("gstType", gstType);
-      formData.append("cgst", gstPercentages.cgst);
-      formData.append("sgst", gstPercentages.sgst);
-      formData.append("igst", gstPercentages.igst);
-      formData.append("transportCost", transportCost);
-      formData.append("transportNote", transportNote);
-      formData.append("expectedDeliveryDate", expectedDeliveryDate);
-      formData.append("invoiceNumber", invoiceNumber);
-      formData.append("purchaseOrderNumber", purchaseOrderNumber);
-      formData.append("notes", notes);
-      formData.append("termsAndConditions", termsAndConditions);
-      formData.append("items", JSON.stringify(items));
-      formData.append("paymentMethod", paymentMethod);
-      if (photo) formData.append("photo", photo);
-
-      const res = await purchaseService.createPurchase(formData);
-      onAdd(res.purchase);
-
-      // If payment method is Credit, create/update vendor ledger
-      if (paymentMethod === "Credit") {
-        try {
-          // Create ledger if not exists
-          await axios.post("/ledgers", {
-            name: vendor.name,
-            type: "Liability",
-          });
-          // Add transaction to vendor ledger
-          await axios.post("/transactions", {
-            ledgerName: vendor.name,
-            amount: res.purchase.totalAmount || 0,
-            type: "out",
-            note: `Credit purchase for ${vendor.name}`,
-            date: new Date(),
-          });
-        } catch (ledgerErr) {
-          console.error("Failed to create/update vendor ledger:", ledgerErr);
-          // Optionally alert user
-        }
-      }
-
-      alert("✅ Purchase saved successfully");
-      
-      // Reset form
-      setVendor({ name: "", contact: "", gstNo: "", address: "", email: "" });
-      setItems([]);
-      setTransportCost("");
-      setTransportNote("");
-      setExpectedDeliveryDate("");
-      setInvoiceNumber("");
-      setPurchaseOrderNumber("");
-      setNotes("");
-      setTermsAndConditions("");
-      setPhoto(null);
-    } catch (err) {
-      console.error("Purchase error:", err);
-      if (err.response?.data?.error) {
-        alert(`❌ ${err.response.data.error}`);
-      } else {
-        alert("❌ Failed to save purchase");
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    console.log('Purchase Order:', formData);
+    // Reset form
+    setFormData({
+      vendor: '',
+      orderDate: new Date().toISOString().split('T')[0],
+      deliveryDate: '',
+      items: [{ product: '', quantity: 1, unitPrice: 0 }],
+      notes: ''
+    });
+    alert('Purchase order created successfully!');
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-white dark:bg-slate-800 text-gray-800 dark:text-white p-6 sm:p-8 rounded-xl shadow space-y-6">
-      <h2 className="text-2xl font-semibold text-blue-800 dark:text-white">Purchase Entry</h2>
+    <div style={{
+      background: theme.bg,
+      minHeight: '100%',
+      width: '100%',
+      overflowY: 'auto',
+      overflowX: 'hidden'
+    }}>
+      {/* Header */}
+      <div style={{
+        background: theme.cardBg,
+        padding: '16px',
+        borderBottom: `1px solid ${theme.border}`,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
+        <h1 style={{
+          fontSize: '20px',
+          fontWeight: '700',
+          color: theme.text,
+          margin: '0 0 16px 0'
+        }}>
+          Purchase Orders
+        </h1>
 
-      {/* Vendor Information */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Vendor Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <input
-            placeholder="Vendor Name *"
-            value={vendor.name}
-            onChange={(e) => setVendor({ ...vendor, name: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            required
-          />
-          <input
-            placeholder="Contact Number"
-            value={vendor.contact}
-            onChange={(e) => setVendor({ ...vendor, contact: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="GST Number"
-            value={vendor.gstNo}
-            onChange={(e) => setVendor({ ...vendor, gstNo: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="Address"
-            value={vendor.address}
-            onChange={(e) => setVendor({ ...vendor, address: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="Email"
-            type="email"
-            value={vendor.email}
-            onChange={(e) => setVendor({ ...vendor, email: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
+        {/* Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '8px'
+        }}>
+          <button
+            onClick={() => setActiveTab('create')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: activeTab === 'create' ? theme.accent : 'transparent',
+              color: activeTab === 'create' ? 'white' : theme.textSecondary,
+              border: `1px solid ${activeTab === 'create' ? theme.accent : theme.border}`,
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Create Order
+          </button>
+          <button
+            onClick={() => setActiveTab('existing')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: activeTab === 'existing' ? theme.accent : 'transparent',
+              color: activeTab === 'existing' ? 'white' : theme.textSecondary,
+              border: `1px solid ${activeTab === 'existing' ? theme.accent : theme.border}`,
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Existing Orders
+          </button>
         </div>
       </div>
 
-      {/* Purchase Details */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Purchase Details</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <input
-            placeholder="Invoice Number"
-            value={invoiceNumber}
-            onChange={(e) => setInvoiceNumber(e.target.value)}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="Purchase Order Number"
-            value={purchaseOrderNumber}
-            onChange={(e) => setPurchaseOrderNumber(e.target.value)}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            type="date"
-            placeholder="Expected Delivery Date"
-            value={expectedDeliveryDate}
-            onChange={(e) => setExpectedDeliveryDate(e.target.value)}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-        </div>
-      </div>
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        {/* Create Order Tab */}
+        {activeTab === 'create' && (
+          <form onSubmit={handleSubmit} style={{
+            background: theme.cardBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '12px',
+            padding: '20px'
+          }}>
+            {/* Vendor and Dates */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr',
+              gap: '16px',
+              marginBottom: '20px'
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: theme.text,
+                  marginBottom: '8px'
+                }}>
+                  Vendor
+                </label>
+                <select
+                  value={formData.vendor}
+                  onChange={(e) => handleInputChange('vendor', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: `1px solid ${theme.border}`,
+                    background: theme.bg,
+                    color: theme.text,
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="">Select a vendor</option>
+                  {vendors.map(vendor => (
+                    <option key={vendor} value={vendor}>{vendor}</option>
+                  ))}
+                </select>
+              </div>
 
-      {/* GST Configuration */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">GST Configuration</h3>
-        <div className="flex gap-4 mb-4">
-          <button
-            onClick={() => setIsGST(true)}
-            className={`px-4 py-2 rounded border ${
-              isGST ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-700 dark:text-white"
-            }`}
-          >
-            GST
-          </button>
-          <button
-            onClick={() => setIsGST(false)}
-            className={`px-4 py-2 rounded border ${
-              !isGST ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-700 dark:text-white"
-            }`}
-          >
-            Non-GST
-          </button>
-        </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '12px'
+              }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: theme.text,
+                    marginBottom: '8px'
+                  }}>
+                    Order Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.orderDate}
+                    onChange={(e) => handleInputChange('orderDate', e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bg,
+                      color: theme.text,
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: theme.text,
+                    marginBottom: '8px'
+                  }}>
+                    Expected Delivery
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.deliveryDate}
+                    onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bg,
+                      color: theme.text,
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
 
-        {isGST && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select
-              value={gstType}
-              onChange={(e) => setGstType(e.target.value)}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            >
-              <option value="intrastate">Intra-state</option>
-              <option value="interstate">Inter-state</option>
-            </select>
-            <input
-              placeholder="CGST %"
-              type="number"
-              value={gstPercentages.cgst}
-              onChange={(e) => setGstPercentages({ ...gstPercentages, cgst: e.target.value })}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            />
-            <input
-              placeholder="SGST %"
-              type="number"
-              value={gstPercentages.sgst}
-              onChange={(e) => setGstPercentages({ ...gstPercentages, sgst: e.target.value })}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            />
-            <input
-              placeholder="IGST %"
-              type="number"
-              value={gstPercentages.igst}
-              onChange={(e) => setGstPercentages({ ...gstPercentages, igst: e.target.value })}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            />
+            {/* Items */}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px'
+              }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: theme.text
+                }}>
+                  Items
+                </label>
+                <button
+                  type="button"
+                  onClick={addItem}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    background: theme.accent,
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Add Item
+                </button>
+              </div>
+
+              {formData.items.map((item, index) => (
+                <div key={index} style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 80px 100px 40px',
+                  gap: '8px',
+                  marginBottom: '8px',
+                  alignItems: 'end'
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Product name"
+                    value={item.product}
+                    onChange={(e) => handleItemChange(index, 'product', e.target.value)}
+                    required
+                    style={{
+                      padding: '10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bg,
+                      color: theme.text,
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Qty"
+                    value={item.quantity}
+                    onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)}
+                    min="1"
+                    required
+                    style={{
+                      padding: '10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bg,
+                      color: theme.text,
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={item.unitPrice}
+                    onChange={(e) => handleItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                    min="0"
+                    step="0.01"
+                    required
+                    style={{
+                      padding: '10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bg,
+                      color: theme.text,
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeItem(index)}
+                    disabled={formData.items.length === 1}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '6px',
+                      background: formData.items.length === 1 ? theme.border : '#ef4444',
+                      color: formData.items.length === 1 ? theme.textSecondary : 'white',
+                      border: 'none',
+                      cursor: formData.items.length === 1 ? 'not-allowed' : 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Notes */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: theme.text,
+                marginBottom: '8px'
+              }}>
+                Notes (Optional)
+              </label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
+                rows="3"
+                placeholder="Additional notes or special instructions..."
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: `1px solid ${theme.border}`,
+                  background: theme.bg,
+                  color: theme.text,
+                  fontSize: '14px',
+                  outline: 'none',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+
+            {/* Total and Submit */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingTop: '16px',
+              borderTop: `1px solid ${theme.border}`
+            }}>
+              <div>
+                <span style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: theme.text
+                }}>
+                  Total: ${calculateTotal().toFixed(2)}
+                </span>
+              </div>
+              <button
+                type="submit"
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  background: theme.accent,
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  transition: 'opacity 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.opacity = '0.9';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.opacity = '1';
+                }}
+              >
+                Create Purchase Order
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Existing Orders Tab */}
+        {activeTab === 'existing' && (
+          <div>
+            {/* Search */}
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="text"
+                placeholder="Search orders..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: `1px solid ${theme.border}`,
+                  background: theme.cardBg,
+                  color: theme.text,
+                  fontSize: '14px',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            {/* Orders List */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              {filteredOrders.map((order) => (
+                <div
+                  key={order.id}
+                  style={{
+                    background: theme.cardBg,
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '12px',
+                    padding: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = theme.border;
+                    e.target.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = theme.cardBg;
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '12px'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: theme.text,
+                        margin: '0 0 4px 0'
+                      }}>
+                        {order.orderNumber}
+                      </h3>
+                      <div style={{
+                        fontSize: '14px',
+                        color: theme.textSecondary,
+                        marginBottom: '4px'
+                      }}>
+                        Vendor: {order.vendor}
+                      </div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary
+                      }}>
+                        Items: {order.items.map(item => `${item.product} (${item.quantity})`).join(', ')}
+                      </div>
+                    </div>
+                    <div style={{
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      background: `${getStatusColor(order.status)}20`,
+                      color: getStatusColor(order.status),
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>
+                      {getStatusText(order.status)}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '16px',
+                    alignItems: 'center'
+                  }}>
+                    <div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary,
+                        marginBottom: '2px'
+                      }}>
+                        Total
+                      </div>
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '700',
+                        color: theme.text
+                      }}>
+                        ${order.total.toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary,
+                        marginBottom: '2px'
+                      }}>
+                        Order Date
+                      </div>
+                      <div style={{
+                        fontSize: '13px',
+                        color: theme.textSecondary
+                      }}>
+                        {new Date(order.orderDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary,
+                        marginBottom: '2px'
+                      }}>
+                        Delivery
+                      </div>
+                      <div style={{
+                        fontSize: '13px',
+                        color: theme.textSecondary
+                      }}>
+                        {new Date(order.deliveryDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {filteredOrders.length === 0 && (
+              <div style={{
+                background: theme.cardBg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: '12px',
+                padding: '32px',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: theme.textSecondary,
+                  marginBottom: '8px'
+                }}>
+                  No orders found
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: theme.textSecondary
+                }}>
+                  Try adjusting your search criteria
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
-
-      {/* Item Entry */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Item Entry</h3>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-          <input
-            placeholder="Product Name *"
-            value={currentItem.name}
-            onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            required
-          />
-          <input
-            placeholder="Material"
-            value={currentItem.material}
-            onChange={(e) => setCurrentItem({ ...currentItem, material: e.target.value })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="Price per unit"
-            type="number"
-            value={currentItem.price || ""}
-            onChange={(e) => setCurrentItem({ ...currentItem, price: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            required
-          />
-          <button onClick={handleAddVariation} className="bg-gray-200 dark:bg-slate-600 px-4 py-2 rounded text-sm">
-            + Variation
-          </button>
-          <button onClick={handleAddItem} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
-            Add Item
-          </button>
-        </div>
-
-        {currentItem.variations.map((v, i) => (
-          <div key={i} className="grid grid-cols-2 gap-4 mt-2">
-            <input
-              placeholder="Color"
-              value={v.color}
-              onChange={(e) => handleVariationChange(i, "color", e.target.value)}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            />
-            <input
-              placeholder="Quantity"
-              type="number"
-              value={v.quantity || ""}
-              onChange={(e) => handleVariationChange(i, "quantity", e.target.value === "" ? 0 : parseInt(e.target.value) || 0)}
-              className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Items List */}
-      {items.length > 0 && (
-        <div className="border p-4 rounded bg-white dark:bg-slate-700 overflow-x-auto shadow">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold text-gray-700 dark:text-white">Items Added ({items.length})</h3>
-            <span className="text-sm text-gray-500">Total Items: {items.reduce((sum, item) => sum + item.variations.reduce((itemSum, v) => itemSum + v.quantity, 0), 0)}</span>
-          </div>
-          <table className="w-full text-sm table-auto">
-            <thead className="bg-gray-100 dark:bg-slate-600 text-left">
-              <tr>
-                <th className="p-2">Name</th>
-                <th>Material</th>
-                <th>Price</th>
-                <th>Variations</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, idx) => (
-                <tr key={idx} className="border-t dark:border-slate-600">
-                  <td className="p-2">{item.name}</td>
-                  <td>{item.material}</td>
-                  <td>₹{item.price.toFixed(2)}</td>
-                  <td>
-                    {item.variations.map((v, vi) => (
-                      <div key={vi}>
-                        {v.color}: {v.quantity}
-                      </div>
-                    ))}
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => deleteItem(idx)}
-                      className="text-red-600 hover:underline text-sm"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Transport and Additional Details */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Transport & Additional Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            placeholder="Transport Cost"
-            type="number"
-            value={transportCost}
-            onChange={(e) => setTransportCost(e.target.value)}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-          <input
-            placeholder="Transport Note"
-            value={transportNote}
-            onChange={(e) => setTransportNote(e.target.value)}
-            className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-        </div>
-        
-        <div className="mt-4">
-          <textarea
-            placeholder="Notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows="3"
-            className="w-full p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-        </div>
-        
-        <div className="mt-4">
-          <textarea
-            placeholder="Terms and Conditions"
-            value={termsAndConditions}
-            onChange={(e) => setTermsAndConditions(e.target.value)}
-            rows="3"
-            className="w-full p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          />
-        </div>
-      </div>
-
-      {/* Payment Method */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Payment Method</h3>
-        <select
-          value={paymentMethod}
-          onChange={e => setPaymentMethod(e.target.value)}
-          className="p-2 rounded border dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-        >
-          <option value="Cash">Cash</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Cheque">Cheque</option>
-          <option value="UPI">UPI</option>
-          <option value="Credit">Credit</option>
-        </select>
-      </div>
-
-      {/* File Upload */}
-      <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Attachments</h3>
-        <input
-          type="file"
-          onChange={(e) => setPhoto(e.target.files[0])}
-          className="border p-2 rounded w-full dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-          accept="image/*"
-        />
-      </div>
-
-      <button
-        onClick={handleSubmit}
-        disabled={submitting}
-        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded mt-4 w-full text-lg font-medium"
-      >
-        {submitting ? "Saving..." : "Save Purchase"}
-      </button>
     </div>
   );
 };

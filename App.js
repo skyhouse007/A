@@ -1,9 +1,9 @@
 'use dom'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
-import Sidebar from './components/Sidebar.jsx';
+import BottomNavigation from './components/BottomNavigation.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
@@ -17,14 +17,12 @@ function AppContent() {
     currentPage, 
     setCurrentPage, 
     user, 
-    sidebarCollapsed, 
-    setSidebarCollapsed,
     isLoading,
     error,
     apiConnected
   } = useApp();
-  
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  const [darkMode, setDarkMode] = useState(false);
 
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
@@ -41,139 +39,188 @@ function AppContent() {
     { item: 'Product C', stock: 100, value: 10000 },
   ];
 
-  const renderPageContent = () => {
-    switch (currentPage) {
-      case "dashboard":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} />
-          </div>
-        );
-      case "billing":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <Billing />
-          </div>
-        );
-      case "inventoryList":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <InventoryList />
-          </div>
-        );
-      case "salesList":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <SalesList />
-          </div>
-        );
-      case "purchaseForm":
-        return (
-          <div style={{ width: '100%', height: '100%' }}>
-            <PurchaseForm />
-          </div>
-        );
-      default:
-        return (
-          <View style={styles.content}>
-            <Text style={styles.text}>Welcome to your Expo app!</Text>
-            <Text style={styles.subText}>Current page: {currentPage}</Text>
-            <Text style={styles.subText}>User: {user ? 'Logged in' : 'Guest'}</Text>
-            <Text style={styles.subText}>Sidebar: {sidebarCollapsed ? 'Collapsed' : 'Expanded'}</Text>
-          </View>
-        );
+  const theme = {
+    light: {
+      bg: '#ffffff',
+      cardBg: '#ffffff',
+      text: '#1f2937',
+      textSecondary: '#6b7280',
+      border: '#e5e7eb',
+      accent: '#3b82f6'
+    },
+    dark: {
+      bg: '#111827',
+      cardBg: '#1f2937',
+      text: '#ffffff',
+      textSecondary: '#9ca3af',
+      border: '#374151',
+      accent: '#60a5fa'
     }
   };
 
-  // Show loading state
+  const currentTheme = darkMode ? theme.dark : theme.light;
+
+  const renderPageContent = () => {
+    switch (currentPage) {
+      case "dashboard":
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+      case "billing":
+        return <Billing theme={currentTheme} />;
+      case "inventoryList":
+        return <InventoryList theme={currentTheme} />;
+      case "salesList":
+        return <SalesList theme={currentTheme} />;
+      case "purchaseForm":
+        return <PurchaseForm theme={currentTheme} />;
+      default:
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+    }
+  };
+
+  // Loading State
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
-          {!apiConnected && (
-            <Text style={styles.connectionText}>Connecting to backend...</Text>
-          )}
-        </View>
-      </View>
+      <div style={{
+        minHeight: '100vh',
+        background: currentTheme.bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          background: currentTheme.cardBg,
+          borderRadius: '12px',
+          padding: '32px',
+          border: `1px solid ${currentTheme.border}`,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: `3px solid ${currentTheme.border}`,
+            borderTop: `3px solid ${currentTheme.accent}`,
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <h2 style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: currentTheme.text,
+            margin: 0
+          }}>
+            Loading...
+          </h2>
+        </div>
+        <style>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
     );
   }
 
-  // Show error state
+  // Error State
   if (error) {
     return (
-      <View style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error: {error}</Text>
-          <Text style={styles.errorSubText}>Please check your connection and try again.</Text>
-        </View>
-      </View>
+      <div style={{
+        minHeight: '100vh',
+        background: currentTheme.bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <div style={{
+          background: currentTheme.cardBg,
+          borderRadius: '12px',
+          padding: '32px',
+          border: '1px solid #ef4444',
+          textAlign: 'center',
+          maxWidth: '400px',
+          width: '100%'
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#ef4444',
+            marginBottom: '8px'
+          }}>
+            Connection Error
+          </h2>
+          <p style={{
+            fontSize: '14px',
+            color: currentTheme.textSecondary,
+            marginBottom: '20px'
+          }}>
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#ef4444',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '14px'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <div style={{
+      minHeight: '100vh',
+      background: currentTheme.bg,
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
+    }}>
+      {/* Header */}
       <Navbar 
         user={user} 
-        setPage={setCurrentPage} 
-        setShowMobileSidebar={setShowMobileSidebar} 
+        setPage={setCurrentPage}
+        theme={currentTheme}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
       
-      <div style={styles.mainContent}>
-        {/* Desktop Sidebar */}
-        <div style={{
-          display: 'none',
-          '@media (minWidth: 768px)': {
-            display: 'block'
-          }
-        }}>
-          <Sidebar 
-            setPage={setCurrentPage}
-            collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-          />
-        </div>
-
-        {/* Mobile Sidebar Overlay */}
-        {showMobileSidebar && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 40
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              height: '100%',
-              zIndex: 50
-            }}>
-              <Sidebar 
-                setPage={setCurrentPage}
-                collapsed={false}
-                setCollapsed={setSidebarCollapsed}
-                onClose={() => setShowMobileSidebar(false)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Main Content Area */}
-        <div style={styles.contentArea}>
-          {renderPageContent()}
-        </div>
+      {/* Main Content - Scrollable */}
+      <div style={{
+        flex: 1,
+        paddingBottom: '80px', // Space for bottom nav
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        height: 'calc(100vh - 140px)', // Fixed height for scrolling
+        width: '100%'
+      }}>
+        {renderPageContent()}
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation 
+        currentPage={currentPage}
+        setPage={setCurrentPage}
+        theme={currentTheme}
+      />
       
-      <StatusBar style="auto" />
-    </View>
+      <StatusBar style={darkMode ? "light" : "dark"} backgroundColor={currentTheme.bg} />
+    </div>
   );
 }
 
-// Main App component with context provider
 export default function App() {
   return (
     <ErrorBoundary>
@@ -187,63 +234,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  mainContent: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  contentArea: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  subText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
-  },
-  loadingText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#495057',
-    marginBottom: 8,
-  },
-  connectionText: {
-    fontSize: 14,
-    color: '#6c757d',
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#dc3545',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  errorSubText: {
-    fontSize: 14,
-    color: '#6c757d',
-    textAlign: 'center',
-  },
+    backgroundColor: '#ffffff',
+  }
 });
