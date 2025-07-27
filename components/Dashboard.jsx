@@ -1,13 +1,12 @@
 'use dom'
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DashboardKPIs from './DashboardKPIs.jsx';
 
-const Dashboard = ({ sales, inventory }) => {
+const Dashboard = ({ sales, inventory, theme }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -15,28 +14,24 @@ const Dashboard = ({ sales, inventory }) => {
     {
       name: "New Sale",
       description: "Record transaction",
-      icon: "💰",
       color: "#10b981",
       action: () => console.log('New Sale')
     },
     {
       name: "Add Stock",
       description: "Update inventory",
-      icon: "📦",
       color: "#3b82f6",
       action: () => console.log('Add Stock')
     },
     {
       name: "Create Invoice",
       description: "Bill customer",
-      icon: "📄",
       color: "#f59e0b",
       action: () => console.log('Create Invoice')
     },
     {
       name: "View Reports",
       description: "Analytics & insights",
-      icon: "📊",
       color: "#8b5cf6",
       action: () => console.log('View Reports')
     }
@@ -78,22 +73,42 @@ const Dashboard = ({ sales, inventory }) => {
       time: "2 hours ago",
       status: "pending",
       color: "#8b5cf6"
+    },
+    {
+      id: 5,
+      type: "customer",
+      title: "New Customer",
+      description: "ABC Corp registered",
+      time: "3 hours ago",
+      status: "completed",
+      color: "#10b981"
+    },
+    {
+      id: 6,
+      type: "expense",
+      title: "Office Supplies",
+      description: "Expense: $245.00",
+      time: "4 hours ago",
+      status: "pending",
+      color: "#f59e0b"
     }
   ];
 
   return (
     <div style={{
-      background: '#f8fafc',
-      minHeight: 'calc(100vh - 140px)', // Account for header and bottom nav
-      paddingBottom: '20px'
+      background: theme.bg,
+      minHeight: '100%',
+      width: '100%',
+      overflowY: 'auto',
+      overflowX: 'hidden'
     }}>
-      {/* Header with Refresh */}
+      {/* Header */}
       <div style={{
-        background: 'white',
+        background: theme.cardBg,
         padding: '16px',
-        borderBottom: '1px solid #e5e7eb',
+        borderBottom: `1px solid ${theme.border}`,
         position: 'sticky',
-        top: '60px',
+        top: 0,
         zIndex: 10
       }}>
         <div style={{
@@ -105,17 +120,22 @@ const Dashboard = ({ sales, inventory }) => {
             <h1 style={{
               fontSize: '20px',
               fontWeight: '700',
-              color: '#111827',
+              color: theme.text,
               margin: '0 0 4px 0'
             }}>
-              Business Overview
+              Dashboard
             </h1>
             <p style={{
               fontSize: '14px',
-              color: '#6b7280',
+              color: theme.textSecondary,
               margin: 0
             }}>
-              Today, {new Date().toLocaleDateString()}
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
           <button
@@ -124,207 +144,231 @@ const Dashboard = ({ sales, inventory }) => {
             style={{
               padding: '8px',
               borderRadius: '8px',
-              background: refreshing ? '#f3f4f6' : 'transparent',
-              border: '1px solid #d1d5db',
+              background: 'transparent',
+              border: `1px solid ${theme.border}`,
               cursor: refreshing ? 'not-allowed' : 'pointer',
-              fontSize: '18px',
+              color: theme.textSecondary,
               transition: 'all 0.2s ease',
               opacity: refreshing ? 0.6 : 1
             }}
+            onMouseEnter={(e) => {
+              if (!refreshing) {
+                e.target.style.background = theme.border;
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
           >
-            🔄
+            <span style={{
+              display: 'inline-block',
+              transform: refreshing ? 'rotate(360deg)' : 'rotate(0deg)',
+              transition: 'transform 1s ease'
+            }}>
+              ↻
+            </span>
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div style={{ padding: '16px 16px 0 16px' }}>
-        <DashboardKPIs />
-      </div>
+      {/* Content Container - Scrollable */}
+      <div style={{
+        padding: '16px',
+        paddingBottom: '24px'
+      }}>
+        {/* KPI Cards */}
+        <DashboardKPIs theme={theme} />
 
-      {/* Quick Actions */}
-      <div style={{ padding: '0 16px' }}>
-        <h2 style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#111827',
-          marginBottom: '12px'
-        }}>
-          Quick Actions
-        </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '12px',
-          marginBottom: '24px'
-        }}>
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={action.action}
-              style={{
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                textAlign: 'left',
-                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                e.target.style.borderColor = action.color;
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-                e.target.style.borderColor = '#e5e7eb';
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  background: `${action.color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px'
-                }}>
-                  {action.icon}
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#111827',
-                    marginBottom: '2px'
-                  }}>
-                    {action.name}
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#6b7280'
-                  }}>
-                    {action.description}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent Activities */}
-      <div style={{ padding: '0 16px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '12px'
-        }}>
+        {/* Quick Actions */}
+        <div style={{ marginBottom: '24px' }}>
           <h2 style={{
             fontSize: '18px',
             fontWeight: '600',
-            color: '#111827'
+            color: theme.text,
+            marginBottom: '12px',
+            margin: '0 0 12px 0'
           }}>
-            Recent Activities
+            Quick Actions
           </h2>
-          <button style={{
-            fontSize: '14px',
-            color: '#3b82f6',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: '500'
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px'
           }}>
-            View All
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {recentActivities.map((activity) => (
-            <div
-              key={activity.id}
-              style={{
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#f9fafb';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'white';
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            {quickActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.action}
+                style={{
+                  background: theme.cardBg,
+                  border: `1px solid ${theme.border}`,
+                  borderRadius: '12px',
+                  padding: '16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.borderColor = action.color;
+                  e.target.style.boxShadow = `0 4px 12px ${action.color}20`;
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.borderColor = theme.border;
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
                 <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: activity.color,
-                  marginTop: '6px',
-                  flexShrink: 0
-                }}></div>
-                <div style={{ flex: 1, minWidth: 0 }}>
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
                   <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '4px'
-                  }}>
-                    <h3 style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: action.color
+                  }}></div>
+                  <div>
+                    <div style={{
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: '#111827',
-                      margin: 0
+                      color: theme.text,
+                      marginBottom: '2px'
                     }}>
-                      {activity.title}
-                    </h3>
-                    <span style={{
+                      {action.name}
+                    </div>
+                    <div style={{
                       fontSize: '12px',
-                      color: '#6b7280',
-                      flexShrink: 0,
-                      marginLeft: '8px'
+                      color: theme.textSecondary
                     }}>
-                      {activity.time}
-                    </span>
+                      {action.description}
+                    </div>
                   </div>
-                  <p style={{
-                    fontSize: '13px',
-                    color: '#6b7280',
-                    margin: '0 0 8px 0',
-                    lineHeight: '1.4'
-                  }}>
-                    {activity.description}
-                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activities */}
+        <div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}>
+            <h2 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: theme.text,
+              margin: 0
+            }}>
+              Recent Activities
+            </h2>
+            <button style={{
+              fontSize: '14px',
+              color: theme.accent,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '500'
+            }}>
+              View All
+            </button>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {recentActivities.map((activity) => (
+              <div
+                key={activity.id}
+                style={{
+                  background: theme.cardBg,
+                  border: `1px solid ${theme.border}`,
+                  borderRadius: '12px',
+                  padding: '16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = theme.border;
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = theme.cardBg;
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px'
+                }}>
                   <div style={{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    fontWeight: '500',
-                    textTransform: 'capitalize',
-                    background: activity.status === 'completed' ? '#dcfce7' :
-                               activity.status === 'warning' ? '#fef3c7' :
-                               activity.status === 'pending' ? '#e0e7ff' : '#f3f4f6',
-                    color: activity.status === 'completed' ? '#166534' :
-                           activity.status === 'warning' ? '#92400e' :
-                           activity.status === 'pending' ? '#3730a3' : '#374151'
-                  }}>
-                    {activity.status}
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: activity.color,
+                    marginTop: '6px',
+                    flexShrink: 0
+                  }}></div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '4px'
+                    }}>
+                      <h3 style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: theme.text,
+                        margin: 0
+                      }}>
+                        {activity.title}
+                      </h3>
+                      <span style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary,
+                        flexShrink: 0,
+                        marginLeft: '8px'
+                      }}>
+                        {activity.time}
+                      </span>
+                    </div>
+                    <p style={{
+                      fontSize: '13px',
+                      color: theme.textSecondary,
+                      margin: '0 0 8px 0',
+                      lineHeight: '1.4'
+                    }}>
+                      {activity.description}
+                    </p>
+                    <div style={{
+                      display: 'inline-block',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: '500',
+                      textTransform: 'capitalize',
+                      background: activity.status === 'completed' ? '#dcfce7' :
+                                 activity.status === 'warning' ? '#fef3c7' :
+                                 activity.status === 'pending' ? '#e0e7ff' : '#f3f4f6',
+                      color: activity.status === 'completed' ? '#166534' :
+                             activity.status === 'warning' ? '#92400e' :
+                             activity.status === 'pending' ? '#3730a3' : '#374151'
+                    }}>
+                      {activity.status}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
