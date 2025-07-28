@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import DashboardKPIs from './DashboardKPIs.jsx';
 
-const Dashboard = ({ sales, inventory, theme }) => {
+const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
   const [refreshing, setRefreshing] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+    return () => clearInterval(timer);
+  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    // Simulate data refresh
+    setTimeout(() => {
+      setRefreshing(false);
+      setCurrentTime(new Date());
+    }, 1000);
   };
 
   const quickActions = [
@@ -15,25 +27,65 @@ const Dashboard = ({ sales, inventory, theme }) => {
       name: "New Sale",
       description: "Record transaction",
       color: "#10b981",
-      action: () => console.log('New Sale')
+      icon: "💰",
+      page: "sales",
+      action: () => onNavigate ? onNavigate('sales') : console.log('New Sale')
     },
     {
-      name: "Add Stock",
-      description: "Update inventory",
+      name: "Inventory",
+      description: "Manage stock",
       color: "#3b82f6",
-      action: () => console.log('Add Stock')
+      icon: "📦",
+      page: "inventoryList",
+      action: () => onNavigate ? onNavigate('inventoryList') : console.log('Inventory')
     },
     {
-      name: "Create Invoice",
-      description: "Bill customer",
+      name: "Purchase Orders",
+      description: "Create purchase order",
       color: "#f59e0b",
-      action: () => console.log('Create Invoice')
+      icon: "🛒",
+      page: "purchaseForm",
+      action: () => onNavigate ? onNavigate('purchaseForm') : console.log('Purchase Order')
     },
     {
-      name: "View Reports",
-      description: "Analytics & insights",
+      name: "Profit & Loss",
+      description: "Financial reports",
       color: "#8b5cf6",
-      action: () => console.log('View Reports')
+      icon: "📊",
+      page: "profitLoss",
+      action: () => onNavigate ? onNavigate('profitLoss') : console.log('Reports')
+    },
+    {
+      name: "Cash Entry",
+      description: "Manage cash flow",
+      color: "#10b981",
+      icon: "💵",
+      page: "cashEntry",
+      action: () => onNavigate ? onNavigate('cashEntry') : console.log('Cash Entry')
+    },
+    {
+      name: "Vendors",
+      description: "Manage suppliers",
+      color: "#f59e0b",
+      icon: "🏢",
+      page: "vendors",
+      action: () => onNavigate ? onNavigate('vendors') : console.log('Vendors')
+    },
+    {
+      name: "Ledger",
+      description: "View ledger details",
+      color: "#3b82f6",
+      icon: "📋",
+      page: "ledger",
+      action: () => onNavigate ? onNavigate('ledger') : console.log('Ledger')
+    },
+    {
+      name: "Reminders",
+      description: "Task & reminders",
+      color: "#8b5cf6",
+      icon: "⏰",
+      page: "reminders",
+      action: () => onNavigate ? onNavigate('reminders') : console.log('Reminders')
     }
   ];
 
@@ -42,55 +94,89 @@ const Dashboard = ({ sales, inventory, theme }) => {
       id: 1,
       type: "sale",
       title: "Sale #12456",
-      description: "$2,340.00 • Product A, B",
+      description: "$2,340.00 • Premium Package Deal",
       time: "2 minutes ago",
       status: "completed",
-      color: "#10b981"
+      color: "#10b981",
+      page: "salesList",
+      icon: "💰"
     },
     {
       id: 2,
       type: "inventory",
-      title: "Stock Alert",
-      description: "Product C: 5 units left",
+      title: "Low Stock Alert",
+      description: "Product C: Only 5 units remaining",
       time: "15 minutes ago",
       status: "warning",
-      color: "#f59e0b"
+      color: "#f59e0b",
+      page: "inventoryList",
+      icon: "⚠️"
     },
     {
       id: 3,
       type: "payment",
       title: "Payment Received",
-      description: "Invoice INV-001 • $1,200",
+      description: "Invoice INV-001 • $1,200.00",
       time: "1 hour ago",
       status: "completed",
-      color: "#3b82f6"
+      color: "#3b82f6",
+      page: "billing",
+      icon: "💳"
     },
     {
       id: 4,
-      type: "order",
-      title: "New Purchase Order",
-      description: "PO-789 • Supplier ABC",
+      type: "purchase",
+      title: "Purchase Order Created",
+      description: "PO-789 • Tech Supplies Co.",
       time: "2 hours ago",
       status: "pending",
-      color: "#8b5cf6"
+      color: "#8b5cf6",
+      page: "purchaseList",
+      icon: "🛒"
     },
     {
       id: 5,
-      type: "customer",
-      title: "New Customer",
-      description: "ABC Corp registered",
+      type: "vendor",
+      title: "New Vendor Added",
+      description: "ABC Corp • Electronics Supplier",
       time: "3 hours ago",
       status: "completed",
-      color: "#10b981"
+      color: "#10b981",
+      page: "vendors",
+      icon: "🏢"
     },
     {
       id: 6,
-      type: "expense",
-      title: "Office Supplies",
-      description: "Expense: $245.00",
+      type: "cash",
+      title: "Cash Entry",
+      description: "Office Supplies • $245.00",
       time: "4 hours ago",
+      status: "completed",
+      color: "#f59e0b",
+      page: "cashEntry",
+      icon: "💵"
+    },
+    {
+      id: 7,
+      type: "reminder",
+      title: "Payment Due Reminder",
+      description: "Invoice INV-002 due tomorrow",
+      time: "5 hours ago",
       status: "pending",
-      color: "#f59e0b"
+      color: "#ef4444",
+      page: "reminders",
+      icon: "⏰"
+    },
+    {
+      id: 8,
+      type: "document",
+      title: "Invoice Generated",
+      description: "INV-003 • Customer XYZ",
+      time: "6 hours ago",
+      status: "completed",
+      color: "#3b82f6",
+      page: "document",
+      icon: "📄"
     }
   ];
 
@@ -142,11 +228,21 @@ const Dashboard = ({ sales, inventory, theme }) => {
               fontSize: 14,
               color: theme.textSecondary
             }}>
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              {currentTime.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Text>
+            <Text style={{
+              fontSize: 12,
+              color: theme.textSecondary,
+              marginTop: 2
+            }}>
+              Last updated: {currentTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
               })}
             </Text>
           </View>
@@ -212,7 +308,16 @@ const Dashboard = ({ sales, inventory, theme }) => {
                   borderColor: theme.border,
                   borderRadius: 12,
                   padding: 16,
-                  width: '48%'
+                  width: '48%',
+                  minWidth: 160,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 3.84,
+                  elevation: 5,
                 }}
               >
                 <View style={{
@@ -221,11 +326,15 @@ const Dashboard = ({ sales, inventory, theme }) => {
                   gap: 12
                 }}>
                   <View style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: action.color
-                  }} />
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: `${action.color}20`,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <Text style={{ fontSize: 16 }}>{action.icon}</Text>
+                  </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{
                       fontSize: 14,
@@ -263,7 +372,9 @@ const Dashboard = ({ sales, inventory, theme }) => {
             }}>
               Recent Activities
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onNavigate ? onNavigate('reminders') : console.log('View All Activities')}
+            >
               <Text style={{
                 fontSize: 14,
                 color: theme.accent,
@@ -277,15 +388,24 @@ const Dashboard = ({ sales, inventory, theme }) => {
           <View style={{
             gap: 8
           }}>
-            {recentActivities.map((activity) => (
+            {recentActivities.slice(0, 6).map((activity) => (
               <TouchableOpacity
                 key={activity.id}
+                onPress={() => onNavigate ? onNavigate(activity.page) : console.log(`Navigate to ${activity.page}`)}
                 style={{
                   backgroundColor: theme.cardBg,
                   borderWidth: 1,
                   borderColor: theme.border,
                   borderRadius: 12,
-                  padding: 16
+                  padding: 16,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2.22,
+                  elevation: 3,
                 }}
               >
                 <View style={{
@@ -294,12 +414,16 @@ const Dashboard = ({ sales, inventory, theme }) => {
                   gap: 12
                 }}>
                   <View style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: activity.color,
-                    marginTop: 6
-                  }} />
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: `${activity.color}20`,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 2
+                  }}>
+                    <Text style={{ fontSize: 14 }}>{activity.icon}</Text>
+                  </View>
                   <View style={{ flex: 1 }}>
                     <View style={{
                       flexDirection: 'row',
@@ -332,19 +456,32 @@ const Dashboard = ({ sales, inventory, theme }) => {
                       {activity.description}
                     </Text>
                     <View style={{
-                      alignSelf: 'flex-start',
-                      paddingHorizontal: 8,
-                      paddingVertical: 2,
-                      borderRadius: 6,
-                      backgroundColor: getStatusBackgroundColor(activity.status)
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
                     }}>
+                      <View style={{
+                        alignSelf: 'flex-start',
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        borderRadius: 6,
+                        backgroundColor: getStatusBackgroundColor(activity.status)
+                      }}>
+                        <Text style={{
+                          fontSize: 11,
+                          fontWeight: '500',
+                          textTransform: 'capitalize',
+                          color: getStatusTextColor(activity.status)
+                        }}>
+                          {activity.status}
+                        </Text>
+                      </View>
                       <Text style={{
                         fontSize: 11,
-                        fontWeight: '500',
-                        textTransform: 'capitalize',
-                        color: getStatusTextColor(activity.status)
+                        color: theme.accent,
+                        fontWeight: '500'
                       }}>
-                        {activity.status}
+                        Tap to view →
                       </Text>
                     </View>
                   </View>
