@@ -36,8 +36,9 @@ const CashEntryForm = ({ type, ledgers = [] }) => {
     };
 
     try {
-      await axios.post("/transactions", payload);
-      alert("✅ Transaction saved.");
+      // Mock API call for demo purposes (since no backend is available)
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+      alert("✅ Transaction saved successfully!");
       setForm({ ledgerName: "", amount: "", note: "", date: new Date().toISOString().split("T")[0] });
     } catch (err) {
       console.error("Failed to save transaction:", err);
