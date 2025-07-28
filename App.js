@@ -10,6 +10,11 @@ import InventoryList from './components/InventoryList.jsx';
 import SalesList from './components/SalesList.jsx';
 import PurchaseForm from './components/PurchaseForm.jsx';
 import VendorList from './components/VendorList.jsx';
+import Services from './components/Services.jsx';
+import Documents from './components/Documents.jsx';
+import Orders from './components/Orders.jsx';
+import Customers from './components/Customers.jsx';
+import CashIn from './components/CashIn.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
