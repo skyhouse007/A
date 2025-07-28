@@ -2,26 +2,29 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 
 const navItems = [
-  { name: "Dashboard", page: "dashboard", gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "#667eea" },
-  { name: "Inventory", page: "inventoryList", gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", color: "#f093fb" },
-  { name: "Sales List", page: "salesList", gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", color: "#4facfe" },
-  { name: "Purchase", page: "purchase", gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)", color: "#43e97b" },
-  { name: "Vendors", page: "vendors", gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)", color: "#fa709a" },
-  { name: "Sales Entry", page: "sales", gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", color: "#a8edea" },
-  { name: "Services", page: "services", gradient: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)", color: "#ff9a9e" },
-  { name: "Documents", page: "document", gradient: "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)", color: "#a18cd1" },
-  { name: "Orders", page: "orders", gradient: "linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%)", color: "#fad0c4" },
-  { name: "Purchase Form", page: "purchaseForm", gradient: "linear-gradient(135deg, #ff8a80 0%, #ffb74d 100%)", color: "#ff8a80" },
-  { name: "Purchase List", page: "purchaseList", gradient: "linear-gradient(135deg, #ff8a80 0%, #ffb74d 100%)", color: "#ff8a80" },
-  { name: "Customers", page: "Customer", gradient: "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)", color: "#84fab0" },
-  { name: "Cash In", page: "cashIn", gradient: "linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%)", color: "#a6c1ee" },
-  { name: "Cash Out", page: "cashOut", gradient: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", color: "#f6d365" },
-  { name: "Ledgers", page: "ledger", gradient: "linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)", color: "#96fbc4" },
-  { name: "Balance Sheet", page: "balanceSheet", gradient: "linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%)", color: "#fdbb2d" },
-  { name: "Profit & Loss", page: "profitLoss", gradient: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)", color: "#ee9ca7" },
-  { name: "GST Details", page: "gstDetails", gradient: "linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)", color: "#2196f3" },
-  { name: "Reminders", page: "Reminders", gradient: "linear-gradient(135deg, #fc466b 0%, #3f5efb 100%)", color: "#fc466b" },
-  { name: "Billing", page: "billing", gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "#667eea" },
+  // Core Operations
+  { name: "Dashboard", page: "dashboard", category: "main", color: "#667eea" },
+  { name: "Inventory List", page: "inventoryList", category: "main", color: "#f093fb" },
+  { name: "Sales List", page: "salesList", category: "main", color: "#4facfe" },
+  { name: "Sales Entry", page: "sales", category: "main", color: "#a8edea" },
+  { name: "Purchase Form", page: "purchaseForm", category: "main", color: "#ff8a80" },
+  { name: "Purchase List", page: "purchaseList", category: "main", color: "#ff6b6b" },
+  { name: "Vendors", page: "vendors", category: "main", color: "#fa709a" },
+  { name: "Billing", page: "billing", category: "main", color: "#667eea" },
+
+  // Financial Management
+  { name: "Cash In", page: "cashIn", category: "financial", color: "#a6c1ee" },
+  { name: "Cash Out", page: "cashOut", category: "financial", color: "#f6d365" },
+  { name: "Cash Entry", page: "cashEntry", category: "financial", color: "#51cf66" },
+  { name: "Ledgers", page: "ledger", category: "financial", color: "#96fbc4" },
+  { name: "Ledger Details", page: "ledgerDetails", category: "financial", color: "#74c0fc" },
+  { name: "Documents", page: "document", category: "financial", color: "#a18cd1" },
+
+  // Reports & Analytics
+  { name: "Profit & Loss", page: "profitLoss", category: "reports", color: "#ee9ca7" },
+  { name: "GST Details", page: "gstDetails", category: "reports", color: "#2196f3" },
+  { name: "Dashboard KPIs", page: "dashboardKPIs", category: "reports", color: "#ffd43b" },
+  { name: "Reminders", page: "reminders", category: "reports", color: "#fc466b" },
 ];
 
 const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) => {
