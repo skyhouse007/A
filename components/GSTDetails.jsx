@@ -20,14 +20,73 @@ const GSTDetails = () => {
   const fetchGSTDetails = async () => {
     setLoading(true);
     try {
-      const [purchaseRes, salesRes] = await Promise.all([
-        axios.get("/gstDetails/purchases"),
-        axios.get("/gstDetails/sales"),
-      ]);
-      
-      // Use the dedicated GST endpoints that only return GST bills
-      setPurchaseData(purchaseRes.data);
-      setSalesData(salesRes.data);
+      // Mock data for demo purposes (since no backend is available)
+      const mockPurchaseData = {
+        entries: [
+          {
+            _id: "1",
+            date: "2024-01-15",
+            vendorName: "ABC Supplier",
+            vendorGSTNo: "27AAAAA0000A1Z5",
+            baseAmount: 100000,
+            cgst: 9000,
+            sgst: 9000,
+            igst: 0,
+            gstAmount: 18000,
+            totalAmount: 118000
+          },
+          {
+            _id: "2",
+            date: "2024-01-10",
+            vendorName: "XYZ Trading",
+            vendorGSTNo: "29BBBBB1111B2Z6",
+            baseAmount: 50000,
+            cgst: 4500,
+            sgst: 4500,
+            igst: 0,
+            gstAmount: 9000,
+            totalAmount: 59000
+          }
+        ],
+        totalGST: 27000,
+        totalAmount: 177000
+      };
+
+      const mockSalesData = {
+        entries: [
+          {
+            _id: "3",
+            date: "2024-01-20",
+            customerName: "DEF Corporation",
+            customerGSTNo: "19CCCCC2222C3Z7",
+            baseAmount: 200000,
+            cgst: 18000,
+            sgst: 18000,
+            igst: 0,
+            gstAmount: 36000,
+            totalAmount: 236000
+          },
+          {
+            _id: "4",
+            date: "2024-01-18",
+            customerName: "GHI Enterprises",
+            customerGSTNo: "33DDDDD3333D4Z8",
+            baseAmount: 75000,
+            cgst: 6750,
+            sgst: 6750,
+            igst: 0,
+            gstAmount: 13500,
+            totalAmount: 88500
+          }
+        ],
+        totalGST: 49500,
+        totalAmount: 324500
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setPurchaseData(mockPurchaseData);
+      setSalesData(mockSalesData);
     } catch (err) {
       console.error("Error fetching GST details:", err);
     }
