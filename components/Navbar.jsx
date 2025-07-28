@@ -1,21 +1,8 @@
-'use dom'
 import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 
-const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
+const Navbar = ({ user, setPage, theme, darkMode, setDarkMode, onMenuPress }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const menuItems = [
-    { id: "dashboard", name: "Dashboard", color: "#3b82f6" },
-    { id: "inventoryList", name: "Inventory Management", color: "#10b981" },
-    { id: "salesList", name: "Sales Records", color: "#f59e0b" },
-    { id: "billing", name: "Billing & Invoices", color: "#8b5cf6" },
-    { id: "purchaseForm", name: "Purchase Orders", color: "#06b6d4" },
-    { id: "customers", name: "Customer Management", color: "#ef4444" },
-    { id: "vendors", name: "Vendor Management", color: "#84cc16" },
-    { id: "reports", name: "Reports & Analytics", color: "#f97316" },
-    { id: "settings", name: "Settings", color: "#6b7280" }
-  ];
 
   const notifications = [
     {
@@ -41,414 +28,211 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
     },
   ];
 
-  const handleMenuClick = (pageId) => {
-    setPage(pageId);
-    setShowMenu(false);
-  };
-
   return (
-    <header
+    <View
       style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        width: '100%',
-        maxWidth: '100vw',
-        background: theme.cardBg,
-        borderBottom: `1px solid ${theme.border}`,
-        boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
-        height: '90px',
-        display: 'flex',
+        backgroundColor: theme.cardBg,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        paddingTop: 44, // Account for status bar
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 16px',
-        boxSizing: 'border-box'
+        height: 80
       }}
     >
-      {/* Left: Hamburger + Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {/* Hamburger Menu */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            style={{
-              padding: '8px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: theme.textSecondary,
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '3px',
-              width: '24px',
-              height: '24px',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = theme.border;
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
-            }}
-          >
-            <div style={{
-              width: '16px',
-              height: '2px',
-              background: theme.textSecondary,
-              borderRadius: '1px',
-              transition: 'all 0.2s ease'
-            }}></div>
-            <div style={{
-              width: '16px',
-              height: '2px',
-              background: theme.textSecondary,
-              borderRadius: '1px',
-              transition: 'all 0.2s ease'
-            }}></div>
-            <div style={{
-              width: '16px',
-              height: '2px',
-              background: theme.textSecondary,
-              borderRadius: '1px',
-              transition: 'all 0.2s ease'
-            }}></div>
-          </button>
-
-          {/* Dropdown Menu */}
-          {showMenu && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              width: '280px',
-              background: theme.cardBg,
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
-              zIndex: 1000,
-              marginTop: '8px',
-              overflow: 'hidden'
-            }}>
-              <div style={{ 
-                padding: '16px', 
-                borderBottom: `1px solid ${theme.border}`,
-                background: theme.bg
-              }}>
-                <h3 style={{ 
-                  fontSize: '16px', 
-                  fontWeight: '600', 
-                  color: theme.text,
-                  margin: 0
-                }}>
-                  Navigation
-                </h3>
-              </div>
-              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                {menuItems.map((item) => (
-                  <button 
-                    key={item.id} 
-                    onClick={() => handleMenuClick(item.id)}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderBottom: `1px solid ${theme.border}`,
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s ease',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = theme.border;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = 'transparent';
-                    }}
-                  >
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: item.color,
-                      flexShrink: 0
-                    }}></div>
-                    <span style={{ 
-                      fontSize: '14px', 
-                      fontWeight: '500', 
-                      color: theme.text
-                    }}>
-                      {item.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Logo */}
-        <div style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: '8px',
-          background: theme.accent,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: '16px'
-        }}>
-          B
-        </div>
-        <div>
-          <h1 style={{
-            fontSize: '18px',
-            fontWeight: '700',
-            color: theme.text,
-            margin: 0,
-            lineHeight: '1.2'
-          }}>
-            BizSuite
-          </h1>
-          <p style={{
-            fontSize: '11px',
-            color: theme.textSecondary,
-            margin: 0,
-            lineHeight: '1'
-          }}>
-            Enterprise
-          </p>
-        </div>
-      </div>
-
-      {/* Right: Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Dark Mode Toggle */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
+      {/* Left side - Menu and Logo */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <TouchableOpacity
+          onPress={onMenuPress}
           style={{
-            padding: '8px',
-            borderRadius: '8px',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-            color: theme.textSecondary,
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = theme.border;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = 'transparent';
+            padding: 8,
+            borderRadius: 8,
+            backgroundColor: 'transparent'
           }}
         >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
+          <View style={{ gap: 3 }}>
+            <View style={{ width: 18, height: 2, backgroundColor: theme.text, borderRadius: 1 }} />
+            <View style={{ width: 18, height: 2, backgroundColor: theme.text, borderRadius: 1 }} />
+            <View style={{ width: 18, height: 2, backgroundColor: theme.text, borderRadius: 1 }} />
+          </View>
+        </TouchableOpacity>
+
+        <View>
+          <Text style={{
+            fontSize: 18,
+            fontWeight: '700',
+            color: theme.text
+          }}>
+            BusinessApp
+          </Text>
+        </View>
+      </View>
+
+      {/* Right side - Actions */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        {/* Theme Toggle */}
+        <TouchableOpacity
+          onPress={() => setDarkMode(!darkMode)}
+          style={{
+            padding: 8,
+            borderRadius: 8,
+            backgroundColor: 'transparent'
+          }}
+        >
+          <Text style={{
+            fontSize: 16,
+            color: theme.textSecondary
+          }}>
+            {darkMode ? '☀️' : '🌙'}
+          </Text>
+        </TouchableOpacity>
 
         {/* Notifications */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
+        <View style={{ position: 'relative' }}>
+          <TouchableOpacity
+            onPress={() => setShowNotifications(!showNotifications)}
             style={{
-              position: 'relative',
-              padding: '8px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '16px',
-              color: theme.textSecondary,
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = theme.border;
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
+              padding: 8,
+              borderRadius: 8,
+              backgroundColor: 'transparent',
+              position: 'relative'
             }}
           >
-            🔔
+            <Text style={{
+              fontSize: 16,
+              color: theme.textSecondary
+            }}>
+              🔔
+            </Text>
             {notifications.some(n => n.urgent) && (
-              <div style={{
+              <View style={{
                 position: 'absolute',
-                top: '6px',
-                right: '6px',
-                width: '8px',
-                height: '8px',
-                background: '#ef4444',
-                borderRadius: '50%',
-                border: `2px solid ${theme.cardBg}`
-              }}></div>
+                top: 6,
+                right: 6,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: '#ef4444'
+              }} />
             )}
-          </button>
+          </TouchableOpacity>
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div style={{
+            <View style={{
               position: 'absolute',
-              top: '100%',
+              top: 44,
               right: 0,
-              width: '280px',
-              background: theme.cardBg,
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              boxShadow: darkMode ? '0 10px 25px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(0, 0, 0, 0.15)',
-              zIndex: 1000,
-              marginTop: '8px',
-              overflow: 'hidden'
+              width: 280,
+              backgroundColor: theme.cardBg,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: theme.border,
+              padding: 16,
+              zIndex: 50
             }}>
-              <div style={{ 
-                padding: '16px', 
-                borderBottom: `1px solid ${theme.border}`,
-                background: theme.bg
+              <Text style={{
+                fontSize: 16,
+                fontWeight: '600',
+                color: theme.text,
+                marginBottom: 12
               }}>
-                <h3 style={{ 
-                  fontSize: '16px', 
-                  fontWeight: '600', 
-                  color: theme.text,
-                  margin: 0
-                }}>
-                  Notifications
-                </h3>
-              </div>
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                Notifications
+              </Text>
+              <ScrollView style={{ maxHeight: 200 }}>
                 {notifications.map((notification) => (
-                  <div 
-                    key={notification.id} 
+                  <TouchableOpacity
+                    key={notification.id}
                     style={{
-                      padding: '12px 16px',
-                      borderBottom: `1px solid ${theme.border}`,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = theme.border;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = 'transparent';
+                      paddingVertical: 8,
+                      borderBottomWidth: 1,
+                      borderBottomColor: theme.border + '30'
                     }}
                   >
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
+                    <View style={{
+                      flexDirection: 'row',
                       alignItems: 'flex-start',
-                      marginBottom: '4px'
+                      gap: 8
                     }}>
-                      <span style={{ 
-                        fontSize: '14px', 
-                        fontWeight: '500', 
-                        color: theme.text,
-                        flex: 1
-                      }}>
-                        {notification.title}
-                      </span>
-                      <span style={{ 
-                        fontSize: '12px', 
-                        color: theme.textSecondary,
-                        marginLeft: '8px'
-                      }}>
-                        {notification.time}
-                      </span>
-                    </div>
-                    <p style={{ 
-                      fontSize: '13px', 
-                      color: theme.textSecondary,
-                      margin: 0,
-                      lineHeight: '1.4'
-                    }}>
-                      {notification.message}
-                    </p>
-                    {notification.urgent && (
-                      <div style={{
-                        display: 'inline-block',
-                        marginTop: '4px',
-                        padding: '2px 6px',
-                        background: '#fef2f2',
-                        color: '#dc2626',
-                        fontSize: '11px',
-                        fontWeight: '500',
-                        borderRadius: '4px',
-                        textTransform: 'uppercase'
-                      }}>
-                        Urgent
-                      </div>
-                    )}
-                  </div>
+                      <View style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: notification.urgent ? '#ef4444' : theme.accent,
+                        marginTop: 6
+                      }} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={{
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: theme.text,
+                          marginBottom: 2
+                        }}>
+                          {notification.title}
+                        </Text>
+                        <Text style={{
+                          fontSize: 12,
+                          color: theme.textSecondary,
+                          marginBottom: 2
+                        }}>
+                          {notification.message}
+                        </Text>
+                        <Text style={{
+                          fontSize: 11,
+                          color: theme.textSecondary + '80'
+                        }}>
+                          {notification.time}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
                 ))}
-              </div>
-            </div>
+              </ScrollView>
+            </View>
           )}
-        </div>
+        </View>
 
-        {/* User Avatar */}
-        {user ? (
-          <button
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = theme.border;
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
-            }}
-          >
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: theme.accent,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
+        {/* User Profile */}
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 8,
+            backgroundColor: theme.accent + '20'
+          }}
+        >
+          <View style={{
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: theme.accent,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Text style={{
+              fontSize: 12,
               fontWeight: '600',
-              fontSize: '14px'
+              color: 'white'
             }}>
-              {(user.name || 'User').charAt(0).toUpperCase()}
-            </div>
-          </button>
-        ) : (
-          <button
-            onClick={() => setPage("login")}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              background: theme.accent,
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '500',
-              fontSize: '14px',
-              transition: 'opacity 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.opacity = '0.9';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.opacity = '1';
-            }}
-          >
-            Sign In
-          </button>
-        )}
-      </div>
-    </header>
+              {user?.name?.charAt(0) || 'U'}
+            </Text>
+          </View>
+          <Text style={{
+            fontSize: 13,
+            fontWeight: '500',
+            color: theme.text
+          }}>
+            {user?.name || 'User'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
