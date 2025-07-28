@@ -63,7 +63,7 @@ const CashEntryForm = ({ type, ledgers = [] }) => {
             className="w-full px-3 py-2 rounded border border-blue-200 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
           >
             <option value="">-- Select Ledger --</option>
-            {ledgers.map((ledger) => (
+            {availableLedgers.map((ledger) => (
               <option key={ledger._id} value={ledger.name}>
                 {ledger.name}
               </option>
