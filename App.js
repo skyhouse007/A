@@ -143,7 +143,7 @@ function AppContent() {
       case "reminders":
         return <Reminders theme={currentTheme} />;
       default:
-        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} onNavigate={setCurrentPage} />;
     }
   };
 
