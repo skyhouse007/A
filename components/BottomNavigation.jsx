@@ -1,5 +1,5 @@
-'use dom'
 import React from "react";
+import { View, Text, TouchableOpacity } from 'react-native';
 
 const BottomNavigation = ({ currentPage, setPage, theme }) => {
   const navItems = [
@@ -43,89 +43,72 @@ const BottomNavigation = ({ currentPage, setPage, theme }) => {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
+    <View style={{
+      position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      background: theme.cardBg,
-      borderTop: `1px solid ${theme.border}`,
-      boxShadow: theme.bg === '#111827' ? '0 -4px 6px rgba(0, 0, 0, 0.3)' : '0 -4px 6px rgba(0, 0, 0, 0.1)',
-      zIndex: 50,
-      height: '80px',
-      display: 'flex',
+      backgroundColor: theme.cardBg,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+      height: 80,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-around',
-      paddingBottom: 'env(safe-area-inset-bottom)'
+      paddingBottom: 0 // Safe area handled by StatusBar
     }}>
       {navItems.map((item) => (
-        <button
+        <TouchableOpacity
           key={item.id}
-          onClick={() => handleNavClick(item.id)}
+          onPress={() => handleNavClick(item.id)}
           style={{
-            display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
-            padding: '8px 12px',
-            borderRadius: '12px',
-            background: item.isActive ? `${item.color}15` : 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            minWidth: '60px',
-            minHeight: '56px'
-          }}
-          onMouseEnter={(e) => {
-            if (!item.isActive) {
-              e.target.style.background = theme.border;
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!item.isActive) {
-              e.target.style.background = 'transparent';
-            }
+            gap: 4,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderRadius: 12,
+            backgroundColor: item.isActive ? `${item.color}15` : 'transparent',
+            minWidth: 60,
+            minHeight: 56,
+            position: 'relative'
           }}
         >
           {/* Indicator dot */}
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: item.isActive ? item.color : theme.textSecondary,
-            opacity: item.isActive ? 1 : 0.4,
-            transition: 'all 0.2s ease'
-          }}></div>
+          <View style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: item.isActive ? item.color : theme.textSecondary,
+            opacity: item.isActive ? 1 : 0.4
+          }} />
           
           {/* Label */}
-          <span style={{
-            fontSize: '11px',
+          <Text style={{
+            fontSize: 11,
             fontWeight: item.isActive ? '600' : '500',
             color: item.isActive ? item.color : theme.textSecondary,
-            transition: 'all 0.2s ease',
             textAlign: 'center',
-            lineHeight: '1.2'
+            lineHeight: 13
           }}>
             {item.name}
-          </span>
+          </Text>
 
           {/* Active indicator */}
           {item.isActive && (
-            <div style={{
+            <View style={{
               position: 'absolute',
-              bottom: '4px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '24px',
-              height: '2px',
-              background: item.color,
-              borderRadius: '1px'
-            }}></div>
+              bottom: 4,
+              width: 24,
+              height: 2,
+              backgroundColor: item.color,
+              borderRadius: 1
+            }} />
           )}
-        </button>
+        </TouchableOpacity>
       ))}
-    </div>
+    </View>
   );
 };
 

@@ -41,13 +41,20 @@ const DashboardKPIs = ({ theme }) => {
     }
   ];
 
+  const getStatusColor = (trend) => {
+    return trend === 'up' ? '#10b981' : '#ef4444';
+  };
+
+  const getStatusBg = (trend) => {
+    return trend === 'up' ? '#dcfce7' : '#fef2f2';
+  };
+
+  const getStatusTextColor = (trend) => {
+    return trend === 'up' ? '#166534' : '#dc2626';
+  };
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '12px',
-      marginBottom: '24px'
-    }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '24px' }}>
       {kpiData.map((kpi) => (
         <div
           key={kpi.id}
@@ -63,19 +70,16 @@ const DashboardKPIs = ({ theme }) => {
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.borderColor = kpi.color;
-            e.target.style.boxShadow = `0 4px 12px ${kpi.color}20`;
+            e.target.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.borderColor = theme.border;
             e.target.style.boxShadow = 'none';
           }}
         >
-          {/* Header */}
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'flex-start',
             marginBottom: '8px'
           }}>
@@ -85,20 +89,18 @@ const DashboardKPIs = ({ theme }) => {
               borderRadius: '50%',
               background: kpi.color
             }}></div>
-            
             <div style={{
               padding: '2px 6px',
               borderRadius: '6px',
-              background: kpi.trend === 'up' ? '#dcfce7' : '#fef2f2',
+              background: getStatusBg(kpi.trend),
               fontSize: '11px',
               fontWeight: '600',
-              color: kpi.trend === 'up' ? '#166534' : '#dc2626'
+              color: getStatusTextColor(kpi.trend)
             }}>
               {kpi.change}
             </div>
           </div>
 
-          {/* Title */}
           <h3 style={{
             fontSize: '12px',
             fontWeight: '500',
@@ -110,7 +112,6 @@ const DashboardKPIs = ({ theme }) => {
             {kpi.title}
           </h3>
 
-          {/* Value */}
           <div style={{
             fontSize: '20px',
             fontWeight: '700',
@@ -121,25 +122,23 @@ const DashboardKPIs = ({ theme }) => {
             {kpi.value}
           </div>
 
-          {/* Subtitle */}
           <p style={{
             fontSize: '11px',
             color: theme.textSecondary,
-            margin: 0,
+            margin: '0',
             fontWeight: '500'
           }}>
             {kpi.subtitle}
           </p>
 
-          {/* Bottom accent line */}
           <div style={{
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: '0',
+            left: '0',
+            right: '0',
             height: '3px',
             background: kpi.color,
-            opacity: 0.8
+            opacity: '0.8'
           }}></div>
         </div>
       ))}

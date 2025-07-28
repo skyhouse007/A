@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 import { ChevronDown, ChevronUp, Filter, Search, Download, Eye, Edit, Trash2 } from "lucide-react";
 
 const PurchaseList = () => {
@@ -29,27 +29,71 @@ const PurchaseList = () => {
   const fetchPurchases = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        page: currentPage,
-        limit: 20,
-        sortBy,
-        sortOrder,
-        ...filters,
-      });
 
-      const res = await axios.get(`/purchases?${params}`);
-      
-      // Handle different response formats
-      if (res.data.purchases) {
-        setPurchases(res.data.purchases);
-        setTotalPages(res.data.totalPages || 1);
-      } else if (Array.isArray(res.data)) {
-        setPurchases(res.data);
-        setTotalPages(1);
-      } else {
-        setPurchases([]);
-        setTotalPages(1);
-      }
+      // Mock purchases data for demo purposes (since no backend is available)
+      const mockPurchases = [
+        {
+          _id: "1",
+          date: "2024-01-15",
+          vendorName: "ABC Suppliers",
+          totalAmount: 150000,
+          status: "completed",
+          invoiceNumber: "PO-001",
+          items: [
+            { name: "Office Supplies", quantity: 100, price: 500 },
+            { name: "Computer Hardware", quantity: 10, price: 10000 }
+          ],
+          gst: 27000,
+          description: "Monthly office supplies and hardware"
+        },
+        {
+          _id: "2",
+          date: "2024-01-10",
+          vendorName: "XYZ Trading Co.",
+          totalAmount: 75000,
+          status: "pending",
+          invoiceNumber: "PO-002",
+          items: [
+            { name: "Raw Materials", quantity: 50, price: 1200 },
+            { name: "Packaging", quantity: 200, price: 75 }
+          ],
+          gst: 13500,
+          description: "Raw materials for production"
+        },
+        {
+          _id: "3",
+          date: "2024-01-08",
+          vendorName: "Global Electronics",
+          totalAmount: 200000,
+          status: "completed",
+          invoiceNumber: "PO-003",
+          items: [
+            { name: "Laptops", quantity: 5, price: 35000 },
+            { name: "Monitors", quantity: 10, price: 15000 }
+          ],
+          gst: 36000,
+          description: "IT equipment for new office"
+        },
+        {
+          _id: "4",
+          date: "2024-01-05",
+          vendorName: "Modern Textiles",
+          totalAmount: 50000,
+          status: "cancelled",
+          invoiceNumber: "PO-004",
+          items: [
+            { name: "Fabric", quantity: 100, price: 400 },
+            { name: "Thread", quantity: 50, price: 200 }
+          ],
+          gst: 9000,
+          description: "Textile materials order"
+        }
+      ];
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setPurchases(mockPurchases);
+      setTotalPages(1);
     } catch (err) {
       console.error("Failed to load purchases", err);
       setPurchases([]);
@@ -61,8 +105,26 @@ const PurchaseList = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get("/purchases/stats/summary");
-      setStats(res.data);
+      // Mock stats data for demo purposes (since no backend is available)
+      const mockStats = {
+        totalPurchases: 4,
+        totalAmount: 475000,
+        thisMonth: {
+          purchases: 4,
+          amount: 475000
+        },
+        lastMonth: {
+          purchases: 6,
+          amount: 320000
+        },
+        pending: 1,
+        completed: 2,
+        cancelled: 1
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setStats(mockStats);
     } catch (err) {
       console.error("Failed to load stats", err);
     }
@@ -88,10 +150,11 @@ const PurchaseList = () => {
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this purchase?")) return;
-    
+
     try {
-      await axios.delete(`/purchases/${id}`);
-      fetchPurchases();
+      // Mock API call for demo purposes (since no backend is available)
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setPurchases(prev => prev.filter(p => p._id !== id));
       fetchStats();
     } catch (err) {
       console.error("Failed to delete purchase", err);
@@ -103,7 +166,8 @@ const PurchaseList = () => {
     if (!window.confirm('Are you sure you want to delete ALL listed purchases? This cannot be undone.')) return;
     setDeleting(true);
     try {
-      await Promise.all(purchases.map(p => axios.delete(`/purchases/${p._id}`)));
+      // Mock API call for demo purposes (since no backend is available)
+      await new Promise(resolve => setTimeout(resolve, 500));
       setPurchases([]);
       setTotalPages(1);
     } catch (err) {

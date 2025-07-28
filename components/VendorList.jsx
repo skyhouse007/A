@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const VendorList = () => {
   const [vendors, setVendors] = useState([]);
@@ -20,8 +20,45 @@ const VendorList = () => {
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/vendors");
-      setVendors(res.data);
+      // Mock vendors data for demo purposes (since no backend is available)
+      const mockVendors = [
+        {
+          _id: "1",
+          name: "ABC Suppliers",
+          contact: "+91 9876543210",
+          address: "123 Business Street, Mumbai, Maharashtra",
+          email: "contact@abcsuppliers.com",
+          gstNumber: "27AAAAA0000A1Z5"
+        },
+        {
+          _id: "2",
+          name: "XYZ Trading Co.",
+          contact: "+91 9876543211",
+          address: "456 Commerce Road, Delhi, India",
+          email: "info@xyztrading.com",
+          gstNumber: "07BBBBB1111B2Z6"
+        },
+        {
+          _id: "3",
+          name: "Global Electronics",
+          contact: "+91 9876543212",
+          address: "789 Tech Park, Bangalore, Karnataka",
+          email: "sales@globalelectronics.com",
+          gstNumber: "29CCCCC2222C3Z7"
+        },
+        {
+          _id: "4",
+          name: "Modern Textiles",
+          contact: "+91 9876543213",
+          address: "101 Textile Hub, Ahmedabad, Gujarat",
+          email: "orders@moderntextiles.com",
+          gstNumber: "24DDDDD3333D4Z8"
+        }
+      ];
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setVendors(mockVendors);
       setError("");
     } catch (err) {
       setError("Failed to fetch vendors.");
@@ -38,9 +75,22 @@ const VendorList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/vendors", form);
-      fetchVendors();
+      // Mock API call for demo purposes (since no backend is available)
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+
+      // Add the new vendor to the existing list (simulated)
+      const newVendor = {
+        _id: Date.now().toString(),
+        name: form.name,
+        contact: form.contact,
+        address: form.address,
+        email: `${form.name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+        gstNumber: "XX" + Math.random().toString().substr(2, 13).toUpperCase()
+      };
+
+      setVendors(prev => [...prev, newVendor]);
       setForm({ name: "", contact: "", address: "" });
+      setError("");
     } catch (err) {
       console.error("Error adding vendor:", err.message);
       setError("Error adding vendor.");
@@ -50,7 +100,8 @@ const VendorList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Delete this vendor?")) {
       try {
-        await axios.delete(`/vendors/${id}`);
+        // Mock API call for demo purposes (since no backend is available)
+        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
         setVendors(vendors.filter((v) => v._id !== id));
       } catch (err) {
         console.error("Error deleting vendor:", err.message);

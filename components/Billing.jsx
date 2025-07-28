@@ -1,5 +1,5 @@
-'use dom'
 import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 
 const Billing = ({ theme }) => {
   const [activeTab, setActiveTab] = useState('invoices');
@@ -119,464 +119,421 @@ const Billing = ({ theme }) => {
     .reduce((sum, invoice) => sum + invoice.amount, 0);
 
   return (
-    <div style={{
-      background: theme.bg,
-      minHeight: '100%',
-      width: '100%',
-      overflowY: 'auto',
-      overflowX: 'hidden'
+    <View style={{
+      backgroundColor: theme.bg,
+      flex: 1
     }}>
       {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        padding: '16px',
-        borderBottom: `1px solid ${theme.border}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
+      <View style={{
+        backgroundColor: theme.cardBg,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border
       }}>
-        <h1 style={{
-          fontSize: '20px',
+        <Text style={{
+          fontSize: 20,
           fontWeight: '700',
           color: theme.text,
-          margin: '0 0 16px 0'
+          marginBottom: 16
         }}>
           Billing & Invoices
-        </h1>
+        </Text>
 
         {/* Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '16px'
+        <View style={{
+          flexDirection: 'row',
+          gap: 8,
+          marginBottom: 16
         }}>
-          <button
-            onClick={() => setActiveTab('invoices')}
+          <TouchableOpacity
+            onPress={() => setActiveTab('invoices')}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              background: activeTab === 'invoices' ? theme.accent : 'transparent',
-              color: activeTab === 'invoices' ? 'white' : theme.textSecondary,
-              border: `1px solid ${activeTab === 'invoices' ? theme.accent : theme.border}`,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 8,
+              backgroundColor: activeTab === 'invoices' ? theme.accent : 'transparent',
+              borderWidth: 1,
+              borderColor: activeTab === 'invoices' ? theme.accent : theme.border
             }}
           >
-            Invoices
-          </button>
-          <button
-            onClick={() => setActiveTab('payments')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              background: activeTab === 'payments' ? theme.accent : 'transparent',
-              color: activeTab === 'payments' ? 'white' : theme.textSecondary,
-              border: `1px solid ${activeTab === 'payments' ? theme.accent : theme.border}`,
-              cursor: 'pointer',
-              fontSize: '14px',
+            <Text style={{
+              fontSize: 14,
               fontWeight: '500',
-              transition: 'all 0.2s ease'
+              color: activeTab === 'invoices' ? 'white' : theme.textSecondary
+            }}>
+              Invoices
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('payments')}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 8,
+              backgroundColor: activeTab === 'payments' ? theme.accent : 'transparent',
+              borderWidth: 1,
+              borderColor: activeTab === 'payments' ? theme.accent : theme.border
             }}
           >
-            Payments
-          </button>
-        </div>
+            <Text style={{
+              fontSize: 14,
+              fontWeight: '500',
+              color: activeTab === 'payments' ? 'white' : theme.textSecondary
+            }}>
+              Payments
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Search */}
-        <input
-          type="text"
+        <TextInput
           placeholder={`Search ${activeTab}...`}
+          placeholderTextColor={theme.textSecondary}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChangeText={setSearchTerm}
           style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '8px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bg,
+            borderWidth: 1,
+            borderColor: theme.border,
+            borderRadius: 8,
+            padding: 12,
+            backgroundColor: theme.bg,
             color: theme.text,
-            fontSize: '14px',
-            outline: 'none',
-            transition: 'border-color 0.2s ease'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = theme.accent;
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = theme.border;
+            fontSize: 14
           }}
         />
-      </div>
+      </View>
 
       {/* Content */}
-      <div style={{ padding: '16px' }}>
+      <ScrollView style={{ flex: 1, padding: 16 }}>
         {/* Summary Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '12px',
-          marginBottom: '24px'
+        <View style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 12,
+          marginBottom: 24
         }}>
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
           }}>
-            <div style={{
-              fontSize: '18px',
+            <Text style={{
+              fontSize: 18,
               fontWeight: '700',
               color: '#10b981',
-              marginBottom: '4px'
+              marginBottom: 4
             }}>
               ${totalRevenue.toFixed(2)}
-            </div>
-            <div style={{
-              fontSize: '12px',
+            </Text>
+            <Text style={{
+              fontSize: 12,
               color: theme.textSecondary,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              letterSpacing: 0.5,
+              textAlign: 'center'
             }}>
               Total Revenue
-            </div>
-          </div>
+            </Text>
+          </View>
 
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
           }}>
-            <div style={{
-              fontSize: '18px',
+            <Text style={{
+              fontSize: 18,
               fontWeight: '700',
               color: '#f59e0b',
-              marginBottom: '4px'
+              marginBottom: 4
             }}>
               ${pendingAmount.toFixed(2)}
-            </div>
-            <div style={{
-              fontSize: '12px',
+            </Text>
+            <Text style={{
+              fontSize: 12,
               color: theme.textSecondary,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              letterSpacing: 0.5,
+              textAlign: 'center'
             }}>
               Pending
-            </div>
-          </div>
+            </Text>
+          </View>
 
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
           }}>
-            <div style={{
-              fontSize: '18px',
+            <Text style={{
+              fontSize: 18,
               fontWeight: '700',
               color: '#ef4444',
-              marginBottom: '4px'
+              marginBottom: 4
             }}>
               ${overdueAmount.toFixed(2)}
-            </div>
-            <div style={{
-              fontSize: '12px',
+            </Text>
+            <Text style={{
+              fontSize: 12,
               color: theme.textSecondary,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              letterSpacing: 0.5,
+              textAlign: 'center'
             }}>
               Overdue
-            </div>
-          </div>
-        </div>
+            </Text>
+          </View>
+        </View>
 
         {/* Invoices Tab */}
         {activeTab === 'invoices' && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
+          <View style={{ gap: 8 }}>
             {filteredInvoices.map((invoice) => (
-              <div
+              <TouchableOpacity
                 key={invoice.id}
                 style={{
-                  background: theme.cardBg,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = theme.border;
-                  e.target.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = theme.cardBg;
-                  e.target.style.transform = 'translateY(0)';
+                  backgroundColor: theme.cardBg,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 12,
+                  padding: 16
                 }}
               >
-                <div style={{
-                  display: 'flex',
+                <View style={{
+                  flexDirection: 'row',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
-                  marginBottom: '12px'
+                  marginBottom: 12
                 }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{
-                      fontSize: '16px',
+                  <View style={{ flex: 1 }}>
+                    <Text style={{
+                      fontSize: 16,
                       fontWeight: '600',
                       color: theme.text,
-                      margin: '0 0 4px 0'
+                      marginBottom: 4
                     }}>
                       {invoice.invoiceNumber}
-                    </h3>
-                    <div style={{
-                      fontSize: '14px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 14,
                       color: theme.textSecondary,
-                      marginBottom: '4px'
+                      marginBottom: 4
                     }}>
                       {invoice.customer}
-                    </div>
-                    <div style={{
-                      fontSize: '12px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary
                     }}>
                       Items: {invoice.items.join(', ')}
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    background: `${getStatusColor(invoice.status)}20`,
-                    color: getStatusColor(invoice.status),
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    textTransform: 'uppercase'
+                    </Text>
+                  </View>
+                  <View style={{
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 6,
+                    backgroundColor: `${getStatusColor(invoice.status)}20`
                   }}>
-                    {getStatusText(invoice.status)}
-                  </div>
-                </div>
+                    <Text style={{
+                      color: getStatusColor(invoice.status),
+                      fontSize: 11,
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>
+                      {getStatusText(invoice.status)}
+                    </Text>
+                  </View>
+                </View>
 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '16px',
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
+                  <View>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary,
-                      marginBottom: '2px'
+                      marginBottom: 2
                     }}>
                       Amount
-                    </div>
-                    <div style={{
-                      fontSize: '16px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 16,
                       fontWeight: '700',
                       color: theme.text
                     }}>
                       ${invoice.amount.toFixed(2)}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary,
-                      marginBottom: '2px'
-                    }}>
-                      Issue Date
-                    </div>
-                    <div style={{
-                      fontSize: '13px',
-                      color: theme.textSecondary
-                    }}>
-                      {new Date(invoice.issueDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
-                      color: theme.textSecondary,
-                      marginBottom: '2px'
+                      marginBottom: 2
                     }}>
                       Due Date
-                    </div>
-                    <div style={{
-                      fontSize: '13px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 13,
                       color: theme.textSecondary
                     }}>
                       {new Date(invoice.dueDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             ))}
-          </div>
+          </View>
         )}
 
         {/* Payments Tab */}
         {activeTab === 'payments' && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
+          <View style={{ gap: 8 }}>
             {filteredPayments.map((payment) => (
-              <div
+              <TouchableOpacity
                 key={payment.id}
                 style={{
-                  background: theme.cardBg,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = theme.border;
-                  e.target.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = theme.cardBg;
-                  e.target.style.transform = 'translateY(0)';
+                  backgroundColor: theme.cardBg,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 12,
+                  padding: 16
                 }}
               >
-                <div style={{
-                  display: 'flex',
+                <View style={{
+                  flexDirection: 'row',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
-                  marginBottom: '12px'
+                  marginBottom: 12
                 }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{
-                      fontSize: '16px',
+                  <View style={{ flex: 1 }}>
+                    <Text style={{
+                      fontSize: 16,
                       fontWeight: '600',
                       color: theme.text,
-                      margin: '0 0 4px 0'
+                      marginBottom: 4
                     }}>
                       {payment.paymentId}
-                    </h3>
-                    <div style={{
-                      fontSize: '14px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 14,
                       color: theme.textSecondary,
-                      marginBottom: '4px'
+                      marginBottom: 4
                     }}>
                       {payment.customer}
-                    </div>
-                    <div style={{
-                      fontSize: '12px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary
                     }}>
                       Invoice: {payment.invoiceNumber}
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    background: `${getStatusColor(payment.status)}20`,
-                    color: getStatusColor(payment.status),
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    textTransform: 'uppercase'
+                    </Text>
+                  </View>
+                  <View style={{
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 6,
+                    backgroundColor: `${getStatusColor(payment.status)}20`
                   }}>
-                    {getStatusText(payment.status)}
-                  </div>
-                </div>
+                    <Text style={{
+                      color: getStatusColor(payment.status),
+                      fontSize: 11,
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>
+                      {getStatusText(payment.status)}
+                    </Text>
+                  </View>
+                </View>
 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '16px',
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
+                  <View>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary,
-                      marginBottom: '2px'
+                      marginBottom: 2
                     }}>
                       Amount
-                    </div>
-                    <div style={{
-                      fontSize: '16px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 16,
                       fontWeight: '700',
                       color: theme.text
                     }}>
                       ${payment.amount.toFixed(2)}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary,
-                      marginBottom: '2px'
+                      marginBottom: 2
                     }}>
                       Method
-                    </div>
-                    <div style={{
-                      fontSize: '13px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 13,
                       color: theme.textSecondary
                     }}>
                       {payment.method}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
-                      color: theme.textSecondary,
-                      marginBottom: '2px'
-                    }}>
-                      Date
-                    </div>
-                    <div style={{
-                      fontSize: '13px',
-                      color: theme.textSecondary
-                    }}>
-                      {new Date(payment.date).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             ))}
-          </div>
+          </View>
         )}
 
         {/* Empty State */}
         {((activeTab === 'invoices' && filteredInvoices.length === 0) ||
           (activeTab === 'payments' && filteredPayments.length === 0)) && (
-          <div style={{
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '12px',
-            padding: '32px',
-            textAlign: 'center'
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderWidth: 1,
+            borderColor: theme.border,
+            borderRadius: 12,
+            padding: 32,
+            alignItems: 'center'
           }}>
-            <div style={{
-              fontSize: '16px',
+            <Text style={{
+              fontSize: 16,
               fontWeight: '600',
               color: theme.textSecondary,
-              marginBottom: '8px'
+              marginBottom: 8
             }}>
               No {activeTab} found
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: theme.textSecondary
+            </Text>
+            <Text style={{
+              fontSize: 14,
+              color: theme.textSecondary,
+              textAlign: 'center'
             }}>
               Try adjusting your search criteria
-            </div>
-          </div>
+            </Text>
+          </View>
         )}
-      </div>
-    </div>
+      </ScrollView>
+    </View>
   );
 };
 

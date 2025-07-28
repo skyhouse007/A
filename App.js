@@ -1,14 +1,27 @@
-'use dom'
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
 import BottomNavigation from './components/BottomNavigation.jsx';
+import Sidebar from './components/Sidebar.jsx';
 import Dashboard from './components/Dashboard.jsx';
+import DashboardKPIs from './components/DashboardKPIs.jsx';
 import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
 import SalesList from './components/SalesList.jsx';
 import PurchaseForm from './components/PurchaseForm.jsx';
+import PurchaseList from './components/PurchaseList.jsx';
+import Sales from './components/Sales.jsx';
+import LedgerList from './components/LedgerList.jsx';
+import LedgerDetails from './components/LedgerDetails.jsx';
+import ProfitAndLoss from './components/ProfitAndLoss.jsx';
+import GSTDetails from './components/GSTDetails.jsx';
+import VendorList from './components/VendorList.jsx';
+import CashInForm from './components/CashInForm.jsx';
+import CashoutForm from './components/CashoutForm.jsx';
+import CashEntryForm from './components/CashEntryForm.jsx';
+import Document from './components/Document.jsx';
+import Reminders from './components/Reminders.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -23,6 +36,7 @@ function AppContent() {
   } = useApp();
 
   const [darkMode, setDarkMode] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
@@ -70,8 +84,34 @@ function AppContent() {
         return <InventoryList theme={currentTheme} />;
       case "salesList":
         return <SalesList theme={currentTheme} />;
+      case "sales":
+        return <Sales theme={currentTheme} />;
       case "purchaseForm":
         return <PurchaseForm theme={currentTheme} />;
+      case "purchaseList":
+        return <PurchaseList theme={currentTheme} />;
+      case "vendors":
+        return <VendorList theme={currentTheme} />;
+      case "cashIn":
+        return <CashInForm theme={currentTheme} />;
+      case "cashOut":
+        return <CashoutForm theme={currentTheme} />;
+      case "cashEntry":
+        return <CashEntryForm theme={currentTheme} />;
+      case "ledger":
+        return <LedgerList theme={currentTheme} />;
+      case "ledgerDetails":
+        return <LedgerDetails theme={currentTheme} />;
+      case "document":
+        return <Document theme={currentTheme} />;
+      case "profitLoss":
+        return <ProfitAndLoss theme={currentTheme} />;
+      case "gstDetails":
+        return <GSTDetails theme={currentTheme} />;
+      case "dashboardKPIs":
+        return <DashboardKPIs theme={currentTheme} />;
+      case "reminders":
+        return <Reminders theme={currentTheme} />;
       default:
         return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
     }
@@ -80,144 +120,149 @@ function AppContent() {
   // Loading State
   if (isLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: currentTheme.bg,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{
-          background: currentTheme.cardBg,
-          borderRadius: '12px',
-          padding: '32px',
-          border: `1px solid ${currentTheme.border}`,
-          textAlign: 'center'
+      <View style={[
+        styles.container,
+        {
+          backgroundColor: currentTheme.bg,
+          justifyContent: 'center',
+          alignItems: 'center'
+        }
+      ]}>
+        <View style={{
+          backgroundColor: currentTheme.cardBg,
+          borderRadius: 12,
+          padding: 32,
+          borderWidth: 1,
+          borderColor: currentTheme.border,
+          alignItems: 'center'
         }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: `3px solid ${currentTheme.border}`,
-            borderTop: `3px solid ${currentTheme.accent}`,
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <h2 style={{
-            fontSize: '16px',
+          <ActivityIndicator
+            size="large"
+            color={currentTheme.accent}
+            style={{ marginBottom: 16 }}
+          />
+          <Text style={{
+            fontSize: 16,
             fontWeight: '600',
-            color: currentTheme.text,
-            margin: 0
+            color: currentTheme.text
           }}>
             Loading...
-          </h2>
-        </div>
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
+          </Text>
+        </View>
+      </View>
     );
   }
 
   // Error State
   if (error) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: currentTheme.bg,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-        <div style={{
-          background: currentTheme.cardBg,
-          borderRadius: '12px',
-          padding: '32px',
-          border: '1px solid #ef4444',
-          textAlign: 'center',
-          maxWidth: '400px',
+      <View style={[
+        styles.container,
+        {
+          backgroundColor: currentTheme.bg,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 20
+        }
+      ]}>
+        <View style={{
+          backgroundColor: currentTheme.cardBg,
+          borderRadius: 12,
+          padding: 32,
+          borderWidth: 1,
+          borderColor: '#ef4444',
+          alignItems: 'center',
+          maxWidth: 400,
           width: '100%'
         }}>
-          <h2 style={{
-            fontSize: '18px',
+          <Text style={{
+            fontSize: 18,
             fontWeight: '600',
             color: '#ef4444',
-            marginBottom: '8px'
+            marginBottom: 8,
+            textAlign: 'center'
           }}>
             Connection Error
-          </h2>
-          <p style={{
-            fontSize: '14px',
+          </Text>
+          <Text style={{
+            fontSize: 14,
             color: currentTheme.textSecondary,
-            marginBottom: '20px'
+            marginBottom: 20,
+            textAlign: 'center'
           }}>
             {error}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              background: '#ef4444',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '14px'
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+          </Text>
+        </View>
+      </View>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: currentTheme.bg,
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      maxWidth: '100vw',
-      overflowX: 'hidden'
-    }}>
+    <View style={[
+      styles.container,
+      { backgroundColor: currentTheme.bg }
+    ]}>
       {/* Header */}
-      <Navbar 
-        user={user} 
+      <Navbar
+        user={user}
         setPage={setCurrentPage}
         theme={currentTheme}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        onMenuPress={() => setSidebarVisible(true)}
       />
-      
+
       {/* Main Content - Scrollable */}
-      <div style={{
-        flex: 1,
-        paddingBottom: '80px', // Space for bottom nav
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        height: 'calc(100vh - 160px)', // Fixed height for scrolling
-        width: '100%'
-      }}>
-        {renderPageContent()}
-      </div>
+      <View style={styles.content}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {renderPageContent()}
+        </ScrollView>
+      </View>
+
+      {/* Sidebar */}
+      {sidebarVisible && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 100
+        }}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => setSidebarVisible(false)}
+          />
+          <View style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 320
+          }}>
+            <Sidebar
+              setPage={setCurrentPage}
+              onClose={() => setSidebarVisible(false)}
+              theme={currentTheme}
+            />
+          </View>
+        </View>
+      )}
 
       {/* Bottom Navigation */}
-      <BottomNavigation 
+      <BottomNavigation
         currentPage={currentPage}
         setPage={setCurrentPage}
         theme={currentTheme}
       />
-      
+
       <StatusBar style={darkMode ? "light" : "dark"} backgroundColor={currentTheme.bg} />
-    </div>
+    </View>
   );
 }
 
@@ -234,6 +279,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+  },
+  content: {
+    flex: 1,
   }
 });

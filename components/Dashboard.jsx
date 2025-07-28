@@ -1,5 +1,5 @@
-'use dom'
 import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import DashboardKPIs from './DashboardKPIs.jsx';
 
 const Dashboard = ({ sales, inventory, theme }) => {
@@ -94,41 +94,53 @@ const Dashboard = ({ sales, inventory, theme }) => {
     }
   ];
 
+  const getStatusBackgroundColor = (status) => {
+    switch (status) {
+      case 'completed': return '#dcfce7';
+      case 'warning': return '#fef3c7';
+      case 'pending': return '#e0e7ff';
+      default: return '#f3f4f6';
+    }
+  };
+
+  const getStatusTextColor = (status) => {
+    switch (status) {
+      case 'completed': return '#166534';
+      case 'warning': return '#92400e';
+      case 'pending': return '#3730a3';
+      default: return '#374151';
+    }
+  };
+
   return (
-    <div style={{
-      background: theme.bg,
-      minHeight: '100%',
-      width: '100%',
-      overflowY: 'auto',
-      overflowX: 'hidden'
+    <View style={{
+      backgroundColor: theme.bg,
+      flex: 1
     }}>
       {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        padding: '16px',
-        borderBottom: `1px solid ${theme.border}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
+      <View style={{
+        backgroundColor: theme.cardBg,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border
       }}>
-        <div style={{
-          display: 'flex',
+        <View style={{
+          flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div>
-            <h1 style={{
-              fontSize: '20px',
+          <View>
+            <Text style={{
+              fontSize: 20,
               fontWeight: '700',
               color: theme.text,
-              margin: '0 0 4px 0'
+              marginBottom: 4
             }}>
               Dashboard
-            </h1>
-            <p style={{
-              fontSize: '14px',
-              color: theme.textSecondary,
-              margin: 0
+            </Text>
+            <Text style={{
+              fontSize: 14,
+              color: theme.textSecondary
             }}>
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
@@ -136,242 +148,213 @@ const Dashboard = ({ sales, inventory, theme }) => {
                 month: 'long', 
                 day: 'numeric' 
               })}
-            </p>
-          </div>
-          <button
-            onClick={handleRefresh}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleRefresh}
             disabled={refreshing}
             style={{
-              padding: '8px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: `1px solid ${theme.border}`,
-              cursor: refreshing ? 'not-allowed' : 'pointer',
-              color: theme.textSecondary,
-              transition: 'all 0.2s ease',
+              padding: 8,
+              borderRadius: 8,
+              backgroundColor: 'transparent',
+              borderWidth: 1,
+              borderColor: theme.border,
               opacity: refreshing ? 0.6 : 1
             }}
-            onMouseEnter={(e) => {
-              if (!refreshing) {
-                e.target.style.background = theme.border;
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
-            }}
           >
-            <span style={{
-              display: 'inline-block',
-              transform: refreshing ? 'rotate(360deg)' : 'rotate(0deg)',
-              transition: 'transform 1s ease'
+            <Text style={{
+              color: theme.textSecondary,
+              fontSize: 16
             }}>
               ↻
-            </span>
-          </button>
-        </div>
-      </div>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Content Container - Scrollable */}
-      <div style={{
-        padding: '16px',
-        paddingBottom: '24px'
-      }}>
+      <ScrollView 
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.accent}
+          />
+        }
+      >
         {/* KPI Cards */}
         <DashboardKPIs theme={theme} />
 
         {/* Quick Actions */}
-        <div style={{ marginBottom: '24px' }}>
-          <h2 style={{
-            fontSize: '18px',
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{
+            fontSize: 18,
             fontWeight: '600',
             color: theme.text,
-            marginBottom: '12px',
-            margin: '0 0 12px 0'
+            marginBottom: 12
           }}>
             Quick Actions
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px'
+          </Text>
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 12
           }}>
             {quickActions.map((action, index) => (
-              <button
+              <TouchableOpacity
                 key={index}
-                onClick={action.action}
+                onPress={action.action}
                 style={{
-                  background: theme.cardBg,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  textAlign: 'left'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.borderColor = action.color;
-                  e.target.style.boxShadow = `0 4px 12px ${action.color}20`;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.borderColor = theme.border;
-                  e.target.style.boxShadow = 'none';
+                  backgroundColor: theme.cardBg,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 12,
+                  padding: 16,
+                  width: '48%'
                 }}
               >
-                <div style={{
-                  display: 'flex',
+                <View style={{
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: 12
                 }}>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: action.color
-                  }}></div>
-                  <div>
-                    <div style={{
-                      fontSize: '14px',
+                  <View style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: action.color
+                  }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{
+                      fontSize: 14,
                       fontWeight: '600',
                       color: theme.text,
-                      marginBottom: '2px'
+                      marginBottom: 2
                     }}>
                       {action.name}
-                    </div>
-                    <div style={{
-                      fontSize: '12px',
+                    </Text>
+                    <Text style={{
+                      fontSize: 12,
                       color: theme.textSecondary
                     }}>
                       {action.description}
-                    </div>
-                  </div>
-                </div>
-              </button>
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             ))}
-          </div>
-        </div>
+          </View>
+        </View>
 
         {/* Recent Activities */}
-        <div>
-          <div style={{
-            display: 'flex',
+        <View>
+          <View style={{
+            flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '12px'
+            marginBottom: 12
           }}>
-            <h2 style={{
-              fontSize: '18px',
+            <Text style={{
+              fontSize: 18,
               fontWeight: '600',
-              color: theme.text,
-              margin: 0
+              color: theme.text
             }}>
               Recent Activities
-            </h2>
-            <button style={{
-              fontSize: '14px',
-              color: theme.accent,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '500'
-            }}>
-              View All
-            </button>
-          </div>
+            </Text>
+            <TouchableOpacity>
+              <Text style={{
+                fontSize: 14,
+                color: theme.accent,
+                fontWeight: '500'
+              }}>
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
+          <View style={{
+            gap: 8
           }}>
             {recentActivities.map((activity) => (
-              <div
+              <TouchableOpacity
                 key={activity.id}
                 style={{
-                  background: theme.cardBg,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = theme.border;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = theme.cardBg;
+                  backgroundColor: theme.cardBg,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 12,
+                  padding: 16
                 }}
               >
-                <div style={{
-                  display: 'flex',
+                <View style={{
+                  flexDirection: 'row',
                   alignItems: 'flex-start',
-                  gap: '12px'
+                  gap: 12
                 }}>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: activity.color,
-                    marginTop: '6px',
-                    flexShrink: 0
-                  }}></div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      display: 'flex',
+                  <View style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: activity.color,
+                    marginTop: 6
+                  }} />
+                  <View style={{ flex: 1 }}>
+                    <View style={{
+                      flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'flex-start',
-                      marginBottom: '4px'
+                      marginBottom: 4
                     }}>
-                      <h3 style={{
-                        fontSize: '14px',
+                      <Text style={{
+                        fontSize: 14,
                         fontWeight: '600',
                         color: theme.text,
-                        margin: 0
+                        flex: 1
                       }}>
                         {activity.title}
-                      </h3>
-                      <span style={{
-                        fontSize: '12px',
+                      </Text>
+                      <Text style={{
+                        fontSize: 12,
                         color: theme.textSecondary,
-                        flexShrink: 0,
-                        marginLeft: '8px'
+                        marginLeft: 8
                       }}>
                         {activity.time}
-                      </span>
-                    </div>
-                    <p style={{
-                      fontSize: '13px',
+                      </Text>
+                    </View>
+                    <Text style={{
+                      fontSize: 13,
                       color: theme.textSecondary,
-                      margin: '0 0 8px 0',
-                      lineHeight: '1.4'
+                      marginBottom: 8,
+                      lineHeight: 18
                     }}>
                       {activity.description}
-                    </p>
-                    <div style={{
-                      display: 'inline-block',
-                      padding: '2px 8px',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                      fontWeight: '500',
-                      textTransform: 'capitalize',
-                      background: activity.status === 'completed' ? '#dcfce7' :
-                                 activity.status === 'warning' ? '#fef3c7' :
-                                 activity.status === 'pending' ? '#e0e7ff' : '#f3f4f6',
-                      color: activity.status === 'completed' ? '#166534' :
-                             activity.status === 'warning' ? '#92400e' :
-                             activity.status === 'pending' ? '#3730a3' : '#374151'
+                    </Text>
+                    <View style={{
+                      alignSelf: 'flex-start',
+                      paddingHorizontal: 8,
+                      paddingVertical: 2,
+                      borderRadius: 6,
+                      backgroundColor: getStatusBackgroundColor(activity.status)
                     }}>
-                      {activity.status}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      <Text style={{
+                        fontSize: 11,
+                        fontWeight: '500',
+                        textTransform: 'capitalize',
+                        color: getStatusTextColor(activity.status)
+                      }}>
+                        {activity.status}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
             ))}
-          </div>
-        </div>
-      </div>
-    </div>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

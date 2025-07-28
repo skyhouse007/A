@@ -1,5 +1,5 @@
-'use dom'
 import React, { useState } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 
 const InventoryList = ({ theme }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,313 +86,308 @@ const InventoryList = ({ theme }) => {
   };
 
   return (
-    <div style={{
-      background: theme.bg,
-      minHeight: '100%',
-      width: '100%',
-      overflowY: 'auto',
-      overflowX: 'hidden'
+    <View style={{
+      backgroundColor: theme.bg,
+      flex: 1
     }}>
       {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        padding: '16px',
-        borderBottom: `1px solid ${theme.border}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
+      <View style={{
+        backgroundColor: theme.cardBg,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border
       }}>
-        <h1 style={{
-          fontSize: '20px',
+        <Text style={{
+          fontSize: 20,
           fontWeight: '700',
           color: theme.text,
-          margin: '0 0 16px 0'
+          marginBottom: 16
         }}>
           Inventory Management
-        </h1>
+        </Text>
 
         {/* Search and Filter */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: '12px',
-          marginBottom: '0'
+        <View style={{
+          flexDirection: 'row',
+          gap: 12,
+          marginBottom: 0
         }}>
-          <input
-            type="text"
+          <TextInput
             placeholder="Search products..."
+            placeholderTextColor={theme.textSecondary}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChangeText={setSearchTerm}
             style={{
-              padding: '12px',
-              borderRadius: '8px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bg,
+              flex: 1,
+              padding: 12,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: theme.border,
+              backgroundColor: theme.bg,
               color: theme.text,
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.2s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = theme.accent;
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = theme.border;
+              fontSize: 14
             }}
           />
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            style={{
-              padding: '12px',
-              borderRadius: '8px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bg,
-              color: theme.text,
-              fontSize: '14px',
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {category === 'all' ? 'All Categories' : category}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div style={{ padding: '16px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: '12px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
+          <View style={{
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: theme.border,
+            backgroundColor: theme.bg,
+            minWidth: 120
           }}>
-            <div style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: theme.text,
-              marginBottom: '4px'
-            }}>
-              {inventoryData.length}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Total Items
-            </div>
-          </div>
-
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#10b981',
-              marginBottom: '4px'
-            }}>
-              {inventoryData.filter(item => item.status === 'in_stock').length}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              In Stock
-            </div>
-          </div>
-
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#f59e0b',
-              marginBottom: '4px'
-            }}>
-              {inventoryData.filter(item => item.status === 'low_stock').length}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Low Stock
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory List */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}>
-          {filteredInventory.map((item) => (
-            <div
-              key={item.id}
+            {/* Note: In a real app, you'd use a proper picker component */}
+            <TouchableOpacity
               style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = theme.border;
-                e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = theme.cardBg;
-                e.target.style.transform = 'translateY(0)';
+                padding: 12,
+                alignItems: 'center'
               }}
             >
-              <div style={{
-                display: 'flex',
+              <Text style={{
+                color: theme.text,
+                fontSize: 14
+              }}>
+                {filterCategory === 'all' ? 'All Categories' : filterCategory}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      {/* Content */}
+      <ScrollView style={{ flex: 1, padding: 16 }}>
+        {/* Summary Cards */}
+        <View style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 12,
+          marginBottom: 24
+        }}>
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
+          }}>
+            <Text style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: theme.text,
+              marginBottom: 4
+            }}>
+              {inventoryData.length}
+            </Text>
+            <Text style={{
+              fontSize: 12,
+              color: theme.textSecondary,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              textAlign: 'center'
+            }}>
+              Total Items
+            </Text>
+          </View>
+
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
+          }}>
+            <Text style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: '#10b981',
+              marginBottom: 4
+            }}>
+              {inventoryData.filter(item => item.status === 'in_stock').length}
+            </Text>
+            <Text style={{
+              fontSize: 12,
+              color: theme.textSecondary,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              textAlign: 'center'
+            }}>
+              In Stock
+            </Text>
+          </View>
+
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: 12,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            minWidth: 120,
+            flex: 1,
+            alignItems: 'center'
+          }}>
+            <Text style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: '#f59e0b',
+              marginBottom: 4
+            }}>
+              {inventoryData.filter(item => item.status === 'low_stock').length}
+            </Text>
+            <Text style={{
+              fontSize: 12,
+              color: theme.textSecondary,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              textAlign: 'center'
+            }}>
+              Low Stock
+            </Text>
+          </View>
+        </View>
+
+        {/* Inventory List */}
+        <View style={{ gap: 8 }}>
+          {filteredInventory.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={{
+                backgroundColor: theme.cardBg,
+                borderWidth: 1,
+                borderColor: theme.border,
+                borderRadius: 12,
+                padding: 16
+              }}
+            >
+              <View style={{
+                flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
-                marginBottom: '12px'
+                marginBottom: 12
               }}>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    fontSize: '16px',
+                <View style={{ flex: 1 }}>
+                  <Text style={{
+                    fontSize: 16,
                     fontWeight: '600',
                     color: theme.text,
-                    margin: '0 0 4px 0'
+                    marginBottom: 4
                   }}>
                     {item.name}
-                  </h3>
-                  <div style={{
-                    fontSize: '12px',
+                  </Text>
+                  <Text style={{
+                    fontSize: 12,
                     color: theme.textSecondary,
-                    marginBottom: '4px'
+                    marginBottom: 4
                   }}>
                     SKU: {item.sku} • {item.category}
-                  </div>
-                </div>
-                <div style={{
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  background: `${getStatusColor(item.status)}20`,
-                  color: getStatusColor(item.status),
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  textTransform: 'uppercase'
+                  </Text>
+                </View>
+                <View style={{
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 6,
+                  backgroundColor: `${getStatusColor(item.status)}20`
                 }}>
-                  {getStatusText(item.status)}
-                </div>
-              </div>
+                  <Text style={{
+                    color: getStatusColor(item.status),
+                    fontSize: 11,
+                    fontWeight: '600',
+                    textTransform: 'uppercase'
+                  }}>
+                    {getStatusText(item.status)}
+                  </Text>
+                </View>
+              </View>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '16px',
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
+                <View>
+                  <Text style={{
+                    fontSize: 12,
                     color: theme.textSecondary,
-                    marginBottom: '2px'
+                    marginBottom: 2
                   }}>
                     Stock
-                  </div>
-                  <div style={{
-                    fontSize: '16px',
+                  </Text>
+                  <Text style={{
+                    fontSize: 16,
                     fontWeight: '600',
                     color: theme.text
                   }}>
                     {item.stock} units
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
+                  </Text>
+                </View>
+                <View>
+                  <Text style={{
+                    fontSize: 12,
                     color: theme.textSecondary,
-                    marginBottom: '2px'
+                    marginBottom: 2
                   }}>
                     Price
-                  </div>
-                  <div style={{
-                    fontSize: '16px',
+                  </Text>
+                  <Text style={{
+                    fontSize: 16,
                     fontWeight: '600',
                     color: theme.text
                   }}>
                     ${item.price}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
+                  </Text>
+                </View>
+                <View>
+                  <Text style={{
+                    fontSize: 12,
                     color: theme.textSecondary,
-                    marginBottom: '2px'
+                    marginBottom: 2
                   }}>
                     Updated
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
+                  </Text>
+                  <Text style={{
+                    fontSize: 12,
                     color: theme.textSecondary
                   }}>
                     {new Date(item.lastUpdated).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           ))}
-        </div>
+        </View>
 
         {filteredInventory.length === 0 && (
-          <div style={{
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '12px',
-            padding: '32px',
-            textAlign: 'center'
+          <View style={{
+            backgroundColor: theme.cardBg,
+            borderWidth: 1,
+            borderColor: theme.border,
+            borderRadius: 12,
+            padding: 32,
+            alignItems: 'center'
           }}>
-            <div style={{
-              fontSize: '16px',
+            <Text style={{
+              fontSize: 16,
               fontWeight: '600',
               color: theme.textSecondary,
-              marginBottom: '8px'
+              marginBottom: 8
             }}>
               No items found
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: theme.textSecondary
+            </Text>
+            <Text style={{
+              fontSize: 14,
+              color: theme.textSecondary,
+              textAlign: 'center'
             }}>
               Try adjusting your search or filter criteria
-            </div>
-          </div>
+            </Text>
+          </View>
         )}
-      </div>
-    </div>
+      </ScrollView>
+    </View>
   );
 };
 

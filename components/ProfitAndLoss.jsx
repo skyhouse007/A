@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const ProfitAndLoss = () => {
   const [data, setData] = useState(null);
@@ -12,8 +12,54 @@ const ProfitAndLoss = () => {
   const fetchPL = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/profit-loss?month=${month}&year=${year}`);
-      setData(res.data);
+
+      // Mock data for demo purposes (since no backend is available)
+      const mockData = {
+        ledgerBased: true,
+        debit: {
+          openingStock: 50000,
+          purchases: 150000,
+          expenses: 25000,
+          total: 225000
+        },
+        credit: {
+          sales: 280000,
+          income: 15000,
+          closingStock: 60000,
+          total: 355000
+        },
+        profitOrLoss: 130000,
+        breakdown: {
+          income: {
+            total: 295000,
+            breakdown: [
+              { ledger: "Sales", amount: 280000 },
+              { ledger: "Other Income", amount: 15000 }
+            ]
+          },
+          expenses: {
+            total: 175000,
+            breakdown: [
+              { ledger: "Purchases", amount: 150000 },
+              { ledger: "Operating Expenses", amount: 25000 }
+            ]
+          },
+          stock: {
+            opening: 50000,
+            purchases: 150000,
+            sales: 140000,
+            closing: 60000
+          },
+          reference: {
+            sales: 280000,
+            purchases: 150000
+          }
+        }
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setData(mockData);
     } catch (err) {
       console.error("Failed to load Profit & Loss:", err);
       setData(null);

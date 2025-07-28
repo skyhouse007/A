@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const Reminders = () => {
   const [reminders, setReminders] = useState([]);
