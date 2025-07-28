@@ -20,8 +20,45 @@ const VendorList = () => {
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/vendors");
-      setVendors(res.data);
+      // Mock vendors data for demo purposes (since no backend is available)
+      const mockVendors = [
+        {
+          _id: "1",
+          name: "ABC Suppliers",
+          contact: "+91 9876543210",
+          address: "123 Business Street, Mumbai, Maharashtra",
+          email: "contact@abcsuppliers.com",
+          gstNumber: "27AAAAA0000A1Z5"
+        },
+        {
+          _id: "2",
+          name: "XYZ Trading Co.",
+          contact: "+91 9876543211",
+          address: "456 Commerce Road, Delhi, India",
+          email: "info@xyztrading.com",
+          gstNumber: "07BBBBB1111B2Z6"
+        },
+        {
+          _id: "3",
+          name: "Global Electronics",
+          contact: "+91 9876543212",
+          address: "789 Tech Park, Bangalore, Karnataka",
+          email: "sales@globalelectronics.com",
+          gstNumber: "29CCCCC2222C3Z7"
+        },
+        {
+          _id: "4",
+          name: "Modern Textiles",
+          contact: "+91 9876543213",
+          address: "101 Textile Hub, Ahmedabad, Gujarat",
+          email: "orders@moderntextiles.com",
+          gstNumber: "24DDDDD3333D4Z8"
+        }
+      ];
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setVendors(mockVendors);
       setError("");
     } catch (err) {
       setError("Failed to fetch vendors.");
