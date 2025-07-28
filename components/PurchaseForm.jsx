@@ -141,9 +141,9 @@ const PurchaseForm = ({ theme }) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const filteredOrders = existingOrders.filter(order => 
-    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.vendor.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOrders = purchases.filter(order =>
+    (order.orderNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (order.vendor || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSubmit = async (e) => {
