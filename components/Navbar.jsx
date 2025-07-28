@@ -6,12 +6,25 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const menuItems = [
-    { id: "dashboard", name: "Dashboard", color: "#3b82f6" },
-    { id: "inventoryList", name: "Inventory Management", color: "#10b981" },
-    { id: "salesList", name: "Sales Records", color: "#f59e0b" },
-    { id: "billing", name: "Billing & Invoices", color: "#8b5cf6" },
-    { id: "purchaseForm", name: "Purchase Orders", color: "#06b6d4" },
-    { id: "vendors", name: "Vendor Management", color: "#84cc16" }
+    { id: "dashboard", name: "Dashboard", color: "#667eea" },
+    { id: "inventoryList", name: "Inventory", color: "#f093fb" },
+    { id: "salesList", name: "Sales List", color: "#4facfe" },
+    { id: "purchase", name: "Purchase", color: "#43e97b" },
+    { id: "vendors", name: "Vendors", color: "#fa709a" },
+    { id: "sales", name: "Sales Entry", color: "#a8edea" },
+    { id: "services", name: "Services", color: "#ff9a9e" },
+    { id: "document", name: "Documents", color: "#a18cd1" },
+    { id: "orders", name: "Orders", color: "#fad0c4" },
+    { id: "purchaseForm", name: "Purchase Form", color: "#ff8a80" },
+    { id: "Customer", name: "Customers", color: "#84fab0" },
+    { id: "cashIn", name: "Cash In", color: "#a6c1ee" },
+    { id: "cashOut", name: "Cash Out", color: "#f6d365" },
+    { id: "ledger", name: "Ledgers", color: "#96fbc4" },
+    { id: "balanceSheet", name: "Balance Sheet", color: "#fdbb2d" },
+    { id: "profitLoss", name: "Profit & Loss", color: "#ee9ca7" },
+    { id: "gstDetails", name: "GST Details", color: "#2196f3" },
+    { id: "Reminders", name: "Reminders", color: "#fc466b" },
+    { id: "billing", name: "Billing", color: "#667eea" }
   ];
 
   const notifications = [
