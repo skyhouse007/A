@@ -81,16 +81,23 @@ function AppContent() {
       case "vendors":
         return <VendorList theme={currentTheme} />;
 
-      // Additional pages - using existing components as placeholders for now
+      // Additional pages - using real components
       case "purchase":
         return <PurchaseForm theme={currentTheme} />;
       case "sales":
         return <SalesList theme={currentTheme} />;
       case "services":
+        return <Services theme={currentTheme} />;
       case "document":
+        return <Documents theme={currentTheme} />;
       case "orders":
+        return <Orders theme={currentTheme} />;
       case "Customer":
+        return <Customers theme={currentTheme} />;
       case "cashIn":
+        return <CashIn theme={currentTheme} />;
+
+      // Placeholder pages for remaining components
       case "cashOut":
       case "ledger":
       case "balanceSheet":
