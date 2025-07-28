@@ -82,29 +82,33 @@ function AppContent() {
         return <InventoryList theme={currentTheme} />;
       case "salesList":
         return <SalesList theme={currentTheme} />;
+      case "sales":
+        return <Sales theme={currentTheme} />;
       case "purchaseForm":
         return <PurchaseForm theme={currentTheme} />;
       case "purchaseList":
         return <PurchaseList theme={currentTheme} />;
-      case "sales":
-        return <Sales theme={currentTheme} />;
-      case "ledger":
-        return <LedgerList theme={currentTheme} />;
-      case "ledgerDetails":
-        return <LedgerDetails theme={currentTheme} />;
-      case "profitLoss":
-        return <ProfitAndLoss theme={currentTheme} />;
-      case "gstDetails":
-        return <GSTDetails theme={currentTheme} />;
       case "vendors":
         return <VendorList theme={currentTheme} />;
       case "cashIn":
         return <CashInForm theme={currentTheme} />;
       case "cashOut":
         return <CashoutForm theme={currentTheme} />;
+      case "cashEntry":
+        return <CashEntryForm theme={currentTheme} />;
+      case "ledger":
+        return <LedgerList theme={currentTheme} />;
+      case "ledgerDetails":
+        return <LedgerDetails theme={currentTheme} />;
       case "document":
         return <Document theme={currentTheme} />;
-      case "Reminders":
+      case "profitLoss":
+        return <ProfitAndLoss theme={currentTheme} />;
+      case "gstDetails":
+        return <GSTDetails theme={currentTheme} />;
+      case "dashboardKPIs":
+        return <DashboardKPIs theme={currentTheme} />;
+      case "reminders":
         return <Reminders theme={currentTheme} />;
       default:
         return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
