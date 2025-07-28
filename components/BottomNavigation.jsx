@@ -36,9 +36,6 @@ const BottomNavigation = ({ currentPage, setPage, theme }) => {
   ];
 
   const handleNavClick = (pageId) => {
-    if (pageId === "more") {
-      return;
-    }
     setPage(pageId);
   };
 
