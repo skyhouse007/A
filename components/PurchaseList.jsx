@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 import { ChevronDown, ChevronUp, Filter, Search, Download, Eye, Edit, Trash2 } from "lucide-react";
 
 const PurchaseList = () => {
