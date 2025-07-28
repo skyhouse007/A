@@ -1,4 +1,3 @@
-login -> main app flow">
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
