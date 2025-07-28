@@ -107,7 +107,7 @@ function AppContent() {
   const renderPageContent = () => {
     switch (currentPage) {
       case "dashboard":
-        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
+        return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} onNavigate={setCurrentPage} />;
       case "billing":
         return <Billing theme={currentTheme} />;
       case "inventoryList":
