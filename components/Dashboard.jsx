@@ -281,7 +281,7 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
         }
       >
         {/* KPI Cards */}
-        <DashboardKPIs theme={theme} />
+        <DashboardKPIs theme={theme} onNavigate={onNavigate} />
 
         {/* Quick Actions */}
         <View style={{ marginBottom: 24 }}>
