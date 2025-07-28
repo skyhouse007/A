@@ -1,5 +1,6 @@
 'use dom'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import purchaseService from '../services/purchaseService.js';
 
 const PurchaseForm = ({ theme }) => {
   const [activeTab, setActiveTab] = useState('create');
@@ -10,8 +11,37 @@ const PurchaseForm = ({ theme }) => {
     items: [{ product: '', quantity: 1, unitPrice: 0 }],
     notes: ''
   });
-
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [vendors, setVendors] = useState([]);
+  const [purchases, setPurchases] = useState([]);
+
+  // Load vendors and purchases on component mount
+  useEffect(() => {
+    loadVendors();
+    loadPurchases();
+  }, []);
+
+  const loadVendors = async () => {
+    try {
+      const vendorData = await purchaseService.getVendors();
+      setVendors(vendorData);
+    } catch (error) {
+      console.error('Failed to load vendors:', error);
+      setError('Failed to load vendors');
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const purchaseData = await purchaseService.getPurchases();
+      setPurchases(purchaseData);
+    } catch (error) {
+      console.error('Failed to load purchases:', error);
+      setError('Failed to load purchase orders');
+    }
+  };
 
   const existingOrders = [
     {
@@ -53,13 +83,7 @@ const PurchaseForm = ({ theme }) => {
     }
   ];
 
-  const vendors = [
-    'Tech Supplies Co.',
-    'Office Equipment Ltd',
-    'Software Solutions Inc',
-    'Hardware Depot',
-    'Business Solutions LLC'
-  ];
+  // Vendors are now loaded from backend via loadVendors()
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
