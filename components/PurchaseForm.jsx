@@ -146,18 +146,39 @@ const PurchaseForm = ({ theme }) => {
     order.vendor.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Purchase Order:', formData);
-    // Reset form
-    setFormData({
-      vendor: '',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      items: [{ product: '', quantity: 1, unitPrice: 0 }],
-      notes: ''
-    });
-    alert('Purchase order created successfully!');
+    setLoading(true);
+    setError('');
+
+    try {
+      const purchaseOrder = {
+        ...formData,
+        total: calculateTotal(),
+        status: 'pending'
+      };
+
+      await purchaseService.createPurchase(purchaseOrder);
+
+      // Reset form
+      setFormData({
+        vendor: '',
+        orderDate: new Date().toISOString().split('T')[0],
+        deliveryDate: '',
+        items: [{ product: '', quantity: 1, unitPrice: 0 }],
+        notes: ''
+      });
+
+      // Reload purchases
+      await loadPurchases();
+
+      alert('Purchase order created successfully!');
+    } catch (error) {
+      console.error('Failed to create purchase order:', error);
+      setError('Failed to create purchase order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
