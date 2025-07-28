@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const ProfitAndLoss = () => {
   const [data, setData] = useState(null);
