@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
+import SplashScreen from './components/SplashScreen.jsx';
+import LoginScreen from './components/LoginScreen.jsx';
 import Navbar from './components/Navbar.jsx';
 import BottomNavigation from './components/BottomNavigation.jsx';
 import Sidebar from './components/Sidebar.jsx';
@@ -30,13 +32,17 @@ function AppContent() {
     currentPage, 
     setCurrentPage, 
     user, 
+    setUser,
     isLoading,
     error,
     apiConnected
   } = useApp();
 
+  // App state management
+  const [appState, setAppState] = useState('splash'); // 'splash' | 'login' | 'main'
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
@@ -73,6 +79,30 @@ function AppContent() {
   };
 
   const currentTheme = darkMode ? theme.dark : theme.light;
+
+  // Handle splash screen completion
+  const handleSplashComplete = () => {
+    setAppState('login');
+  };
+
+  // Handle login
+  const handleLogin = (userData) => {
+    setCurrentUser(userData);
+    setUser(userData);
+    setAppState('main');
+  };
+
+  // Handle skip login
+  const handleSkipLogin = () => {
+    const guestUser = {
+      name: 'Guest User',
+      email: 'guest@businessapp.com',
+      isGuest: true
+    };
+    setCurrentUser(guestUser);
+    setUser(guestUser);
+    setAppState('main');
+  };
 
   const renderPageContent = () => {
     switch (currentPage) {
@@ -117,6 +147,23 @@ function AppContent() {
     }
   };
 
+  // Render based on app state
+  if (appState === 'splash') {
+    return <SplashScreen onComplete={handleSplashComplete} theme={currentTheme} />;
+  }
+
+  if (appState === 'login') {
+    return (
+      <LoginScreen 
+        onLogin={handleLogin} 
+        onSkip={handleSkipLogin} 
+        theme={currentTheme} 
+      />
+    );
+  }
+
+  // Main App (appState === 'main')
+  
   // Loading State
   if (isLoading) {
     return (
@@ -204,7 +251,7 @@ function AppContent() {
     ]}>
       {/* Header */}
       <Navbar
-        user={user}
+        user={currentUser}
         setPage={setCurrentPage}
         theme={currentTheme}
         darkMode={darkMode}

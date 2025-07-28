@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
 import useAxios from "../hooks/useAxios";
 
-const LedgerDetails = ({ ledgerName, goBack, refreshLedgers }) => {
+const LedgerDetails = ({ theme, ledgerName, goBack, refreshLedgers }) => {
   const [ledger, setLedger] = useState(null);
   const [openingBalance, setOpeningBalance] = useState(0);
   const [ledgerType, setLedgerType] = useState("Asset");
   const [transactions, setTransactions] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
   const axios = useAxios();
+
+  const ledgerTypes = ["Asset", "Liability", "Equity", "Income", "Expense"];
 
   const formatCurrency = (num) =>
     new Intl.NumberFormat("en-IN", {
@@ -46,9 +50,10 @@ const LedgerDetails = ({ ledgerName, goBack, refreshLedgers }) => {
       });
       await loadLedger();
       refreshLedgers?.();
+      Alert.alert("Success", "Ledger updated successfully!");
     } catch (err) {
       console.error("Failed to update ledger:", err);
-      alert("Error updating ledger.");
+      Alert.alert("Error", "Error updating ledger.");
     } finally {
       setSaving(false);
     }
@@ -58,127 +63,391 @@ const LedgerDetails = ({ ledgerName, goBack, refreshLedgers }) => {
     loadLedger();
   }, [ledgerName]);
 
-  if (error)
-    return <p className="text-center text-red-500 mt-6">{error}</p>;
-  if (!ledger)
-    return <p className="text-center mt-6 text-gray-500">Loading...</p>;
+  const TypeSelector = () => (
+    <View style={{
+      position: 'absolute',
+      top: 60,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.cardBg,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      zIndex: 1000,
+      maxHeight: 200
+    }}>
+      <ScrollView>
+        {ledgerTypes.map((type) => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => {
+              setLedgerType(type);
+              setShowTypeSelector(false);
+            }}
+            style={{
+              padding: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.border + '30'
+            }}
+          >
+            <Text style={{
+              fontSize: 14,
+              color: ledgerType === type ? theme.accent : theme.text,
+              fontWeight: ledgerType === type ? '600' : '400'
+            }}>
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  if (error) {
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.bg,
+        padding: 32
+      }}>
+        <Text style={{
+          fontSize: 16,
+          color: '#ef4444',
+          textAlign: 'center'
+        }}>
+          {error}
+        </Text>
+      </View>
+    );
+  }
+
+  if (!ledger) {
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.bg,
+        padding: 32
+      }}>
+        <ActivityIndicator size="large" color={theme.accent} />
+        <Text style={{
+          marginTop: 16,
+          fontSize: 16,
+          color: theme.textSecondary,
+          textAlign: 'center'
+        }}>
+          Loading ledger...
+        </Text>
+      </View>
+    );
+  }
 
   const { totalIn = 0, totalOut = 0, balance = 0 } = ledger;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow">
-        <div className="flex flex-wrap justify-between items-center mb-6 gap-2">
-          <h2 className="text-2xl font-semibold text-blue-800 dark:text-white">
-            Ledger: {ledger.name}
-          </h2>
-          <button
-            onClick={goBack}
-            className="px-4 py-1 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-white rounded"
-          >
-            Back
-          </button>
-        </div>
-
-        {/* Editable Inputs */}
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Opening Balance
-            </label>
-            <input
-              type="number"
-              value={openingBalance}
-              onChange={(e) => setOpeningBalance(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 border rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Ledger Type
-            </label>
-            <select
-              value={ledgerType}
-              onChange={(e) => setLedgerType(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <ScrollView style={{
+      flex: 1,
+      backgroundColor: theme.bg
+    }}>
+      <View style={{ padding: 16 }}>
+        <View style={{
+          backgroundColor: theme.cardBg,
+          padding: 16,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.border
+        }}>
+          {/* Header */}
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24
+          }}>
+            <Text style={{
+              fontSize: 20,
+              fontWeight: '600',
+              color: theme.text,
+              flex: 1
+            }}>
+              Ledger: {ledger.name}
+            </Text>
+            <TouchableOpacity
+              onPress={goBack}
+              style={{
+                backgroundColor: theme.border,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 6
+              }}
             >
-              <option value="Asset">Asset</option>
-              <option value="Liability">Liability</option>
-              <option value="Equity">Equity</option>
-              <option value="Income">Income</option>
-              <option value="Expense">Expense</option>
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={handleUpdate}
+              <Text style={{
+                fontSize: 14,
+                color: theme.text,
+                fontWeight: '500'
+              }}>
+                Back
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Editable Inputs */}
+          <View style={{ gap: 16, marginBottom: 24 }}>
+            <View>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '500',
+                color: theme.text,
+                marginBottom: 8
+              }}>
+                Opening Balance
+              </Text>
+              <TextInput
+                value={openingBalance.toString()}
+                onChangeText={(text) => setOpeningBalance(parseFloat(text) || 0)}
+                keyboardType="numeric"
+                style={{
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 8,
+                  backgroundColor: theme.cardBg,
+                  fontSize: 14,
+                  color: theme.text
+                }}
+              />
+            </View>
+
+            <View style={{ position: 'relative' }}>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '500',
+                color: theme.text,
+                marginBottom: 8
+              }}>
+                Ledger Type
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowTypeSelector(!showTypeSelector)}
+                style={{
+                  padding: 12,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  backgroundColor: theme.cardBg,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.text
+                }}>
+                  {ledgerType}
+                </Text>
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.textSecondary
+                }}>
+                  {showTypeSelector ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+              
+              {showTypeSelector && <TypeSelector />}
+            </View>
+
+            <TouchableOpacity
+              onPress={handleUpdate}
               disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full disabled:bg-blue-400"
+              style={{
+                backgroundColor: saving ? theme.border : theme.accent,
+                paddingVertical: 12,
+                borderRadius: 8,
+                alignItems: 'center'
+              }}
             >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
+              <Text style={{
+                color: 'white',
+                fontSize: 14,
+                fontWeight: '600'
+              }}>
+                {saving ? "Saving..." : "Save"}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Transactions Table */}
-        <div className="overflow-x-auto rounded-md border border-gray-200 dark:border-slate-700">
-          <table className="min-w-full text-sm bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100">
-            <thead className="bg-blue-50 dark:bg-blue-900 text-gray-700 dark:text-white">
-              <tr>
-                <th className="text-left p-3 border-b">Date</th>
-                <th className="text-left p-3 border-b">Type</th>
-                <th className="text-right p-3 border-b">Amount</th>
-                <th className="text-left p-3 border-b">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((txn, i) => (
-                <tr
+          {/* Transactions Table */}
+          <View style={{
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: theme.border,
+            overflow: 'hidden'
+          }}>
+            {/* Table Header */}
+            <View style={{
+              backgroundColor: theme.accent + '20',
+              flexDirection: 'row',
+              padding: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.border
+            }}>
+              <Text style={{
+                flex: 1,
+                fontSize: 12,
+                fontWeight: '600',
+                color: theme.text,
+                textTransform: 'uppercase'
+              }}>
+                Date
+              </Text>
+              <Text style={{
+                flex: 1,
+                fontSize: 12,
+                fontWeight: '600',
+                color: theme.text,
+                textTransform: 'uppercase'
+              }}>
+                Type
+              </Text>
+              <Text style={{
+                flex: 1,
+                fontSize: 12,
+                fontWeight: '600',
+                color: theme.text,
+                textTransform: 'uppercase',
+                textAlign: 'right'
+              }}>
+                Amount
+              </Text>
+              <Text style={{
+                flex: 2,
+                fontSize: 12,
+                fontWeight: '600',
+                color: theme.text,
+                textTransform: 'uppercase'
+              }}>
+                Description
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {transactions.length === 0 ? (
+              <View style={{ padding: 24, alignItems: 'center' }}>
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.textSecondary,
+                  textAlign: 'center'
+                }}>
+                  No transactions found
+                </Text>
+              </View>
+            ) : (
+              transactions.map((txn, i) => (
+                <View
                   key={txn._id || i}
-                  className="hover:bg-gray-50 dark:hover:bg-slate-700"
+                  style={{
+                    flexDirection: 'row',
+                    padding: 12,
+                    borderBottomWidth: i < transactions.length - 1 ? 1 : 0,
+                    borderBottomColor: theme.border + '30',
+                    backgroundColor: i % 2 === 0 ? 'transparent' : theme.bg + '30'
+                  }}
                 >
-                  <td className="p-3 border-b">
+                  <Text style={{
+                    flex: 1,
+                    fontSize: 12,
+                    color: theme.text
+                  }}>
                     {new Date(txn.date).toLocaleDateString()}
-                  </td>
-                  <td
-                    className={`p-3 border-b font-medium ${
-                      txn.type === "in" ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
+                  </Text>
+                  <Text style={{
+                    flex: 1,
+                    fontSize: 12,
+                    fontWeight: '500',
+                    color: txn.type === "in" ? "#10b981" : "#ef4444"
+                  }}>
                     {txn.type === "in" ? "Cash In" : "Cash Out"}
-                  </td>
-                  <td className="p-3 border-b text-right">
+                  </Text>
+                  <Text style={{
+                    flex: 1,
+                    fontSize: 12,
+                    color: theme.text,
+                    textAlign: 'right'
+                  }}>
                     {formatCurrency(txn.amount)}
-                  </td>
-                  <td className="p-3 border-b text-gray-700 dark:text-gray-300">
+                  </Text>
+                  <Text style={{
+                    flex: 2,
+                    fontSize: 12,
+                    color: theme.textSecondary
+                  }}>
                     {txn.note || "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </Text>
+                </View>
+              ))
+            )}
+          </View>
 
-        {/* Summary */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm font-semibold">
-          <div className="bg-green-50 dark:bg-green-900 border-l-4 border-green-600 px-4 py-3 rounded text-green-800 dark:text-green-300">
-            Total Cash In: {formatCurrency(totalIn)}
-          </div>
-          <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-600 px-4 py-3 rounded text-red-700 dark:text-red-300">
-            Total Cash Out: {formatCurrency(totalOut)}
-          </div>
-          <div
-            className={`px-4 py-3 rounded border-l-4 ${
-              balance >= 0
-                ? "bg-green-100 dark:bg-green-900 border-green-700 text-green-900 dark:text-green-300"
-                : "bg-red-100 dark:bg-red-900 border-red-700 text-red-900 dark:text-red-300"
-            }`}
-          >
-            Balance: {formatCurrency(balance)}
-          </div>
-        </div>
-      </div>
-    </div>
+          {/* Summary Cards */}
+          <View style={{
+            marginTop: 24,
+            gap: 12
+          }}>
+            <View style={{
+              backgroundColor: '#dcfce7',
+              borderLeftWidth: 4,
+              borderLeftColor: '#16a34a',
+              padding: 12,
+              borderRadius: 8
+            }}>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: '#15803d'
+              }}>
+                Total Cash In: {formatCurrency(totalIn)}
+              </Text>
+            </View>
+            
+            <View style={{
+              backgroundColor: '#fee2e2',
+              borderLeftWidth: 4,
+              borderLeftColor: '#dc2626',
+              padding: 12,
+              borderRadius: 8
+            }}>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: '#dc2626'
+              }}>
+                Total Cash Out: {formatCurrency(totalOut)}
+              </Text>
+            </View>
+            
+            <View style={{
+              backgroundColor: balance >= 0 ? '#dcfce7' : '#fee2e2',
+              borderLeftWidth: 4,
+              borderLeftColor: balance >= 0 ? '#16a34a' : '#dc2626',
+              padding: 12,
+              borderRadius: 8
+            }}>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: balance >= 0 ? '#15803d' : '#dc2626'
+              }}>
+                Balance: {formatCurrency(balance)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 

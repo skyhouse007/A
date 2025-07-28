@@ -336,6 +336,11 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: ACTIONS.CLEAR_ERROR });
   };
 
+  // Direct setUser function for manual user updates
+  const setUser = (user) => {
+    dispatch({ type: ACTIONS.SET_USER, payload: user });
+  };
+
   // Context value
   const value = {
     ...state,
@@ -343,6 +348,7 @@ export const AppProvider = ({ children }) => {
     login,
     logout,
     register,
+    setUser,
     
     // Billing
     loadInvoices,

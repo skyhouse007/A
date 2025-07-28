@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import useAxios from "../hooks/useAxios";
 
-const LedgerList = ({ ledgers = [], onSelect, onLedgerAdded }) => {
+const LedgerList = ({ theme, ledgers = [], onSelect, onLedgerAdded }) => {
   const [newLedger, setNewLedger] = useState("");
   const [ledgerType, setLedgerType] = useState("Asset");
   const [creatingRequired, setCreatingRequired] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
   const axios = useAxios();
+
+  const ledgerTypes = ["Asset", "Liability", "Equity", "Income", "Expense"];
 
   const handleLedgerClick = (name) => {
     if (onSelect) onSelect(name);
@@ -17,20 +21,18 @@ const LedgerList = ({ ledgers = [], onSelect, onLedgerAdded }) => {
     try {
       const res = await axios.post("/ledgers/create-required");
       console.log("Required ledgers created:", res.data);
-      alert("Required ledgers created successfully! Please refresh the page.");
-      window.location.reload();
+      Alert.alert("Success", "Required ledgers created successfully! Please refresh the page.");
     } catch (err) {
       console.error("Error creating required ledgers:", err);
-      alert(err?.response?.data?.error || "Failed to create required ledgers.");
+      Alert.alert("Error", err?.response?.data?.error || "Failed to create required ledgers.");
     } finally {
       setCreatingRequired(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!newLedger.trim()) {
-      alert("Please enter a ledger name.");
+      Alert.alert("Error", "Please enter a ledger name.");
       return;
     }
 
@@ -41,158 +43,421 @@ const LedgerList = ({ ledgers = [], onSelect, onLedgerAdded }) => {
       });
       if (onLedgerAdded) onLedgerAdded(res.data);
       setNewLedger("");
+      Alert.alert("Success", "Ledger added successfully!");
     } catch (err) {
       console.error("Error adding ledger:", err);
-      alert(err?.response?.data?.error || "Failed to add ledger.");
+      Alert.alert("Error", err?.response?.data?.error || "Failed to add ledger.");
     }
   };
 
   const handleDelete = async (name) => {
-    if (!window.confirm(`Delete ledger "${name}"?`)) return;
-    try {
-      await axios.delete(`/ledgers/${name}`);
-      window.location.reload();
-    } catch (err) {
-      console.error("Error deleting ledger:", err);
-      alert(err?.response?.data?.error || "Failed to delete ledger.");
-    }
+    Alert.alert(
+      "Delete Ledger",
+      `Delete ledger "${name}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await axios.delete(`/ledgers/${name}`);
+              Alert.alert("Success", "Ledger deleted successfully!");
+              // Trigger refresh or callback here
+            } catch (err) {
+              console.error("Error deleting ledger:", err);
+              Alert.alert("Error", err?.response?.data?.error || "Failed to delete ledger.");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleDeleteAll = async () => {
-    if (!window.confirm('Are you sure you want to delete ALL listed ledgers? This cannot be undone.')) return;
-    setDeleting(true);
-    try {
-      await Promise.all(ledgers.map(l => axios.delete(`/ledgers/${l.name}`)));
-      window.location.reload();
-    } catch (err) {
-      alert('Failed to delete all ledgers.');
-      console.error(err);
-    } finally {
-      setDeleting(false);
-    }
+    Alert.alert(
+      "Delete All Ledgers",
+      "Are you sure you want to delete ALL listed ledgers? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete All",
+          style: "destructive",
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await Promise.all(ledgers.map(l => axios.delete(`/ledgers/${l.name}`)));
+              Alert.alert("Success", "All ledgers deleted successfully!");
+            } catch (err) {
+              Alert.alert("Error", "Failed to delete all ledgers.");
+              console.error(err);
+            } finally {
+              setDeleting(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <h2 className="text-2xl font-bold text-blue-800 dark:text-white">Ledger List</h2>
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2
+    }).format(amount || 0);
+  };
 
-      {/* Create Required Ledgers Button */}
-      {ledgers.length === 0 && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
-          <p className="text-yellow-800 dark:text-yellow-200 mb-3">
-            No ledgers found. Create the required system ledgers to get started.
-          </p>
-          <button
-            onClick={createRequiredLedgers}
-            disabled={creatingRequired}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md shadow disabled:bg-yellow-400"
+  const TypeSelector = () => (
+    <View style={{
+      position: 'absolute',
+      top: 60,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.cardBg,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      zIndex: 1000,
+      maxHeight: 200
+    }}>
+      <ScrollView>
+        {ledgerTypes.map((type) => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => {
+              setLedgerType(type);
+              setShowTypeSelector(false);
+            }}
+            style={{
+              padding: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.border + '30'
+            }}
           >
-            {creatingRequired ? "Creating..." : "Create Required Ledgers (Sales, Stock, Transport)"}
-          </button>
-        </div>
-      )}
+            <Text style={{
+              fontSize: 14,
+              color: ledgerType === type ? theme.accent : theme.text,
+              fontWeight: ledgerType === type ? '600' : '400'
+            }}>
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
 
-      {/* Form to add new ledger */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-4 items-start sm:items-end bg-blue-50 dark:bg-slate-800 p-4 rounded-xl shadow"
-      >
-        <input
-          type="text"
-          value={newLedger}
-          onChange={(e) => setNewLedger(e.target.value)}
-          placeholder="Ledger Name"
-          className="w-full sm:w-64 px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <select
-          value={ledgerType}
-          onChange={(e) => setLedgerType(e.target.value)}
-          className="w-full sm:w-48 px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="Asset">Asset</option>
-          <option value="Liability">Liability</option>
-          <option value="Equity">Equity</option>
-          <option value="Income">Income</option>
-          <option value="Expense">Expense</option>
-        </select>
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow"
-        >
-          Add Ledger
-        </button>
-      </form>
+  return (
+    <ScrollView style={{
+      flex: 1,
+      backgroundColor: theme.bg
+    }}>
+      <View style={{ padding: 16 }}>
+        <Text style={{
+          fontSize: 24,
+          fontWeight: '700',
+          color: theme.text,
+          marginBottom: 24
+        }}>
+          Ledger List
+        </Text>
 
-      {/* Delete All Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleDeleteAll}
-          disabled={deleting || ledgers.length === 0}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow text-sm font-medium"
-        >
-          {deleting ? 'Deleting...' : 'Delete All'}
-        </button>
-      </div>
-
-      {/* Ledger Table */}
-      <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-xl shadow ring-1 ring-gray-200 dark:ring-slate-700">
-        {(!ledgers || ledgers.length === 0) ? (
-          <p className="p-4 text-gray-600 dark:text-gray-300">No ledgers available.</p>
-        ) : (
-          <table className="min-w-full text-sm text-left text-gray-800 dark:text-gray-100">
-            <thead>
-              <tr className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200">
-                <th className="px-4 py-3 border border-gray-200 dark:border-slate-600">Name</th>
-                <th className="px-4 py-3 border border-gray-200 dark:border-slate-600">Type</th>
-                <th className="px-4 py-3 text-right border border-gray-200 dark:border-slate-600">Cash In</th>
-                <th className="px-4 py-3 text-right border border-gray-200 dark:border-slate-600">Cash Out</th>
-                <th className="px-4 py-3 text-right border border-gray-200 dark:border-slate-600">Balance</th>
-                <th className="px-4 py-3 text-center border border-gray-200 dark:border-slate-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledgers.map((ledger, idx) => (
-                <tr
-                  key={ledger._id || idx}
-                  className={`${idx % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-blue-50 dark:bg-slate-700"}`}
-                >
-                  <td
-                    className="px-4 py-2 border border-gray-200 dark:border-slate-700 text-blue-600 dark:text-blue-300 hover:underline cursor-pointer"
-                    onClick={() => handleLedgerClick(ledger.name)}
-                  >
-                    {ledger.name}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 dark:border-slate-700">
-                    {ledger.type}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 dark:border-slate-700 text-right text-green-700">
-                    {ledger.totalIn?.toFixed(2) ?? "0.00"}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 dark:border-slate-700 text-right text-red-600">
-                    {ledger.totalOut?.toFixed(2) ?? "0.00"}
-                  </td>
-                  <td
-                    className={`px-4 py-2 border border-gray-200 dark:border-slate-700 text-right font-semibold ${
-                      ledger.balance >= 0 ? "text-green-800" : "text-red-800"
-                    }`}
-                  >
-                    {ledger.balance?.toFixed(2) ?? "0.00"}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 dark:border-slate-700 text-center">
-                    <button
-                      onClick={() => handleDelete(ledger.name)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Create Required Ledgers Button */}
+        {ledgers.length === 0 && (
+          <View style={{
+            backgroundColor: '#fef3c7',
+            borderWidth: 1,
+            borderColor: '#fcd34d',
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 16
+          }}>
+            <Text style={{
+              color: '#92400e',
+              marginBottom: 12,
+              fontSize: 14
+            }}>
+              No ledgers found. Create the required system ledgers to get started.
+            </Text>
+            <TouchableOpacity
+              onPress={createRequiredLedgers}
+              disabled={creatingRequired}
+              style={{
+                backgroundColor: creatingRequired ? '#fcd34d' : '#f59e0b',
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 8
+              }}
+            >
+              <Text style={{
+                color: 'white',
+                fontSize: 14,
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                {creatingRequired ? "Creating..." : "Create Required Ledgers (Sales, Stock, Transport)"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </div>
-    </div>
+
+        {/* Form to add new ledger */}
+        <View style={{
+          backgroundColor: theme.cardBg,
+          padding: 16,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.border,
+          marginBottom: 16
+        }}>
+          <View style={{ gap: 12 }}>
+            <TextInput
+              value={newLedger}
+              onChangeText={setNewLedger}
+              placeholder="Ledger Name"
+              placeholderTextColor={theme.textSecondary}
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: theme.border,
+                backgroundColor: theme.cardBg,
+                fontSize: 14,
+                color: theme.text
+              }}
+            />
+            
+            <View style={{ position: 'relative' }}>
+              <TouchableOpacity
+                onPress={() => setShowTypeSelector(!showTypeSelector)}
+                style={{
+                  padding: 12,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  backgroundColor: theme.cardBg,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.text
+                }}>
+                  {ledgerType}
+                </Text>
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.textSecondary
+                }}>
+                  {showTypeSelector ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+              
+              {showTypeSelector && <TypeSelector />}
+            </View>
+            
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={{
+                backgroundColor: theme.accent,
+                paddingVertical: 12,
+                borderRadius: 8,
+                alignItems: 'center'
+              }}
+            >
+              <Text style={{
+                color: 'white',
+                fontSize: 14,
+                fontWeight: '600'
+              }}>
+                Add Ledger
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Delete All Button */}
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          marginBottom: 16
+        }}>
+          <TouchableOpacity
+            onPress={handleDeleteAll}
+            disabled={deleting || ledgers.length === 0}
+            style={{
+              backgroundColor: deleting || ledgers.length === 0 ? '#9ca3af' : '#ef4444',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 8
+            }}
+          >
+            <Text style={{
+              color: 'white',
+              fontSize: 14,
+              fontWeight: '600'
+            }}>
+              {deleting ? 'Deleting...' : 'Delete All'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Ledger List */}
+        <View style={{
+          backgroundColor: theme.cardBg,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.border,
+          overflow: 'hidden'
+        }}>
+          {(!ledgers || ledgers.length === 0) ? (
+            <View style={{ padding: 32, alignItems: 'center' }}>
+              <Text style={{
+                fontSize: 16,
+                color: theme.textSecondary,
+                textAlign: 'center'
+              }}>
+                No ledgers available.
+              </Text>
+            </View>
+          ) : (
+            <View>
+              {/* Header */}
+              <View style={{
+                backgroundColor: theme.bg + '50',
+                flexDirection: 'row',
+                padding: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: theme.border
+              }}>
+                <Text style={{
+                  flex: 2,
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: theme.textSecondary,
+                  textTransform: 'uppercase'
+                }}>
+                  Name
+                </Text>
+                <Text style={{
+                  flex: 1,
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: theme.textSecondary,
+                  textTransform: 'uppercase'
+                }}>
+                  Type
+                </Text>
+                <Text style={{
+                  flex: 1,
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: theme.textSecondary,
+                  textTransform: 'uppercase',
+                  textAlign: 'right'
+                }}>
+                  Balance
+                </Text>
+                <Text style={{
+                  flex: 1,
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: theme.textSecondary,
+                  textTransform: 'uppercase',
+                  textAlign: 'center'
+                }}>
+                  Actions
+                </Text>
+              </View>
+
+              {/* Ledger Rows */}
+              {ledgers.map((ledger, idx) => (
+                <View key={ledger._id || idx}>
+                  <View style={{
+                    flexDirection: 'row',
+                    padding: 12,
+                    borderBottomWidth: idx < ledgers.length - 1 ? 1 : 0,
+                    borderBottomColor: theme.border + '30',
+                    backgroundColor: idx % 2 === 0 ? 'transparent' : theme.bg + '30'
+                  }}>
+                    <TouchableOpacity
+                      onPress={() => handleLedgerClick(ledger.name)}
+                      style={{ flex: 2 }}
+                    >
+                      <Text style={{
+                        fontSize: 14,
+                        color: theme.accent,
+                        fontWeight: '500'
+                      }}>
+                        {ledger.name}
+                      </Text>
+                    </TouchableOpacity>
+                    
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        fontSize: 14,
+                        color: theme.text
+                      }}>
+                        {ledger.type}
+                      </Text>
+                    </View>
+                    
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        fontSize: 14,
+                        color: (ledger.balance || 0) >= 0 ? '#10b981' : '#ef4444',
+                        fontWeight: '600',
+                        textAlign: 'right'
+                      }}>
+                        {formatCurrency(ledger.balance || 0)}
+                      </Text>
+                      <Text style={{
+                        fontSize: 10,
+                        color: '#10b981',
+                        textAlign: 'right',
+                        marginTop: 2
+                      }}>
+                        In: {formatCurrency(ledger.totalIn || 0)}
+                      </Text>
+                      <Text style={{
+                        fontSize: 10,
+                        color: '#ef4444',
+                        textAlign: 'right'
+                      }}>
+                        Out: {formatCurrency(ledger.totalOut || 0)}
+                      </Text>
+                    </View>
+                    
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <TouchableOpacity
+                        onPress={() => handleDelete(ledger.name)}
+                        style={{
+                          backgroundColor: '#ef4444',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderRadius: 4
+                        }}
+                      >
+                        <Text style={{
+                          color: 'white',
+                          fontSize: 12,
+                          fontWeight: '500'
+                        }}>
+                          Delete
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import useAxios from "../hooks/useAxios";
 
-const ProfitAndLoss = () => {
+const ProfitAndLoss = ({ theme }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showMonthSelector, setShowMonthSelector] = useState(false);
   const axios = useAxios();
   const [month, setMonth] = useState(new Date().getMonth() + 1); // getMonth() returns 0-11, so add 1
   const [year, setYear] = useState(new Date().getFullYear());
@@ -83,200 +85,502 @@ const ProfitAndLoss = () => {
     "July", "August", "September", "October", "November", "December"
   ];
 
+  const MonthSelector = () => (
+    <View style={{
+      position: 'absolute',
+      top: 50,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.cardBg,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      zIndex: 1000,
+      maxHeight: 200
+    }}>
+      <ScrollView>
+        {monthOptions.map((m, idx) => (
+          <TouchableOpacity
+            key={idx}
+            onPress={() => {
+              setMonth(idx + 1);
+              setShowMonthSelector(false);
+            }}
+            style={{
+              padding: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.border + '30'
+            }}
+          >
+            <Text style={{
+              fontSize: 14,
+              color: month === idx + 1 ? theme.accent : theme.text,
+              fontWeight: month === idx + 1 ? '600' : '400'
+            }}>
+              {m}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-blue-50 dark:bg-blue-900 text-gray-900 dark:text-white rounded-xl shadow-lg mt-8">
-      <h2 className="text-2xl font-bold text-center mb-6 text-blue-800 dark:text-white">
-        Profit & Loss Statement
-        {data?.ledgerBased && (
-          <span className="text-sm font-normal text-green-600 dark:text-green-400 ml-2">
-            (Ledger-Based)
-          </span>
-        )}
-      </h2>
-
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-6">
-        <select
-          value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
-          className="px-3 py-2 rounded border border-blue-300 dark:border-blue-700 bg-white dark:bg-blue-800 dark:text-white"
-        >
-          {monthOptions.map((m, idx) => (
-            <option key={idx} value={idx + 1}>{m}</option>
-          ))}
-        </select>
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          min="2000"
-          max="2100"
-          className="px-3 py-2 rounded border border-blue-300 dark:border-blue-700 bg-white dark:bg-blue-800 dark:text-white w-28"
-        />
-        <button
-          onClick={fetchPL}
-          className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded"
-        >
-          Refresh
-        </button>
-        <button
-          onClick={() => setShowBreakdown(!showBreakdown)}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
-        >
-          {showBreakdown ? "Hide" : "Show"} Breakdown
-        </button>
-      </div>
-
-      {/* Main Content */}
-      {loading ? (
-        <div className="text-center text-gray-500 dark:text-gray-300">Loading data...</div>
-      ) : !data ? (
-        <div className="text-center text-red-500">Unable to load data.</div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Debit */}
-            <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-blue-100 dark:border-blue-700">
-              <h3 className="text-lg font-semibold mb-4 border-b pb-2">Debit (Dr)</h3>
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr><td className="py-2">Opening Stock</td><td className="text-right">{format(data.debit?.openingStock || 0)}</td></tr>
-                  <tr><td className="py-2">Purchases</td><td className="text-right">{format(data.debit?.purchases || 0)}</td></tr>
-                  <tr><td className="py-2">Expenses</td><td className="text-right">{format(data.debit?.expenses || 0)}</td></tr>
-                  <tr className="border-t font-semibold text-blue-700 dark:text-blue-300">
-                    <td className="py-2">Total Debit</td><td className="text-right">{format(data.debit?.total || 0)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Credit */}
-            <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-blue-100 dark:border-blue-700">
-              <h3 className="text-lg font-semibold mb-4 border-b pb-2">Credit (Cr)</h3>
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr><td className="py-2">Sales</td><td className="text-right">{format(data.credit?.sales || 0)}</td></tr>
-                  <tr><td className="py-2">Other Income</td><td className="text-right">{format(data.credit?.income || 0)}</td></tr>
-                  <tr><td className="py-2">Closing Stock</td><td className="text-right">{format(data.credit?.closingStock || 0)}</td></tr>
-                  <tr className="border-t font-semibold text-blue-700 dark:text-blue-300">
-                    <td className="py-2">Total Credit</td><td className="text-right">{format(data.credit?.total || 0)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Net Result */}
-          <div className="mt-6 text-center text-lg font-semibold">
-            {(data.profitOrLoss || 0) >= 0 ? (
-              <p className="text-green-600 dark:text-green-400">
-                Net Profit: {format(data.profitOrLoss || 0)}
-              </p>
-            ) : (
-              <p className="text-red-600 dark:text-red-400">
-                Net Loss: {format(Math.abs(data.profitOrLoss || 0))}
-              </p>
+    <ScrollView style={{
+      flex: 1,
+      backgroundColor: theme.bg
+    }}>
+      <View style={{ padding: 16 }}>
+        <View style={{
+          backgroundColor: theme.cardBg,
+          padding: 20,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.border
+        }}>
+          {/* Header */}
+          <View style={{ alignItems: 'center', marginBottom: 24 }}>
+            <Text style={{
+              fontSize: 24,
+              fontWeight: '700',
+              color: theme.text,
+              textAlign: 'center',
+              marginBottom: 4
+            }}>
+              Profit & Loss Statement
+            </Text>
+            {data?.ledgerBased && (
+              <Text style={{
+                fontSize: 14,
+                color: '#10b981',
+                fontWeight: '500'
+              }}>
+                (Ledger-Based)
+              </Text>
             )}
-          </div>
+          </View>
 
-          {/* Detailed Breakdown */}
-          {showBreakdown && data.breakdown && (
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Income Breakdown */}
-              {data.breakdown.income && data.breakdown.income.total > 0 && (
-                <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-green-100 dark:border-green-700">
-                  <h4 className="text-lg font-semibold mb-3 text-green-700 dark:text-green-300 border-b pb-2">
-                    Income Breakdown
-                  </h4>
-                  <div className="space-y-2">
-                    {data.breakdown.income.breakdown.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
-                        <span>{item.ledger}</span>
-                        <span className="text-green-600 dark:text-green-400">{format(item.amount)}</span>
-                      </div>
-                    ))}
-                    <div className="border-t pt-2 font-semibold flex justify-between">
-                      <span>Total Income</span>
-                      <span className="text-green-600 dark:text-green-400">{format(data.breakdown.income.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+          {/* Filters */}
+          <View style={{
+            gap: 12,
+            marginBottom: 24
+          }}>
+            <View style={{ position: 'relative' }}>
+              <TouchableOpacity
+                onPress={() => setShowMonthSelector(!showMonthSelector)}
+                style={{
+                  padding: 12,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  backgroundColor: theme.cardBg,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.text
+                }}>
+                  {monthOptions[month - 1]}
+                </Text>
+                <Text style={{
+                  fontSize: 14,
+                  color: theme.textSecondary
+                }}>
+                  {showMonthSelector ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+              
+              {showMonthSelector && <MonthSelector />}
+            </View>
 
-              {/* Expense Breakdown */}
-              {data.breakdown.expenses && data.breakdown.expenses.total > 0 && (
-                <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-red-100 dark:border-red-700">
-                  <h4 className="text-lg font-semibold mb-3 text-red-700 dark:text-red-300 border-b pb-2">
-                    Expense Breakdown
-                  </h4>
-                  <div className="space-y-2">
-                    {data.breakdown.expenses.breakdown.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
-                        <span>{item.ledger}</span>
-                        <span className="text-red-600 dark:text-red-400">{format(item.amount)}</span>
-                      </div>
-                    ))}
-                    <div className="border-t pt-2 font-semibold flex justify-between">
-                      <span>Total Expenses</span>
-                      <span className="text-red-600 dark:text-red-400">{format(data.breakdown.expenses.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <TextInput
+              value={year.toString()}
+              onChangeText={(text) => setYear(Number(text) || new Date().getFullYear())}
+              keyboardType="numeric"
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: theme.border,
+                backgroundColor: theme.cardBg,
+                fontSize: 14,
+                color: theme.text
+              }}
+            />
 
-              {/* Stock Movement */}
-              {data.breakdown.stock && (
-                <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-blue-100 dark:border-blue-700">
-                  <h4 className="text-lg font-semibold mb-3 text-blue-700 dark:text-blue-300 border-b pb-2">
-                    Stock Movement
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Opening Stock</span>
-                      <span>{format(data.breakdown.stock.opening)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Stock Purchases</span>
-                      <span className="text-green-600 dark:text-green-400">{format(data.breakdown.stock.purchases)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Stock Sales</span>
-                      <span className="text-red-600 dark:text-red-400">{format(data.breakdown.stock.sales)}</span>
-                    </div>
-                    <div className="border-t pt-2 font-semibold flex justify-between">
-                      <span>Closing Stock</span>
-                      <span>{format(data.breakdown.stock.closing)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <View style={{
+              flexDirection: 'row',
+              gap: 8
+            }}>
+              <TouchableOpacity
+                onPress={fetchPL}
+                style={{
+                  flex: 1,
+                  backgroundColor: theme.accent,
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{
+                  color: 'white',
+                  fontSize: 14,
+                  fontWeight: '600'
+                }}>
+                  Refresh
+                </Text>
+              </TouchableOpacity>
 
-              {/* Reference Data */}
-              {data.breakdown.reference && (
-                <div className="bg-white dark:bg-blue-800 rounded-xl p-4 shadow border border-gray-100 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300 border-b pb-2">
-                    Reference Data
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Total Sales (from Sales module)</span>
-                      <span>{format(data.breakdown.reference.sales)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total Purchases (from Purchase module)</span>
-                      <span>{format(data.breakdown.reference.purchases)}</span>
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      * Reference data shows totals from Sales/Purchase modules for comparison
-                    </div>
-                  </div>
-                </div>
+              <TouchableOpacity
+                onPress={() => setShowBreakdown(!showBreakdown)}
+                style={{
+                  flex: 1,
+                  backgroundColor: '#10b981',
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{
+                  color: 'white',
+                  fontSize: 14,
+                  fontWeight: '600'
+                }}>
+                  {showBreakdown ? "Hide" : "Show"} Breakdown
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Main Content */}
+          {loading ? (
+            <View style={{
+              alignItems: 'center',
+              paddingVertical: 32
+            }}>
+              <ActivityIndicator size="large" color={theme.accent} />
+              <Text style={{
+                marginTop: 16,
+                fontSize: 16,
+                color: theme.textSecondary
+              }}>
+                Loading data...
+              </Text>
+            </View>
+          ) : !data ? (
+            <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+              <Text style={{
+                fontSize: 16,
+                color: '#ef4444',
+                textAlign: 'center'
+              }}>
+                Unable to load data.
+              </Text>
+            </View>
+          ) : (
+            <View>
+              {/* Debit and Credit Sections */}
+              <View style={{ gap: 16, marginBottom: 24 }}>
+                {/* Debit */}
+                <View style={{
+                  backgroundColor: theme.bg + '50',
+                  borderRadius: 12,
+                  padding: 16,
+                  borderWidth: 1,
+                  borderColor: theme.border
+                }}>
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: '600',
+                    color: theme.text,
+                    marginBottom: 16,
+                    paddingBottom: 8,
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.border
+                  }}>
+                    Debit (Dr)
+                  </Text>
+                  
+                  <View style={{ gap: 8 }}>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Opening Stock</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.debit?.openingStock || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Purchases</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.debit?.purchases || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Expenses</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.debit?.expenses || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 8,
+                      borderTopWidth: 1,
+                      borderTopColor: theme.border,
+                      marginTop: 8
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.accent, fontWeight: '600' }}>Total Debit</Text>
+                      <Text style={{ fontSize: 14, color: theme.accent, fontWeight: '600' }}>{format(data.debit?.total || 0)}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Credit */}
+                <View style={{
+                  backgroundColor: theme.bg + '50',
+                  borderRadius: 12,
+                  padding: 16,
+                  borderWidth: 1,
+                  borderColor: theme.border
+                }}>
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: '600',
+                    color: theme.text,
+                    marginBottom: 16,
+                    paddingBottom: 8,
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.border
+                  }}>
+                    Credit (Cr)
+                  </Text>
+                  
+                  <View style={{ gap: 8 }}>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Sales</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.credit?.sales || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Other Income</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.credit?.income || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 4
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.text }}>Closing Stock</Text>
+                      <Text style={{ fontSize: 14, color: theme.text }}>{format(data.credit?.closingStock || 0)}</Text>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 8,
+                      borderTopWidth: 1,
+                      borderTopColor: theme.border,
+                      marginTop: 8
+                    }}>
+                      <Text style={{ fontSize: 14, color: theme.accent, fontWeight: '600' }}>Total Credit</Text>
+                      <Text style={{ fontSize: 14, color: theme.accent, fontWeight: '600' }}>{format(data.credit?.total || 0)}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Net Result */}
+              <View style={{
+                alignItems: 'center',
+                marginBottom: 24,
+                padding: 16,
+                backgroundColor: (data.profitOrLoss || 0) >= 0 ? '#dcfce7' : '#fee2e2',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: (data.profitOrLoss || 0) >= 0 ? '#16a34a' : '#dc2626'
+              }}>
+                {(data.profitOrLoss || 0) >= 0 ? (
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: '600',
+                    color: '#15803d',
+                    textAlign: 'center'
+                  }}>
+                    Net Profit: {format(data.profitOrLoss || 0)}
+                  </Text>
+                ) : (
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: '600',
+                    color: '#dc2626',
+                    textAlign: 'center'
+                  }}>
+                    Net Loss: {format(Math.abs(data.profitOrLoss || 0))}
+                  </Text>
+                )}
+              </View>
+
+              {/* Detailed Breakdown */}
+              {showBreakdown && data.breakdown && (
+                <View style={{ gap: 16 }}>
+                  {/* Income Breakdown */}
+                  {data.breakdown.income && data.breakdown.income.total > 0 && (
+                    <View style={{
+                      backgroundColor: '#dcfce7',
+                      borderRadius: 12,
+                      padding: 16,
+                      borderWidth: 1,
+                      borderColor: '#16a34a'
+                    }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: '#15803d',
+                        marginBottom: 12,
+                        paddingBottom: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#16a34a'
+                      }}>
+                        Income Breakdown
+                      </Text>
+                      <View style={{ gap: 8 }}>
+                        {data.breakdown.income.breakdown.map((item, idx) => (
+                          <View key={idx} style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between'
+                          }}>
+                            <Text style={{ fontSize: 14, color: '#15803d' }}>{item.ledger}</Text>
+                            <Text style={{ fontSize: 14, color: '#15803d', fontWeight: '500' }}>{format(item.amount)}</Text>
+                          </View>
+                        ))}
+                        <View style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          borderTopWidth: 1,
+                          borderTopColor: '#16a34a',
+                          paddingTop: 8,
+                          marginTop: 8
+                        }}>
+                          <Text style={{ fontSize: 14, color: '#15803d', fontWeight: '600' }}>Total Income</Text>
+                          <Text style={{ fontSize: 14, color: '#15803d', fontWeight: '600' }}>{format(data.breakdown.income.total)}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Expense Breakdown */}
+                  {data.breakdown.expenses && data.breakdown.expenses.total > 0 && (
+                    <View style={{
+                      backgroundColor: '#fee2e2',
+                      borderRadius: 12,
+                      padding: 16,
+                      borderWidth: 1,
+                      borderColor: '#dc2626'
+                    }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: '#dc2626',
+                        marginBottom: 12,
+                        paddingBottom: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#dc2626'
+                      }}>
+                        Expense Breakdown
+                      </Text>
+                      <View style={{ gap: 8 }}>
+                        {data.breakdown.expenses.breakdown.map((item, idx) => (
+                          <View key={idx} style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between'
+                          }}>
+                            <Text style={{ fontSize: 14, color: '#dc2626' }}>{item.ledger}</Text>
+                            <Text style={{ fontSize: 14, color: '#dc2626', fontWeight: '500' }}>{format(item.amount)}</Text>
+                          </View>
+                        ))}
+                        <View style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          borderTopWidth: 1,
+                          borderTopColor: '#dc2626',
+                          paddingTop: 8,
+                          marginTop: 8
+                        }}>
+                          <Text style={{ fontSize: 14, color: '#dc2626', fontWeight: '600' }}>Total Expenses</Text>
+                          <Text style={{ fontSize: 14, color: '#dc2626', fontWeight: '600' }}>{format(data.breakdown.expenses.total)}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Stock Movement */}
+                  {data.breakdown.stock && (
+                    <View style={{
+                      backgroundColor: theme.bg + '50',
+                      borderRadius: 12,
+                      padding: 16,
+                      borderWidth: 1,
+                      borderColor: theme.border
+                    }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: theme.text,
+                        marginBottom: 12,
+                        paddingBottom: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.border
+                      }}>
+                        Stock Movement
+                      </Text>
+                      <View style={{ gap: 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ fontSize: 14, color: theme.text }}>Opening Stock</Text>
+                          <Text style={{ fontSize: 14, color: theme.text }}>{format(data.breakdown.stock.opening)}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ fontSize: 14, color: theme.text }}>Stock Purchases</Text>
+                          <Text style={{ fontSize: 14, color: '#10b981' }}>{format(data.breakdown.stock.purchases)}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ fontSize: 14, color: theme.text }}>Stock Sales</Text>
+                          <Text style={{ fontSize: 14, color: '#ef4444' }}>{format(data.breakdown.stock.sales)}</Text>
+                        </View>
+                        <View style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          borderTopWidth: 1,
+                          borderTopColor: theme.border,
+                          paddingTop: 8,
+                          marginTop: 8
+                        }}>
+                          <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>Closing Stock</Text>
+                          <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{format(data.breakdown.stock.closing)}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                </View>
               )}
-            </div>
+            </View>
           )}
-        </>
-      )}
-    </div>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
