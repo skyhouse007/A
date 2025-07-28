@@ -75,6 +75,70 @@ function AppContent() {
         return <PurchaseForm theme={currentTheme} />;
       case "vendors":
         return <VendorList theme={currentTheme} />;
+
+      // Additional pages - using existing components as placeholders for now
+      case "purchase":
+        return <PurchaseForm theme={currentTheme} />;
+      case "sales":
+        return <SalesList theme={currentTheme} />;
+      case "services":
+      case "document":
+      case "orders":
+      case "Customer":
+      case "cashIn":
+      case "cashOut":
+      case "ledger":
+      case "balanceSheet":
+      case "profitLoss":
+      case "gstDetails":
+      case "Reminders":
+        return (
+          <div style={{
+            background: currentTheme.bg,
+            minHeight: '100%',
+            width: '100%',
+            padding: '16px'
+          }}>
+            <div style={{
+              background: currentTheme.cardBg,
+              border: `1px solid ${currentTheme.border}`,
+              borderRadius: '12px',
+              padding: '32px',
+              textAlign: 'center'
+            }}>
+              <h1 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: currentTheme.text,
+                marginBottom: '16px'
+              }}>
+                {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)} Module
+              </h1>
+              <p style={{
+                fontSize: '16px',
+                color: currentTheme.textSecondary,
+                marginBottom: '24px'
+              }}>
+                This module is under development and will be available soon.
+              </p>
+              <button
+                onClick={() => setCurrentPage('dashboard')}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  background: currentTheme.accent,
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        );
       default:
         return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
     }
