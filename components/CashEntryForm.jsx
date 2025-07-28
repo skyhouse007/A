@@ -10,6 +10,18 @@ const CashEntryForm = ({ type, ledgers = [] }) => {
   });
   const axios = useAxios();
 
+  // Mock ledgers data if none provided
+  const mockLedgers = [
+    { _id: "1", name: "Cash" },
+    { _id: "2", name: "Bank Account" },
+    { _id: "3", name: "Sales" },
+    { _id: "4", name: "Expenses" },
+    { _id: "5", name: "Accounts Receivable" },
+    { _id: "6", name: "Accounts Payable" }
+  ];
+
+  const availableLedgers = ledgers.length > 0 ? ledgers : mockLedgers;
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
