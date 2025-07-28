@@ -105,8 +105,26 @@ const PurchaseList = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get("/purchases/stats/summary");
-      setStats(res.data);
+      // Mock stats data for demo purposes (since no backend is available)
+      const mockStats = {
+        totalPurchases: 4,
+        totalAmount: 475000,
+        thisMonth: {
+          purchases: 4,
+          amount: 475000
+        },
+        lastMonth: {
+          purchases: 6,
+          amount: 320000
+        },
+        pending: 1,
+        completed: 2,
+        cancelled: 1
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setStats(mockStats);
     } catch (err) {
       console.error("Failed to load stats", err);
     }
