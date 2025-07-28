@@ -100,7 +100,8 @@ const VendorList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Delete this vendor?")) {
       try {
-        await axios.delete(`/vendors/${id}`);
+        // Mock API call for demo purposes (since no backend is available)
+        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
         setVendors(vendors.filter((v) => v._id !== id));
       } catch (err) {
         console.error("Error deleting vendor:", err.message);
