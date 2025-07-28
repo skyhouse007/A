@@ -15,6 +15,7 @@ import Documents from './components/Documents.jsx';
 import Orders from './components/Orders.jsx';
 import Customers from './components/Customers.jsx';
 import CashIn from './components/CashIn.jsx';
+import CashOut from './components/CashOut.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
