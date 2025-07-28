@@ -97,9 +97,10 @@ function AppContent() {
         return <Customers theme={currentTheme} />;
       case "cashIn":
         return <CashIn theme={currentTheme} />;
+      case "cashOut":
+        return <CashOut theme={currentTheme} />;
 
       // Placeholder pages for remaining components
-      case "cashOut":
       case "ledger":
       case "balanceSheet":
       case "profitLoss":
