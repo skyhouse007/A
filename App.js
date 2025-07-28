@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
 import BottomNavigation from './components/BottomNavigation.jsx';
+import Sidebar from './components/Sidebar.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
@@ -33,6 +34,7 @@ function AppContent() {
   } = useApp();
 
   const [darkMode, setDarkMode] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const sampleSalesData = [
     { month: 'Jan', sales: 12000 },
@@ -201,6 +203,7 @@ function AppContent() {
         theme={currentTheme}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        onMenuPress={() => setSidebarVisible(true)}
       />
 
       {/* Main Content - Scrollable */}
@@ -213,6 +216,37 @@ function AppContent() {
           {renderPageContent()}
         </ScrollView>
       </View>
+
+      {/* Sidebar */}
+      {sidebarVisible && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 100
+        }}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => setSidebarVisible(false)}
+          />
+          <View style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 320
+          }}>
+            <Sidebar
+              setPage={setCurrentPage}
+              onClose={() => setSidebarVisible(false)}
+              theme={currentTheme}
+            />
+          </View>
+        </View>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNavigation
