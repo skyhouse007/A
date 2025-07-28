@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 
 const navItems = [
@@ -33,7 +33,7 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
   const [activeCategory, setActiveCategory] = useState("main");
 
   // Update active category when searching
-  React.useEffect(() => {
+  useEffect(() => {
     if (searchTerm) {
       setActiveCategory('all');
     } else {
