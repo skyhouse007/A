@@ -19,6 +19,7 @@ import GSTDetails from './components/GSTDetails.jsx';
 import VendorList from './components/VendorList.jsx';
 import CashInForm from './components/CashInForm.jsx';
 import CashoutForm from './components/CashoutForm.jsx';
+import CashEntryForm from './components/CashEntryForm.jsx';
 import Document from './components/Document.jsx';
 import Reminders from './components/Reminders.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
