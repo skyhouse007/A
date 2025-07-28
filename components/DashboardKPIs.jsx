@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const DashboardKPIs = ({ theme }) => {
   const kpiData = [
@@ -53,96 +53,104 @@ const DashboardKPIs = ({ theme }) => {
     return trend === 'up' ? '#166534' : '#dc2626';
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      marginBottom: 24,
+    },
+    kpiCard: {
+      backgroundColor: theme.cardBg,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: theme.border,
+      position: 'relative',
+      overflow: 'hidden',
+      width: '48%',
+      minWidth: 150,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 8,
+    },
+    indicator: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    changeContainer: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 6,
+    },
+    changeText: {
+      fontSize: 11,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 12,
+      fontWeight: '500',
+      color: theme.textSecondary,
+      marginBottom: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    value: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.text,
+      lineHeight: 24,
+      marginBottom: 4,
+    },
+    subtitle: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontWeight: '500',
+    },
+    bottomIndicator: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 3,
+      opacity: 0.8,
+    },
+  });
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '24px' }}>
+    <View style={styles.container}>
       {kpiData.map((kpi) => (
-        <div
-          key={kpi.id}
-          style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = 'none';
-          }}
-        >
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: '8px'
-          }}>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: kpi.color
-            }}></div>
-            <div style={{
-              padding: '2px 6px',
-              borderRadius: '6px',
-              background: getStatusBg(kpi.trend),
-              fontSize: '11px',
-              fontWeight: '600',
-              color: getStatusTextColor(kpi.trend)
-            }}>
-              {kpi.change}
-            </div>
-          </div>
+        <TouchableOpacity key={kpi.id} style={styles.kpiCard}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.indicator, { backgroundColor: kpi.color }]} />
+            <View style={[
+              styles.changeContainer,
+              { backgroundColor: getStatusBg(kpi.trend) }
+            ]}>
+              <Text style={[
+                styles.changeText,
+                { color: getStatusTextColor(kpi.trend) }
+              ]}>
+                {kpi.change}
+              </Text>
+            </View>
+          </View>
 
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: '500',
-            color: theme.textSecondary,
-            margin: '0 0 4px 0',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            {kpi.title}
-          </h3>
+          <Text style={styles.title}>{kpi.title}</Text>
+          <Text style={styles.value}>{kpi.value}</Text>
+          <Text style={styles.subtitle}>{kpi.subtitle}</Text>
 
-          <div style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            color: theme.text,
-            lineHeight: '1',
-            marginBottom: '4px'
-          }}>
-            {kpi.value}
-          </div>
-
-          <p style={{
-            fontSize: '11px',
-            color: theme.textSecondary,
-            margin: '0',
-            fontWeight: '500'
-          }}>
-            {kpi.subtitle}
-          </p>
-
-          <div style={{
-            position: 'absolute',
-            bottom: '0',
-            left: '0',
-            right: '0',
-            height: '3px',
-            background: kpi.color,
-            opacity: '0.8'
-          }}></div>
-        </div>
+          <View style={[
+            styles.bottomIndicator,
+            { backgroundColor: kpi.color }
+          ]} />
+        </TouchableOpacity>
       ))}
-    </div>
+    </View>
   );
 };
 
