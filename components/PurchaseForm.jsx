@@ -249,6 +249,19 @@ const PurchaseForm = ({ theme }) => {
 
       {/* Content */}
       <div style={{ padding: '16px' }}>
+        {/* Error Display */}
+        {error && (
+          <div style={{
+            background: '#fef2f2',
+            color: '#dc2626',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            fontSize: '14px'
+          }}>
+            {error}
+          </div>
+        )}
         {/* Create Order Tab */}
         {activeTab === 'create' && (
           <form onSubmit={handleSubmit} style={{
