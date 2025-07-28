@@ -121,7 +121,7 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
       status: "completed",
       color: "#3b82f6",
       page: "billing",
-      icon: "💳"
+      icon: "��"
     },
     {
       id: 4,
@@ -282,6 +282,113 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
       >
         {/* KPI Cards */}
         <DashboardKPIs theme={theme} onNavigate={onNavigate} />
+
+        {/* Business Summary */}
+        <View style={{
+          backgroundColor: theme.cardBg,
+          borderRadius: 12,
+          padding: 16,
+          marginBottom: 24,
+          borderWidth: 1,
+          borderColor: theme.border
+        }}>
+          <Text style={{
+            fontSize: 18,
+            fontWeight: '600',
+            color: theme.text,
+            marginBottom: 12
+          }}>
+            Business Overview
+          </Text>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 12
+          }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{
+                fontSize: 12,
+                color: theme.textSecondary,
+                marginBottom: 4
+              }}>
+                Today's Revenue
+              </Text>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: '#10b981'
+              }}>
+                $12,450
+              </Text>
+            </View>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{
+                fontSize: 12,
+                color: theme.textSecondary,
+                marginBottom: 4
+              }}>
+                Active Orders
+              </Text>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: '#3b82f6'
+              }}>
+                23
+              </Text>
+            </View>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Text style={{
+                fontSize: 12,
+                color: theme.textSecondary,
+                marginBottom: 4
+              }}>
+                Low Stock Items
+              </Text>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: '#f59e0b'
+              }}>
+                5
+              </Text>
+            </View>
+          </View>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingTop: 12,
+            borderTopWidth: 1,
+            borderTopColor: theme.border
+          }}>
+            <Text style={{
+              fontSize: 14,
+              color: theme.textSecondary
+            }}>
+              Business Status:
+            </Text>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              <View style={{
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: '#10b981'
+              }} />
+              <Text style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: '#10b981'
+              }}>
+                {currentTime.getHours() >= 9 && currentTime.getHours() <= 18 ? 'Open' : 'Closed'}
+              </Text>
+            </View>
+          </View>
+        </View>
 
         {/* Quick Actions */}
         <View style={{ marginBottom: 24 }}>
