@@ -11,10 +11,7 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
     { id: "salesList", name: "Sales Records", color: "#f59e0b" },
     { id: "billing", name: "Billing & Invoices", color: "#8b5cf6" },
     { id: "purchaseForm", name: "Purchase Orders", color: "#06b6d4" },
-    { id: "customers", name: "Customer Management", color: "#ef4444" },
-    { id: "vendors", name: "Vendor Management", color: "#84cc16" },
-    { id: "reports", name: "Reports & Analytics", color: "#f97316" },
-    { id: "settings", name: "Settings", color: "#6b7280" }
+    { id: "vendors", name: "Vendor Management", color: "#84cc16" }
   ];
 
   const notifications = [
