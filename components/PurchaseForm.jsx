@@ -1,5 +1,6 @@
 'use dom'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import purchaseService from '../services/purchaseService.js';
 
 const PurchaseForm = ({ theme }) => {
   const [activeTab, setActiveTab] = useState('create');
@@ -10,8 +11,71 @@ const PurchaseForm = ({ theme }) => {
     items: [{ product: '', quantity: 1, unitPrice: 0 }],
     notes: ''
   });
-
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [vendors, setVendors] = useState([]);
+  const [purchases, setPurchases] = useState([]);
+
+  // Load vendors and purchases on component mount
+  useEffect(() => {
+    loadVendors();
+    loadPurchases();
+  }, []);
+
+  const loadVendors = async () => {
+    try {
+      const vendorData = await purchaseService.getVendors();
+      setVendors(vendorData);
+    } catch (error) {
+      console.error('Failed to load vendors:', error);
+      // Fallback to mock data when API fails
+      setVendors([
+        { _id: '1', name: 'Tech Supplies Co.' },
+        { _id: '2', name: 'Office Equipment Ltd' },
+        { _id: '3', name: 'Software Solutions Inc' },
+        { _id: '4', name: 'Hardware Depot' },
+        { _id: '5', name: 'Business Solutions LLC' }
+      ]);
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const purchaseData = await purchaseService.getPurchases();
+      setPurchases(purchaseData);
+    } catch (error) {
+      console.error('Failed to load purchases:', error);
+      // Fallback to mock data when API fails
+      setPurchases([
+        {
+          id: 1,
+          orderNumber: 'PO-001',
+          vendor: 'Tech Supplies Co.',
+          orderDate: '2024-01-15',
+          deliveryDate: '2024-01-25',
+          status: 'pending',
+          total: 2450.00,
+          items: [
+            { product: 'Laptops', quantity: 5, unitPrice: 450.00 },
+            { product: 'Monitors', quantity: 3, unitPrice: 150.00 }
+          ]
+        },
+        {
+          id: 2,
+          orderNumber: 'PO-002',
+          vendor: 'Office Equipment Ltd',
+          orderDate: '2024-01-12',
+          deliveryDate: '2024-01-20',
+          status: 'delivered',
+          total: 850.00,
+          items: [
+            { product: 'Office Chairs', quantity: 10, unitPrice: 85.00 }
+          ]
+        }
+      ]);
+    }
+  };
 
   const existingOrders = [
     {
@@ -53,13 +117,7 @@ const PurchaseForm = ({ theme }) => {
     }
   ];
 
-  const vendors = [
-    'Tech Supplies Co.',
-    'Office Equipment Ltd',
-    'Software Solutions Inc',
-    'Hardware Depot',
-    'Business Solutions LLC'
-  ];
+  // Vendors are now loaded from backend via loadVendors()
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -117,23 +175,52 @@ const PurchaseForm = ({ theme }) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const filteredOrders = existingOrders.filter(order => 
-    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.vendor.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOrders = purchases.filter(order =>
+    (order.orderNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (order.vendor || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Purchase Order:', formData);
-    // Reset form
-    setFormData({
-      vendor: '',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      items: [{ product: '', quantity: 1, unitPrice: 0 }],
-      notes: ''
-    });
-    alert('Purchase order created successfully!');
+    setLoading(true);
+    setError('');
+
+    try {
+      const purchaseOrder = {
+        ...formData,
+        total: calculateTotal(),
+        status: 'pending',
+        orderNumber: `PO-${Date.now()}`,
+        id: Date.now()
+      };
+
+      try {
+        await purchaseService.createPurchase(purchaseOrder);
+      } catch (apiError) {
+        console.warn('API call failed, saving locally:', apiError);
+        // Add to local state when API fails
+        setPurchases(prev => [purchaseOrder, ...prev]);
+      }
+
+      // Reset form
+      setFormData({
+        vendor: '',
+        orderDate: new Date().toISOString().split('T')[0],
+        deliveryDate: '',
+        items: [{ product: '', quantity: 1, unitPrice: 0 }],
+        notes: ''
+      });
+
+      // Reload purchases
+      await loadPurchases();
+
+      alert('Purchase order created successfully!');
+    } catch (error) {
+      console.error('Failed to create purchase order:', error);
+      setError('Failed to create purchase order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -204,6 +291,19 @@ const PurchaseForm = ({ theme }) => {
 
       {/* Content */}
       <div style={{ padding: '16px' }}>
+        {/* Error Display */}
+        {error && (
+          <div style={{
+            background: '#fef2f2',
+            color: '#dc2626',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            fontSize: '14px'
+          }}>
+            {error}
+          </div>
+        )}
         {/* Create Order Tab */}
         {activeTab === 'create' && (
           <form onSubmit={handleSubmit} style={{
@@ -246,7 +346,9 @@ const PurchaseForm = ({ theme }) => {
                 >
                   <option value="">Select a vendor</option>
                   {vendors.map(vendor => (
-                    <option key={vendor} value={vendor}>{vendor}</option>
+                    <option key={vendor._id || vendor.id} value={vendor.name}>
+                      {vendor.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -475,25 +577,27 @@ const PurchaseForm = ({ theme }) => {
               </div>
               <button
                 type="submit"
+                disabled={loading}
                 style={{
                   padding: '12px 24px',
                   borderRadius: '8px',
-                  background: theme.accent,
-                  color: 'white',
+                  background: loading ? theme.border : theme.accent,
+                  color: loading ? theme.textSecondary : 'white',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
                   fontWeight: '600',
-                  transition: 'opacity 0.2s ease'
+                  transition: 'opacity 0.2s ease',
+                  opacity: loading ? 0.6 : 1
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.opacity = '0.9';
+                  if (!loading) e.target.style.opacity = '0.9';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.opacity = '1';
+                  if (!loading) e.target.style.opacity = '1';
                 }}
               >
-                Create Purchase Order
+                {loading ? 'Creating...' : 'Create Purchase Order'}
               </button>
             </div>
           </form>

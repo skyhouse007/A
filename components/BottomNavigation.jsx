@@ -3,42 +3,39 @@ import React from "react";
 
 const BottomNavigation = ({ currentPage, setPage, theme }) => {
   const navItems = [
-    { 
-      id: "dashboard", 
-      name: "Dashboard", 
+    {
+      id: "dashboard",
+      name: "Dashboard",
       color: "#3b82f6",
       isActive: currentPage === "dashboard"
     },
-    { 
-      id: "inventoryList", 
-      name: "Inventory", 
+    {
+      id: "inventoryList",
+      name: "Inventory",
       color: "#10b981",
       isActive: currentPage === "inventoryList"
     },
-    { 
-      id: "salesList", 
-      name: "Sales", 
+    {
+      id: "salesList",
+      name: "Sales",
       color: "#f59e0b",
       isActive: currentPage === "salesList"
     },
-    { 
-      id: "billing", 
-      name: "Billing", 
+    {
+      id: "vendors",
+      name: "Vendors",
+      color: "#84cc16",
+      isActive: currentPage === "vendors"
+    },
+    {
+      id: "billing",
+      name: "Billing",
       color: "#8b5cf6",
       isActive: currentPage === "billing"
-    },
-    { 
-      id: "more", 
-      name: "More", 
-      color: "#6b7280",
-      isActive: false
     }
   ];
 
   const handleNavClick = (pageId) => {
-    if (pageId === "more") {
-      return;
-    }
     setPage(pageId);
   };
 

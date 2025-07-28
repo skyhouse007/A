@@ -1,7 +1,6 @@
 'use dom'
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -29,22 +28,68 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorTitle}>Something went wrong</Text>
-            <Text style={styles.errorMessage}>
+        <div style={{
+          minHeight: '100vh',
+          backgroundColor: '#f8f9fa',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            maxWidth: '500px',
+            background: 'white',
+            padding: '40px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#dc3545',
+              marginBottom: '16px'
+            }}>Something went wrong</h1>
+            <p style={{
+              fontSize: '16px',
+              color: '#6c757d',
+              marginBottom: '24px',
+              lineHeight: '1.5'
+            }}>
               The app encountered an unexpected error. Please try again.
-            </Text>
+            </p>
             {this.state.error && (
-              <Text style={styles.errorDetails}>
+              <pre style={{
+                fontSize: '12px',
+                color: '#6c757d',
+                marginBottom: '24px',
+                padding: '12px',
+                backgroundColor: '#e9ecef',
+                borderRadius: '8px',
+                fontFamily: 'monospace',
+                textAlign: 'left',
+                overflow: 'auto'
+              }}>
                 {this.state.error.toString()}
-              </Text>
+              </pre>
             )}
-            <TouchableOpacity style={styles.retryButton} onPress={this.handleRetry}>
-              <Text style={styles.retryButtonText}>Try Again</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            <button
+              onClick={this.handleRetry}
+              style={{
+                backgroundColor: '#007bff',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       );
     }
 
@@ -52,52 +97,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#dc3545',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: '#6c757d',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  errorDetails: {
-    fontSize: 12,
-    color: '#6c757d',
-    textAlign: 'center',
-    marginBottom: 24,
-    padding: 12,
-    backgroundColor: '#e9ecef',
-    borderRadius: 8,
-    fontFamily: 'monospace',
-  },
-  retryButton: {
-    backgroundColor: '#007bff',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
 
-export default ErrorBoundary; 
+
+export default ErrorBoundary;

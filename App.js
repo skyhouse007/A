@@ -9,6 +9,13 @@ import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
 import SalesList from './components/SalesList.jsx';
 import PurchaseForm from './components/PurchaseForm.jsx';
+import VendorList from './components/VendorList.jsx';
+import Services from './components/Services.jsx';
+import Documents from './components/Documents.jsx';
+import Orders from './components/Orders.jsx';
+import Customers from './components/Customers.jsx';
+import CashIn from './components/CashIn.jsx';
+import CashOut from './components/CashOut.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -72,6 +79,80 @@ function AppContent() {
         return <SalesList theme={currentTheme} />;
       case "purchaseForm":
         return <PurchaseForm theme={currentTheme} />;
+      case "vendors":
+        return <VendorList theme={currentTheme} />;
+
+      // Additional pages - using real components
+      case "purchase":
+        return <PurchaseForm theme={currentTheme} />;
+      case "sales":
+        return <SalesList theme={currentTheme} />;
+      case "services":
+        return <Services theme={currentTheme} />;
+      case "document":
+        return <Documents theme={currentTheme} />;
+      case "orders":
+        return <Orders theme={currentTheme} />;
+      case "Customer":
+        return <Customers theme={currentTheme} />;
+      case "cashIn":
+        return <CashIn theme={currentTheme} />;
+      case "cashOut":
+        return <CashOut theme={currentTheme} />;
+
+      // Placeholder pages for remaining components
+      case "ledger":
+      case "balanceSheet":
+      case "profitLoss":
+      case "gstDetails":
+      case "Reminders":
+        return (
+          <div style={{
+            background: currentTheme.bg,
+            minHeight: '100%',
+            width: '100%',
+            padding: '16px'
+          }}>
+            <div style={{
+              background: currentTheme.cardBg,
+              border: `1px solid ${currentTheme.border}`,
+              borderRadius: '12px',
+              padding: '32px',
+              textAlign: 'center'
+            }}>
+              <h1 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: currentTheme.text,
+                marginBottom: '16px'
+              }}>
+                {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)} Module
+              </h1>
+              <p style={{
+                fontSize: '16px',
+                color: currentTheme.textSecondary,
+                marginBottom: '24px'
+              }}>
+                This module is under development and will be available soon.
+              </p>
+              <button
+                onClick={() => setCurrentPage('dashboard')}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  background: currentTheme.accent,
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        );
       default:
         return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
     }
