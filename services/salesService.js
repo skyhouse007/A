@@ -1,4 +1,4 @@
-'use dom'
+
 
 import apiService from './api.js';
 

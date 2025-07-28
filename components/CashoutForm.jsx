@@ -1,5 +1,6 @@
 import React from "react";
 import CashEntryForm from "./CashEntryForm";
 
-const CashOutForm = () => <CashEntryForm type="cashOut" />;
-export default CashOutForm;
+const CashoutForm = ({ theme }) => <CashEntryForm type="cashOut" theme={theme} />;
+
+export default CashoutForm;

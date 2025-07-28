@@ -1,5 +1,3 @@
-'use dom'
-
 import config from '../config/config.js';
 
 // API Configuration
@@ -139,4 +137,4 @@ class ApiService {
 // Create singleton instance
 const apiService = new ApiService();
 
-export default apiService; 
+export default apiService;

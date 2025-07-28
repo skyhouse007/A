@@ -1,5 +1,5 @@
-'use dom'
 import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 
 const PurchaseForm = ({ theme }) => {
   const [activeTab, setActiveTab] = useState('create');
@@ -122,8 +122,7 @@ const PurchaseForm = ({ theme }) => {
     order.vendor.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     console.log('Purchase Order:', formData);
     // Reset form
     setFormData({
@@ -133,549 +132,482 @@ const PurchaseForm = ({ theme }) => {
       items: [{ product: '', quantity: 1, unitPrice: 0 }],
       notes: ''
     });
-    alert('Purchase order created successfully!');
+    Alert.alert('Success', 'Purchase order created successfully!');
   };
 
-  return (
-    <div style={{
-      background: theme.bg,
-      minHeight: '100%',
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: theme.bg,
+      flex: 1,
+    },
+    header: {
+      backgroundColor: theme.cardBg,
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.text,
+      marginBottom: 16,
+    },
+    tabsContainer: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    tab: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+    },
+    activeTab: {
+      backgroundColor: theme.accent,
+      borderColor: theme.accent,
+    },
+    inactiveTab: {
+      backgroundColor: 'transparent',
+      borderColor: theme.border,
+    },
+    tabText: {
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    activeTabText: {
+      color: 'white',
+    },
+    inactiveTabText: {
+      color: theme.textSecondary,
+    },
+    content: {
+      padding: 16,
+    },
+    formContainer: {
+      backgroundColor: theme.cardBg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      padding: 20,
+    },
+    inputGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme.text,
+      marginBottom: 8,
+    },
+    input: {
       width: '100%',
-      overflowY: 'auto',
-      overflowX: 'hidden'
-    }}>
-      {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        padding: '16px',
-        borderBottom: `1px solid ${theme.border}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
-      }}>
-        <h1 style={{
-          fontSize: '20px',
-          fontWeight: '700',
-          color: theme.text,
-          margin: '0 0 16px 0'
-        }}>
-          Purchase Orders
-        </h1>
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.bg,
+      color: theme.text,
+      fontSize: 14,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    flex1: {
+      flex: 1,
+    },
+    itemsHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    addButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: theme.accent,
+    },
+    addButtonText: {
+      color: 'white',
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    itemRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 8,
+      alignItems: 'flex-end',
+    },
+    itemInput: {
+      flex: 2,
+      padding: 10,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.bg,
+      color: theme.text,
+      fontSize: 14,
+    },
+    itemInputSmall: {
+      width: 80,
+      padding: 10,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.bg,
+      color: theme.text,
+      fontSize: 14,
+    },
+    itemInputMedium: {
+      width: 100,
+      padding: 10,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.bg,
+      color: theme.text,
+      fontSize: 14,
+    },
+    removeButton: {
+      width: 40,
+      padding: 10,
+      borderRadius: 6,
+      alignItems: 'center',
+    },
+    removeButtonText: {
+      fontSize: 12,
+    },
+    textArea: {
+      width: '100%',
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.bg,
+      color: theme.text,
+      fontSize: 14,
+      height: 80,
+      textAlignVertical: 'top',
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+    totalText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.text,
+    },
+    submitButton: {
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      borderRadius: 8,
+      backgroundColor: theme.accent,
+    },
+    submitButtonText: {
+      color: 'white',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    orderCard: {
+      backgroundColor: theme.cardBg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 8,
+    },
+    orderHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 12,
+    },
+    orderTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.text,
+      marginBottom: 4,
+    },
+    orderSubtitle: {
+      fontSize: 14,
+      color: theme.textSecondary,
+      marginBottom: 4,
+    },
+    orderItems: {
+      fontSize: 12,
+      color: theme.textSecondary,
+    },
+    statusBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 6,
+      fontSize: 11,
+      fontWeight: '600',
+      textTransform: 'uppercase',
+    },
+    orderFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    orderDetail: {
+      flex: 1,
+    },
+    orderDetailLabel: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginBottom: 2,
+    },
+    orderDetailValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    orderDetailValueSmall: {
+      fontSize: 13,
+      color: theme.textSecondary,
+    },
+    emptyState: {
+      backgroundColor: theme.cardBg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      padding: 32,
+      alignItems: 'center',
+    },
+    emptyStateTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.textSecondary,
+      marginBottom: 8,
+    },
+    emptyStateText: {
+      fontSize: 14,
+      color: theme.textSecondary,
+    },
+  });
 
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Purchase Orders</Text>
+        
         {/* Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '8px'
-        }}>
-          <button
-            onClick={() => setActiveTab('create')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              background: activeTab === 'create' ? theme.accent : 'transparent',
-              color: activeTab === 'create' ? 'white' : theme.textSecondary,
-              border: `1px solid ${activeTab === 'create' ? theme.accent : theme.border}`,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            onPress={() => setActiveTab('create')}
+            style={[styles.tab, activeTab === 'create' ? styles.activeTab : styles.inactiveTab]}
           >
-            Create Order
-          </button>
-          <button
-            onClick={() => setActiveTab('existing')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              background: activeTab === 'existing' ? theme.accent : 'transparent',
-              color: activeTab === 'existing' ? 'white' : theme.textSecondary,
-              border: `1px solid ${activeTab === 'existing' ? theme.accent : theme.border}`,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
+            <Text style={[styles.tabText, activeTab === 'create' ? styles.activeTabText : styles.inactiveTabText]}>
+              Create Order
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('existing')}
+            style={[styles.tab, activeTab === 'existing' ? styles.activeTab : styles.inactiveTab]}
           >
-            Existing Orders
-          </button>
-        </div>
-      </div>
+            <Text style={[styles.tabText, activeTab === 'existing' ? styles.activeTabText : styles.inactiveTabText]}>
+              Existing Orders
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Content */}
-      <div style={{ padding: '16px' }}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Create Order Tab */}
         {activeTab === 'create' && (
-          <form onSubmit={handleSubmit} style={{
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '12px',
-            padding: '20px'
-          }}>
-            {/* Vendor and Dates */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr',
-              gap: '16px',
-              marginBottom: '20px'
-            }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: theme.text,
-                  marginBottom: '8px'
-                }}>
-                  Vendor
-                </label>
-                <select
-                  value={formData.vendor}
-                  onChange={(e) => handleInputChange('vendor', e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: `1px solid ${theme.border}`,
-                    background: theme.bg,
-                    color: theme.text,
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="">Select a vendor</option>
-                  {vendors.map(vendor => (
-                    <option key={vendor} value={vendor}>{vendor}</option>
-                  ))}
-                </select>
-              </div>
+          <View style={styles.formContainer}>
+            {/* Vendor */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Vendor</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.vendor}
+                onChangeText={(value) => handleInputChange('vendor', value)}
+                placeholder="Select a vendor"
+                placeholderTextColor={theme.textSecondary}
+              />
+            </View>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '12px'
-              }}>
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: theme.text,
-                    marginBottom: '8px'
-                  }}>
-                    Order Date
-                  </label>
-                  <input
-                    type="date"
+            {/* Dates */}
+            <View style={styles.inputGroup}>
+              <View style={styles.row}>
+                <View style={styles.flex1}>
+                  <Text style={styles.label}>Order Date</Text>
+                  <TextInput
+                    style={styles.input}
                     value={formData.orderDate}
-                    onChange={(e) => handleInputChange('orderDate', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bg,
-                      color: theme.text,
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+                    onChangeText={(value) => handleInputChange('orderDate', value)}
+                    placeholder="Order Date"
+                    placeholderTextColor={theme.textSecondary}
                   />
-                </div>
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: theme.text,
-                    marginBottom: '8px'
-                  }}>
-                    Expected Delivery
-                  </label>
-                  <input
-                    type="date"
+                </View>
+                <View style={styles.flex1}>
+                  <Text style={styles.label}>Expected Delivery</Text>
+                  <TextInput
+                    style={styles.input}
                     value={formData.deliveryDate}
-                    onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bg,
-                      color: theme.text,
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+                    onChangeText={(value) => handleInputChange('deliveryDate', value)}
+                    placeholder="Delivery Date"
+                    placeholderTextColor={theme.textSecondary}
                   />
-                </div>
-              </div>
-            </div>
+                </View>
+              </View>
+            </View>
 
             {/* Items */}
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '12px'
-              }}>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: theme.text
-                }}>
-                  Items
-                </label>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    background: theme.accent,
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Add Item
-                </button>
-              </div>
+            <View style={styles.inputGroup}>
+              <View style={styles.itemsHeader}>
+                <Text style={styles.label}>Items</Text>
+                <TouchableOpacity onPress={addItem} style={styles.addButton}>
+                  <Text style={styles.addButtonText}>Add Item</Text>
+                </TouchableOpacity>
+              </View>
 
               {formData.items.map((item, index) => (
-                <div key={index} style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 80px 100px 40px',
-                  gap: '8px',
-                  marginBottom: '8px',
-                  alignItems: 'end'
-                }}>
-                  <input
-                    type="text"
-                    placeholder="Product name"
+                <View key={index} style={styles.itemRow}>
+                  <TextInput
+                    style={styles.itemInput}
                     value={item.product}
-                    onChange={(e) => handleItemChange(index, 'product', e.target.value)}
-                    required
-                    style={{
-                      padding: '10px',
-                      borderRadius: '6px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bg,
-                      color: theme.text,
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+                    onChangeText={(value) => handleItemChange(index, 'product', value)}
+                    placeholder="Product name"
+                    placeholderTextColor={theme.textSecondary}
                   />
-                  <input
-                    type="number"
+                  <TextInput
+                    style={styles.itemInputSmall}
+                    value={item.quantity.toString()}
+                    onChangeText={(value) => handleItemChange(index, 'quantity', parseInt(value) || 1)}
                     placeholder="Qty"
-                    value={item.quantity}
-                    onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)}
-                    min="1"
-                    required
-                    style={{
-                      padding: '10px',
-                      borderRadius: '6px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bg,
-                      color: theme.text,
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+                    placeholderTextColor={theme.textSecondary}
+                    keyboardType="numeric"
                   />
-                  <input
-                    type="number"
+                  <TextInput
+                    style={styles.itemInputMedium}
+                    value={item.unitPrice.toString()}
+                    onChangeText={(value) => handleItemChange(index, 'unitPrice', parseFloat(value) || 0)}
                     placeholder="Price"
-                    value={item.unitPrice}
-                    onChange={(e) => handleItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                    min="0"
-                    step="0.01"
-                    required
-                    style={{
-                      padding: '10px',
-                      borderRadius: '6px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bg,
-                      color: theme.text,
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+                    placeholderTextColor={theme.textSecondary}
+                    keyboardType="numeric"
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeItem(index)}
+                  <TouchableOpacity
+                    onPress={() => removeItem(index)}
                     disabled={formData.items.length === 1}
-                    style={{
-                      padding: '10px',
-                      borderRadius: '6px',
-                      background: formData.items.length === 1 ? theme.border : '#ef4444',
-                      color: formData.items.length === 1 ? theme.textSecondary : 'white',
-                      border: 'none',
-                      cursor: formData.items.length === 1 ? 'not-allowed' : 'pointer',
-                      fontSize: '12px'
-                    }}
+                    style={[
+                      styles.removeButton,
+                      { backgroundColor: formData.items.length === 1 ? theme.border : '#ef4444' }
+                    ]}
                   >
-                    ×
-                  </button>
-                </div>
+                    <Text style={[
+                      styles.removeButtonText,
+                      { color: formData.items.length === 1 ? theme.textSecondary : 'white' }
+                    ]}>
+                      ×
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               ))}
-            </div>
+            </View>
 
             {/* Notes */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: theme.text,
-                marginBottom: '8px'
-              }}>
-                Notes (Optional)
-              </label>
-              <textarea
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Notes (Optional)</Text>
+              <TextInput
+                style={styles.textArea}
                 value={formData.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-                rows="3"
+                onChangeText={(value) => handleInputChange('notes', value)}
                 placeholder="Additional notes or special instructions..."
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bg,
-                  color: theme.text,
-                  fontSize: '14px',
-                  outline: 'none',
-                  resize: 'vertical',
-                  fontFamily: 'inherit'
-                }}
+                placeholderTextColor={theme.textSecondary}
+                multiline
               />
-            </div>
+            </View>
 
-            {/* Total and Submit */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingTop: '16px',
-              borderTop: `1px solid ${theme.border}`
-            }}>
-              <div>
-                <span style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: theme.text
-                }}>
-                  Total: ${calculateTotal().toFixed(2)}
-                </span>
-              </div>
-              <button
-                type="submit"
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  background: theme.accent,
-                  color: 'white',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'opacity 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.opacity = '0.9';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.opacity = '1';
-                }}
-              >
-                Create Purchase Order
-              </button>
-            </div>
-          </form>
+            {/* Footer */}
+            <View style={styles.footer}>
+              <Text style={styles.totalText}>
+                Total: ${calculateTotal().toFixed(2)}
+              </Text>
+              <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+                <Text style={styles.submitButtonText}>Create Purchase Order</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
 
         {/* Existing Orders Tab */}
         {activeTab === 'existing' && (
-          <div>
+          <View>
             {/* Search */}
-            <div style={{ marginBottom: '16px' }}>
-              <input
-                type="text"
-                placeholder="Search orders..."
+            <View style={styles.inputGroup}>
+              <TextInput
+                style={styles.input}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.cardBg,
-                  color: theme.text,
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
+                onChangeText={setSearchTerm}
+                placeholder="Search orders..."
+                placeholderTextColor={theme.textSecondary}
               />
-            </div>
+            </View>
 
             {/* Orders List */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px'
-            }}>
-              {filteredOrders.map((order) => (
-                <div
-                  key={order.id}
-                  style={{
-                    background: theme.cardBg,
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '12px',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = theme.border;
-                    e.target.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = theme.cardBg;
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '12px'
-                  }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: theme.text,
-                        margin: '0 0 4px 0'
-                      }}>
-                        {order.orderNumber}
-                      </h3>
-                      <div style={{
-                        fontSize: '14px',
-                        color: theme.textSecondary,
-                        marginBottom: '4px'
-                      }}>
-                        Vendor: {order.vendor}
-                      </div>
-                      <div style={{
-                        fontSize: '12px',
-                        color: theme.textSecondary
-                      }}>
-                        Items: {order.items.map(item => `${item.product} (${item.quantity})`).join(', ')}
-                      </div>
-                    </div>
-                    <div style={{
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      background: `${getStatusColor(order.status)}20`,
-                      color: getStatusColor(order.status),
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      textTransform: 'uppercase'
-                    }}>
+            {filteredOrders.map((order) => (
+              <TouchableOpacity key={order.id} style={styles.orderCard}>
+                <View style={styles.orderHeader}>
+                  <View style={styles.flex1}>
+                    <Text style={styles.orderTitle}>{order.orderNumber}</Text>
+                    <Text style={styles.orderSubtitle}>Vendor: {order.vendor}</Text>
+                    <Text style={styles.orderItems}>
+                      Items: {order.items.map(item => `${item.product} (${item.quantity})`).join(', ')}
+                    </Text>
+                  </View>
+                  <View style={[
+                    styles.statusBadge,
+                    { backgroundColor: `${getStatusColor(order.status)}20`, color: getStatusColor(order.status) }
+                  ]}>
+                    <Text style={[styles.statusBadge, { color: getStatusColor(order.status) }]}>
                       {getStatusText(order.status)}
-                    </div>
-                  </div>
+                    </Text>
+                  </View>
+                </View>
 
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '16px',
-                    alignItems: 'center'
-                  }}>
-                    <div>
-                      <div style={{
-                        fontSize: '12px',
-                        color: theme.textSecondary,
-                        marginBottom: '2px'
-                      }}>
-                        Total
-                      </div>
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: '700',
-                        color: theme.text
-                      }}>
-                        ${order.total.toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{
-                        fontSize: '12px',
-                        color: theme.textSecondary,
-                        marginBottom: '2px'
-                      }}>
-                        Order Date
-                      </div>
-                      <div style={{
-                        fontSize: '13px',
-                        color: theme.textSecondary
-                      }}>
-                        {new Date(order.orderDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{
-                        fontSize: '12px',
-                        color: theme.textSecondary,
-                        marginBottom: '2px'
-                      }}>
-                        Delivery
-                      </div>
-                      <div style={{
-                        fontSize: '13px',
-                        color: theme.textSecondary
-                      }}>
-                        {new Date(order.deliveryDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                <View style={styles.orderFooter}>
+                  <View style={styles.orderDetail}>
+                    <Text style={styles.orderDetailLabel}>Total</Text>
+                    <Text style={styles.orderDetailValue}>${order.total.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.orderDetail}>
+                    <Text style={styles.orderDetailLabel}>Order Date</Text>
+                    <Text style={styles.orderDetailValueSmall}>
+                      {new Date(order.orderDate).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <View style={styles.orderDetail}>
+                    <Text style={styles.orderDetailLabel}>Delivery</Text>
+                    <Text style={styles.orderDetailValueSmall}>
+                      {new Date(order.deliveryDate).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
 
             {/* Empty State */}
             {filteredOrders.length === 0 && (
-              <div style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                padding: '32px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: theme.textSecondary,
-                  marginBottom: '8px'
-                }}>
-                  No orders found
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  color: theme.textSecondary
-                }}>
-                  Try adjusting your search criteria
-                </div>
-              </div>
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>No orders found</Text>
+                <Text style={styles.emptyStateText}>Try adjusting your search criteria</Text>
+              </View>
             )}
-          </div>
+          </View>
         )}
-      </div>
-    </div>
+      </ScrollView>
+    </View>
   );
 };
 

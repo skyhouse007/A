@@ -1,5 +1,5 @@
-'use dom'
 import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 
 const SalesList = ({ theme }) => {
   const [filterPeriod, setFilterPeriod] = useState('today');
@@ -89,294 +89,282 @@ const SalesList = ({ theme }) => {
   const pendingOrders = salesData.filter(sale => sale.status === 'pending').length;
   const completedOrders = salesData.filter(sale => sale.status === 'completed').length;
 
+  const periods = [
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'week' },
+    { label: 'This Month', value: 'month' },
+    { label: 'All Time', value: 'all' }
+  ];
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: theme.bg,
+      flex: 1,
+    },
+    header: {
+      backgroundColor: theme.cardBg,
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    filterContainer: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    filterButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+    },
+    activeFilter: {
+      backgroundColor: theme.accent,
+      borderColor: theme.accent,
+    },
+    inactiveFilter: {
+      backgroundColor: 'transparent',
+      borderColor: theme.border,
+    },
+    filterText: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    activeFilterText: {
+      color: 'white',
+    },
+    inactiveFilterText: {
+      color: theme.textSecondary,
+    },
+    content: {
+      padding: 16,
+    },
+    summaryContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      marginBottom: 24,
+    },
+    summaryCard: {
+      backgroundColor: theme.cardBg,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: theme.border,
+      alignItems: 'center',
+      minWidth: 110,
+      flex: 1,
+    },
+    summaryValue: {
+      fontSize: 18,
+      fontWeight: '700',
+      marginBottom: 4,
+    },
+    summaryLabel: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      textAlign: 'center',
+    },
+    revenueValue: {
+      color: '#10b981',
+    },
+    totalValue: {
+      color: theme.text,
+    },
+    pendingValue: {
+      color: '#f59e0b',
+    },
+    completedValue: {
+      color: '#10b981',
+    },
+    salesContainer: {
+      gap: 8,
+    },
+    saleCard: {
+      backgroundColor: theme.cardBg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      padding: 16,
+    },
+    saleHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 12,
+    },
+    saleInfo: {
+      flex: 1,
+    },
+    saleTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.text,
+      marginBottom: 4,
+    },
+    saleCustomer: {
+      fontSize: 14,
+      color: theme.textSecondary,
+      marginBottom: 4,
+    },
+    saleItems: {
+      fontSize: 12,
+      color: theme.textSecondary,
+    },
+    statusBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 6,
+      alignSelf: 'flex-start',
+    },
+    statusText: {
+      fontSize: 11,
+      fontWeight: '600',
+      textTransform: 'uppercase',
+    },
+    saleFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    saleDetail: {
+      flex: 1,
+    },
+    saleDetailLabel: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginBottom: 2,
+    },
+    saleDetailValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    saleDetailValueSmall: {
+      fontSize: 13,
+      color: theme.textSecondary,
+    },
+    saleDetailValueMini: {
+      fontSize: 12,
+      color: theme.textSecondary,
+    },
+  });
+
   return (
-    <div style={{
-      background: theme.bg,
-      minHeight: '100%',
-      width: '100%',
-      overflowY: 'auto',
-      overflowX: 'hidden'
-    }}>
+    <View style={styles.container}>
       {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        padding: '16px',
-        borderBottom: `1px solid ${theme.border}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '16px'
-        }}>
-          <h1 style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            color: theme.text,
-            margin: 0
-          }}>
-            Sales Records
-          </h1>
-          <select
-            value={filterPeriod}
-            onChange={(e) => setFilterPeriod(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bg,
-              color: theme.text,
-              fontSize: '14px',
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-      </div>
+      <View style={styles.header}>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>Sales Records</Text>
+        </View>
+        <View style={styles.filterContainer}>
+          {periods.map((period) => (
+            <TouchableOpacity
+              key={period.value}
+              onPress={() => setFilterPeriod(period.value)}
+              style={[
+                styles.filterButton,
+                filterPeriod === period.value ? styles.activeFilter : styles.inactiveFilter
+              ]}
+            >
+              <Text style={[
+                styles.filterText,
+                filterPeriod === period.value ? styles.activeFilterText : styles.inactiveFilterText
+              ]}>
+                {period.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
-      {/* Summary Cards */}
-      <div style={{ padding: '16px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '12px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: '700',
-              color: '#10b981',
-              marginBottom: '4px'
-            }}>
+      {/* Content */}
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Summary Cards */}
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryCard}>
+            <Text style={[styles.summaryValue, styles.revenueValue]}>
               ${totalRevenue.toFixed(2)}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Revenue
-            </div>
-          </div>
+            </Text>
+            <Text style={styles.summaryLabel}>Revenue</Text>
+          </View>
 
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: '700',
-              color: theme.text,
-              marginBottom: '4px'
-            }}>
+          <View style={styles.summaryCard}>
+            <Text style={[styles.summaryValue, styles.totalValue]}>
               {salesData.length}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Total Orders
-            </div>
-          </div>
+            </Text>
+            <Text style={styles.summaryLabel}>Total Orders</Text>
+          </View>
 
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: '700',
-              color: '#f59e0b',
-              marginBottom: '4px'
-            }}>
+          <View style={styles.summaryCard}>
+            <Text style={[styles.summaryValue, styles.pendingValue]}>
               {pendingOrders}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Pending
-            </div>
-          </div>
+            </Text>
+            <Text style={styles.summaryLabel}>Pending</Text>
+          </View>
 
-          <div style={{
-            background: theme.cardBg,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `1px solid ${theme.border}`,
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: '700',
-              color: '#10b981',
-              marginBottom: '4px'
-            }}>
+          <View style={styles.summaryCard}>
+            <Text style={[styles.summaryValue, styles.completedValue]}>
               {completedOrders}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: theme.textSecondary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Completed
-            </div>
-          </div>
-        </div>
+            </Text>
+            <Text style={styles.summaryLabel}>Completed</Text>
+          </View>
+        </View>
 
         {/* Sales List */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}>
+        <View style={styles.salesContainer}>
           {salesData.map((sale) => (
-            <div
-              key={sale.id}
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = theme.border;
-                e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = theme.cardBg;
-                e.target.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '12px'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: theme.text,
-                    margin: '0 0 4px 0'
-                  }}>
-                    {sale.orderNumber}
-                  </h3>
-                  <div style={{
-                    fontSize: '14px',
-                    color: theme.textSecondary,
-                    marginBottom: '4px'
-                  }}>
-                    Customer: {sale.customer}
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: theme.textSecondary
-                  }}>
-                    Items: {sale.items.join(', ')}
-                  </div>
-                </div>
-                <div style={{
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  background: `${getStatusColor(sale.status)}20`,
-                  color: getStatusColor(sale.status),
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  textTransform: 'uppercase'
-                }}>
-                  {getStatusText(sale.status)}
-                </div>
-              </div>
+            <TouchableOpacity key={sale.id} style={styles.saleCard}>
+              <View style={styles.saleHeader}>
+                <View style={styles.saleInfo}>
+                  <Text style={styles.saleTitle}>{sale.orderNumber}</Text>
+                  <Text style={styles.saleCustomer}>Customer: {sale.customer}</Text>
+                  <Text style={styles.saleItems}>Items: {sale.items.join(', ')}</Text>
+                </View>
+                <View style={[
+                  styles.statusBadge,
+                  { backgroundColor: `${getStatusColor(sale.status)}20` }
+                ]}>
+                  <Text style={[
+                    styles.statusText,
+                    { color: getStatusColor(sale.status) }
+                  ]}>
+                    {getStatusText(sale.status)}
+                  </Text>
+                </View>
+              </View>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '16px',
-                alignItems: 'center'
-              }}>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: theme.textSecondary,
-                    marginBottom: '2px'
-                  }}>
-                    Total
-                  </div>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    color: theme.text
-                  }}>
-                    ${sale.total.toFixed(2)}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: theme.textSecondary,
-                    marginBottom: '2px'
-                  }}>
-                    Payment
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: theme.textSecondary
-                  }}>
-                    {sale.paymentMethod}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: theme.textSecondary,
-                    marginBottom: '2px'
-                  }}>
-                    Date
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: theme.textSecondary
-                  }}>
-                    {formatDate(sale.date)}
-                  </div>
-                </div>
-              </div>
-            </div>
+              <View style={styles.saleFooter}>
+                <View style={styles.saleDetail}>
+                  <Text style={styles.saleDetailLabel}>Total</Text>
+                  <Text style={styles.saleDetailValue}>${sale.total.toFixed(2)}</Text>
+                </View>
+                <View style={styles.saleDetail}>
+                  <Text style={styles.saleDetailLabel}>Payment</Text>
+                  <Text style={styles.saleDetailValueSmall}>{sale.paymentMethod}</Text>
+                </View>
+                <View style={styles.saleDetail}>
+                  <Text style={styles.saleDetailLabel}>Date</Text>
+                  <Text style={styles.saleDetailValueMini}>{formatDate(sale.date)}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           ))}
-        </div>
-      </div>
-    </div>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
