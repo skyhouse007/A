@@ -189,10 +189,18 @@ const PurchaseForm = ({ theme }) => {
       const purchaseOrder = {
         ...formData,
         total: calculateTotal(),
-        status: 'pending'
+        status: 'pending',
+        orderNumber: `PO-${Date.now()}`,
+        id: Date.now()
       };
 
-      await purchaseService.createPurchase(purchaseOrder);
+      try {
+        await purchaseService.createPurchase(purchaseOrder);
+      } catch (apiError) {
+        console.warn('API call failed, saving locally:', apiError);
+        // Add to local state when API fails
+        setPurchases(prev => [purchaseOrder, ...prev]);
+      }
 
       // Reset form
       setFormData({
