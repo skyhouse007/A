@@ -57,7 +57,7 @@ const Navbar = ({ user, setPage, theme, darkMode, setDarkMode }) => {
         background: theme.cardBg,
         borderBottom: `1px solid ${theme.border}`,
         boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
-        height: '60px',
+        height: '90px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

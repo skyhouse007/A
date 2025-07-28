@@ -203,7 +203,7 @@ function AppContent() {
         paddingBottom: '80px', // Space for bottom nav
         overflowY: 'auto',
         overflowX: 'hidden',
-        height: 'calc(100vh - 140px)', // Fixed height for scrolling
+        height: 'calc(100vh - 160px)', // Fixed height for scrolling
         width: '100%'
       }}>
         {renderPageContent()}
