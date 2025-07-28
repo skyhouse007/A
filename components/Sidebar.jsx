@@ -32,6 +32,15 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("main");
 
+  // Update active category when searching
+  React.useEffect(() => {
+    if (searchTerm) {
+      setActiveCategory('all');
+    } else {
+      setActiveCategory('main');
+    }
+  }, [searchTerm]);
+
   const handleClick = (page) => {
     setPage(page);
     if (onClose) onClose();
