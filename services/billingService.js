@@ -1,5 +1,3 @@
-'use dom'
-
 import apiService from './api.js';
 
 class BillingService {
@@ -133,4 +131,4 @@ class BillingService {
 }
 
 const billingService = new BillingService();
-export default billingService; 
+export default billingService;
