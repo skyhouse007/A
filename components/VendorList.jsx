@@ -75,9 +75,22 @@ const VendorList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/vendors", form);
-      fetchVendors();
+      // Mock API call for demo purposes (since no backend is available)
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+
+      // Add the new vendor to the existing list (simulated)
+      const newVendor = {
+        _id: Date.now().toString(),
+        name: form.name,
+        contact: form.contact,
+        address: form.address,
+        email: `${form.name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+        gstNumber: "XX" + Math.random().toString().substr(2, 13).toUpperCase()
+      };
+
+      setVendors(prev => [...prev, newVendor]);
       setForm({ name: "", contact: "", address: "" });
+      setError("");
     } catch (err) {
       console.error("Error adding vendor:", err.message);
       setError("Error adding vendor.");
