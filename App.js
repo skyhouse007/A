@@ -5,6 +5,7 @@ import Navbar from './components/Navbar.jsx';
 import BottomNavigation from './components/BottomNavigation.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import Dashboard from './components/Dashboard.jsx';
+import DashboardKPIs from './components/DashboardKPIs.jsx';
 import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
 import SalesList from './components/SalesList.jsx';
