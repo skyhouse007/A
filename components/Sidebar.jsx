@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 
 const navItems = [
   // Core Operations
@@ -69,247 +70,243 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
   };
 
   return (
-    <div
-      style={{
-        width: collapsed ? 80 : 320,
-        height: '100%',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e5e7eb',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
+    <View style={{
+      width: collapsed ? 80 : 320,
+      height: '100%',
+      backgroundColor: theme.cardBg,
+      borderRightWidth: 1,
+      borderRightColor: theme.border,
+      position: 'relative',
+      flex: 1,
+      flexDirection: 'column'
+    }}>
       {/* Header */}
-      <div style={{ 
+      <View style={{ 
         padding: collapsed ? 16 : 24, 
-        borderBottom: '1px solid #e5e7eb',
-        backgroundColor: '#ffffff'
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+        backgroundColor: theme.cardBg
       }}>
-        <div style={{ 
-          display: 'flex', 
+        <View style={{ 
+          flexDirection: 'row', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
           marginBottom: collapsed ? 0 : 16 
         }}>
           {onClose && (
-            <button
-              onClick={onClose}
+            <TouchableOpacity
+              onPress={onClose}
               style={{
                 padding: 8,
                 borderRadius: 8,
                 backgroundColor: 'transparent',
-                border: '1px solid #e5e7eb',
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: '600',
-                color: '#6b7280',
-                minWidth: 60
+                borderWidth: 1,
+                borderColor: theme.border,
+                minWidth: 60,
+                alignItems: 'center'
               }}
             >
-              Close
-            </button>
+              <Text style={{
+                fontSize: 12,
+                fontWeight: '600',
+                color: theme.textSecondary
+              }}>
+                Close
+              </Text>
+            </TouchableOpacity>
           )}
 
-          <button
-            onClick={() => setCollapsed && setCollapsed(!collapsed)}
+          <TouchableOpacity
+            onPress={() => setCollapsed && setCollapsed(!collapsed)}
             style={{
               padding: 8,
               borderRadius: 8,
               backgroundColor: 'transparent',
-              border: '1px solid #e5e7eb',
-              cursor: 'pointer',
-              fontSize: 12,
-              fontWeight: '600',
-              color: '#6b7280',
-              minWidth: 60
+              borderWidth: 1,
+              borderColor: theme.border,
+              minWidth: 60,
+              alignItems: 'center'
             }}
           >
-            {collapsed ? '→' : '←'}
-          </button>
-        </div>
+            <Text style={{
+              fontSize: 12,
+              fontWeight: '600',
+              color: theme.textSecondary
+            }}>
+              {collapsed ? '→' : '←'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {!collapsed && (
-          <div style={{ textAlign: 'center' }}>
-            <h2 style={{
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{
               fontSize: 18,
               fontWeight: '700',
-              color: '#1f2937',
-              marginBottom: 4,
-              margin: 0
+              color: theme.text,
+              marginBottom: 4
             }}>
               Navigation
-            </h2>
-            <p style={{
+            </Text>
+            <Text style={{
               fontSize: 12,
-              color: '#6b7280',
-              fontWeight: '500',
-              margin: 0
+              color: theme.textSecondary,
+              fontWeight: '500'
             }}>
               Business Modules
-            </p>
-          </div>
+            </Text>
+          </View>
         )}
-      </div>
+      </View>
 
       {/* Search Bar */}
       {!collapsed && (
-        <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
-          <input
-            type="text"
+        <View style={{ 
+          padding: 16, 
+          borderBottomWidth: 1, 
+          borderBottomColor: theme.border 
+        }}>
+          <TextInput
             placeholder="Search modules..."
+            placeholderTextColor={theme.textSecondary}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChangeText={setSearchTerm}
             style={{
               width: '100%',
               padding: 12,
               borderRadius: 8,
-              border: '1px solid #e5e7eb',
-              backgroundColor: '#ffffff',
+              borderWidth: 1,
+              borderColor: theme.border,
+              backgroundColor: theme.cardBg,
               fontSize: 14,
-              color: '#1f2937',
-              fontWeight: '500',
-              outline: 'none'
+              color: theme.text,
+              fontWeight: '500'
             }}
           />
-        </div>
+        </View>
       )}
 
       {/* Category Tabs */}
       {!collapsed && (
-        <div style={{ 
+        <View style={{ 
           padding: 16, 
-          borderBottom: '1px solid #e5e7eb',
-          backgroundColor: '#ffffff'
+          borderBottomWidth: 1,
+          borderBottomColor: theme.border,
+          backgroundColor: theme.cardBg
         }}>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
             {Object.keys(categories).filter(cat => categories[cat].length > 0).map((category) => (
-              <button
+              <TouchableOpacity
                 key={category}
-                onClick={() => setActiveCategory(category)}
+                onPress={() => setActiveCategory(category)}
                 style={{
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                  paddingTop: 6,
-                  paddingBottom: 6,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
                   borderRadius: 8,
-                  backgroundColor: activeCategory === category ? '#3b82f6' : 'transparent',
-                  border: `1px solid ${activeCategory === category ? '#3b82f6' : '#e5e7eb'}`,
-                  cursor: 'pointer',
-                  fontSize: 12,
-                  fontWeight: '600',
-                  color: activeCategory === category ? 'white' : '#6b7280',
-                  whiteSpace: 'nowrap'
+                  backgroundColor: activeCategory === category ? theme.accent : 'transparent',
+                  borderWidth: 1,
+                  borderColor: activeCategory === category ? theme.accent : theme.border
                 }}
               >
-                {categoryNames[category]}
-              </button>
+                <Text style={{
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: activeCategory === category ? 'white' : theme.textSecondary
+                }}>
+                  {categoryNames[category]}
+                </Text>
+              </TouchableOpacity>
             ))}
-          </div>
-        </div>
+          </ScrollView>
+        </View>
       )}
 
       {/* Navigation Items */}
-      <div style={{ 
+      <ScrollView style={{ 
         flex: 1, 
-        padding: 16,
-        overflowY: 'auto'
+        padding: 16
       }}>
         {!collapsed && (
-          <div style={{ marginBottom: 16 }}>
-            <h3 style={{
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{
               fontSize: 14,
               fontWeight: '600',
-              color: '#6b7280',
+              color: theme.textSecondary,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              marginBottom: 12,
-              margin: '0 0 12px 0'
+              letterSpacing: 0.5,
+              marginBottom: 12
             }}>
               {categoryNames[activeCategory] || categoryNames.main}
-            </h3>
-          </div>
+            </Text>
+          </View>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <View style={{ gap: 8 }}>
           {(categories[activeCategory] || []).map((item, index) => (
-            <button
+            <TouchableOpacity
               key={index}
-              onClick={() => handleClick(item.page)}
+              onPress={() => handleClick(item.page)}
               style={{
-                display: 'flex',
+                flexDirection: 'row',
                 alignItems: 'center',
                 gap: collapsed ? 0 : 12,
-                paddingLeft: collapsed ? 12 : 16,
-                paddingRight: collapsed ? 12 : 16,
-                paddingTop: 12,
-                paddingBottom: 12,
+                paddingHorizontal: collapsed ? 12 : 16,
+                paddingVertical: 12,
                 borderRadius: 8,
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontSize: 14,
-                color: '#1f2937',
-                fontWeight: '500',
-                transition: 'all 0.2s ease',
+                backgroundColor: theme.cardBg,
+                borderWidth: 1,
+                borderColor: theme.border,
                 justifyContent: collapsed ? 'center' : 'flex-start'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#f9fafb';
-                e.target.style.borderColor = item.color;
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#ffffff';
-                e.target.style.borderColor = '#e5e7eb';
               }}
             >
               {/* Color indicator */}
-              <div style={{
+              <View style={{
                 width: collapsed ? 8 : 6,
                 height: collapsed ? 8 : 6,
-                borderRadius: '50%',
-                backgroundColor: item.color,
-                flexShrink: 0
+                borderRadius: collapsed ? 4 : 3,
+                backgroundColor: item.color
               }} />
               
               {!collapsed && (
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ 
-                    whiteSpace: 'nowrap', 
-                    overflow: 'hidden', 
-                    textOverflow: 'ellipsis',
-                    display: 'block'
-                  }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ 
+                    fontSize: 14,
+                    color: theme.text,
+                    fontWeight: '500'
+                  }} numberOfLines={1}>
                     {item.name}
-                  </span>
-                </div>
+                  </Text>
+                </View>
               )}
-            </button>
+            </TouchableOpacity>
           ))}
-        </div>
-      </div>
+        </View>
+      </ScrollView>
 
       {/* Footer */}
       {!collapsed && (
-        <div style={{ 
+        <View style={{ 
           padding: 16, 
-          borderTop: '1px solid #e5e7eb',
-          backgroundColor: '#ffffff'
+          borderTopWidth: 1,
+          borderTopColor: theme.border,
+          backgroundColor: theme.cardBg
         }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{
               fontSize: 12,
-              color: '#6b7280',
-              fontWeight: '500',
-              margin: 0
+              color: theme.textSecondary,
+              fontWeight: '500'
             }}>
               BusinessApp v2.1.0
-            </p>
-          </div>
-        </div>
+            </Text>
+          </View>
+        </View>
       )}
-    </div>
+    </View>
   );
 };
 
