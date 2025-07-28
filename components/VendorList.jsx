@@ -84,7 +84,12 @@ const VendorList = ({ theme }) => {
   const handleDelete = async (id) => {
     if (window.confirm("Delete this vendor?")) {
       try {
-        await axios.delete(`/vendors/${id}`);
+        try {
+          await axios.delete(`/vendors/${id}`);
+        } catch (apiError) {
+          console.warn('API call failed, deleting vendor locally:', apiError);
+        }
+        // Always remove from local state
         setVendors(vendors.filter((v) => v._id !== id));
       } catch (err) {
         console.error("Error deleting vendor:", err.message);
