@@ -44,15 +44,21 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
 
   // Group items by category for better organization
   const categories = {
-    main: filteredItems.slice(0, 6),
-    financial: filteredItems.slice(6, 12),
-    reports: filteredItems.slice(12)
+    main: filteredItems.filter(item => item.category === 'main'),
+    financial: filteredItems.filter(item => item.category === 'financial'),
+    reports: filteredItems.filter(item => item.category === 'reports')
   };
+
+  // If searching, show all filtered items
+  if (searchTerm) {
+    categories.all = filteredItems;
+  }
 
   const categoryNames = {
     main: "Core Operations",
-    financial: "Financial Management", 
-    reports: "Reports & Analytics"
+    financial: "Financial Management",
+    reports: "Reports & Analytics",
+    all: "Search Results"
   };
 
   return (
@@ -171,16 +177,16 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
         )}
 
         {/* Category Tabs */}
-        {!collapsed && !searchTerm && (
-          <View style={{ 
-            padding: 16, 
+        {!collapsed && (
+          <View style={{
+            padding: 16,
             borderBottomWidth: 1,
             borderBottomColor: 'rgba(148, 163, 184, 0.2)',
             backgroundColor: 'rgba(15, 23, 42, 0.5)'
           }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                {Object.keys(categories).map((category) => (
+                {Object.keys(categories).filter(cat => categories[cat].length > 0).map((category) => (
                   <TouchableOpacity
                     key={category}
                     onPress={() => setActiveCategory(category)}
@@ -188,7 +194,7 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
                       paddingHorizontal: 16,
                       paddingVertical: 8,
                       borderRadius: 12,
-                      backgroundColor: activeCategory === category 
+                      backgroundColor: activeCategory === category
                         ? 'rgba(99, 102, 241, 0.8)'
                         : 'rgba(148, 163, 184, 0.1)'
                     }}
@@ -214,7 +220,7 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
           flex: 1, 
           padding: 24
         }}>
-          {!collapsed && !searchTerm && (
+          {!collapsed && (
             <View style={{ marginBottom: 16 }}>
               <Text style={{
                 fontSize: 14,
@@ -224,13 +230,13 @@ const Sidebar = ({ setPage, collapsed = false, setCollapsed, onClose, theme }) =
                 letterSpacing: 1,
                 marginBottom: 16
               }}>
-                {categoryNames[activeCategory]}
+                {categoryNames[activeCategory] || categoryNames.main}
               </Text>
             </View>
           )}
 
           <View style={{ gap: 12 }}>
-            {(searchTerm ? filteredItems : categories[activeCategory] || []).map((item, index) => (
+            {(categories[activeCategory] || []).map((item, index) => (
               <TouchableOpacity
                 key={index}
                 onPress={() => handleClick(item.page)}
