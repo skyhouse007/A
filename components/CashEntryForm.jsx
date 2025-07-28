@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useAxios from "../hooks/useAxios";
 
-const CashEntryForm = ({ type, ledgers }) => {
+const CashEntryForm = ({ type, ledgers = [] }) => {
   const [form, setForm] = useState({
     ledgerName: "",
     amount: "",
