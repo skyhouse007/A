@@ -1,5 +1,3 @@
-'use dom'
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import authService from '../services/authService.js';
 import billingService from '../services/billingService.js';
@@ -381,4 +379,4 @@ export const useApp = () => {
     throw new Error('useApp must be used within an AppProvider');
   }
   return context;
-}; 
+};

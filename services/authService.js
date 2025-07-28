@@ -1,5 +1,3 @@
-'use dom'
-
 import apiService from './api.js';
 
 class AuthService {
@@ -71,4 +69,4 @@ class AuthService {
 }
 
 const authService = new AuthService();
-export default authService; 
+export default authService;
