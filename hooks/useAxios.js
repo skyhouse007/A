@@ -1,4 +1,4 @@
-'use dom'
+
 
 import { useCallback } from 'react';
 import apiService from '../services/api.js';

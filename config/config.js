@@ -1,4 +1,4 @@
-'use dom'
+
 
 // Environment Configuration
 const config = {

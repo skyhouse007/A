@@ -1,4 +1,4 @@
-'use dom'
+
 import React, { useState } from 'react';
 
 const PurchaseForm = ({ theme }) => {

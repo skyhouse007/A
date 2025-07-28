@@ -1,4 +1,4 @@
-'use dom'
+
 import React from 'react';
 
 const DashboardKPIs = ({ theme }) => {
