@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const LedgerDetails = ({ ledgerName, goBack, refreshLedgers }) => {
   const [ledger, setLedger] = useState(null);

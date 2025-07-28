@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAxios } from "../hooks/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const CashEntryForm = ({ type, ledgers }) => {
   const [form, setForm] = useState({
