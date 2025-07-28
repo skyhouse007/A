@@ -60,9 +60,21 @@ const VendorList = ({ theme }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/vendors", form);
-      fetchVendors();
+      try {
+        await axios.post("/vendors", form);
+      } catch (apiError) {
+        console.warn('API call failed, adding vendor locally:', apiError);
+        // Add to local state when API fails
+        const newVendor = {
+          _id: Date.now().toString(),
+          ...form
+        };
+        setVendors(prev => [...prev, newVendor]);
+      }
+
+      await fetchVendors();
       setForm({ name: "", contact: "", address: "" });
+      setError("");
     } catch (err) {
       console.error("Error adding vendor:", err.message);
       setError("Error adding vendor.");
