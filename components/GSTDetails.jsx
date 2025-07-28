@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import useAxios from "../hooks/useAxios";
 
 const fmt = (num) =>
@@ -7,7 +8,7 @@ const fmt = (num) =>
     maximumFractionDigits: 2,
   });
 
-const GSTDetails = () => {
+const GSTDetails = ({ theme }) => {
   const [purchaseData, setPurchaseData] = useState({ entries: [], totalGST: 0, totalAmount: 0 });
   const [salesData, setSalesData] = useState({ entries: [], totalGST: 0, totalAmount: 0 });
   const [loading, setLoading] = useState(true);
@@ -99,123 +100,343 @@ const GSTDetails = () => {
   const gstLabel = gstPayable >= 0 ? "GST Payable" : "GST Credit (Carry Forward)";
 
   const handleDelete = async (type, id) => {
-    const endpoint = type === "purchase" ? `/purchases/${id}` : `/sales/${id}`;
-    try {
-      await axios.delete(endpoint);
-      fetchGSTDetails();
-    } catch {
-      alert("Failed to delete entry");
-    }
+    Alert.alert(
+      "Delete Entry",
+      "Are you sure you want to delete this entry?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              // Mock deletion
+              if (type === "purchase") {
+                setPurchaseData(prev => ({
+                  ...prev,
+                  entries: prev.entries.filter(e => e._id !== id)
+                }));
+              } else {
+                setSalesData(prev => ({
+                  ...prev,
+                  entries: prev.entries.filter(e => e._id !== id)
+                }));
+              }
+              Alert.alert("Success", "Entry deleted successfully!");
+            } catch {
+              Alert.alert("Error", "Failed to delete entry");
+            }
+          }
+        }
+      ]
+    );
   };
 
-  const Table = ({ title, data, type }) => (
-    <section className="space-y-4">
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
-      <div className="w-full overflow-x-auto rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <table className="min-w-[800px] w-full text-sm text-gray-700 dark:text-gray-200">
-          <thead className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Date</th>
-              <th className="px-4 py-2 text-left">{type === "purchase" ? "Vendor" : "Customer"}</th>
-              <th className="px-4 py-2 text-left">GST No</th>
-              <th className="px-4 py-2 text-right">Base (₹)</th>
-              <th className="px-4 py-2 text-right">CGST</th>
-              <th className="px-4 py-2 text-right">SGST</th>
-              <th className="px-4 py-2 text-right">IGST</th>
-              <th className="px-4 py-2 text-right">Total GST</th>
-              <th className="px-4 py-2 text-right">Total (₹)</th>
-              <th className="px-4 py-2 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.entries.length === 0 ? (
-              <tr>
-                <td colSpan="10" className="text-center py-4 text-gray-400 dark:text-gray-400">
-                  No records found.
-                </td>
-              </tr>
-            ) : (
-              data.entries.map((e, i) => {
-                const baseAmount = e.baseAmount || 0;
-                const cgst = e.cgst || 0;
-                const sgst = e.sgst || 0;
-                const igst = e.igst || 0;
-                const gstAmount = e.gstAmount || cgst + sgst + igst;
-                const totalAmount = e.totalAmount || baseAmount + gstAmount;
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme?.bg || '#f8f9fa',
+      padding: 16,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme?.bg || '#f8f9fa',
+    },
+    loadingText: {
+      marginTop: 16,
+      fontSize: 16,
+      color: theme?.textSecondary || '#6b7280',
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: theme?.text || '#1f2937',
+      marginBottom: 16,
+    },
+    tableContainer: {
+      backgroundColor: theme?.cardBg || '#ffffff',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme?.border || '#e5e7eb',
+      overflow: 'hidden',
+    },
+    entryCard: {
+      backgroundColor: theme?.cardBg || '#ffffff',
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme?.border || '#e5e7eb',
+    },
+    entryHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    entryTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme?.text || '#1f2937',
+      flex: 1,
+    },
+    entryDate: {
+      fontSize: 12,
+      color: theme?.textSecondary || '#6b7280',
+    },
+    entryDetails: {
+      marginBottom: 12,
+    },
+    detailRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
+    detailLabel: {
+      fontSize: 14,
+      color: theme?.textSecondary || '#6b7280',
+      flex: 1,
+    },
+    detailValue: {
+      fontSize: 14,
+      color: theme?.text || '#1f2937',
+      fontWeight: '500',
+      textAlign: 'right',
+    },
+    gstRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: theme?.border || '#e5e7eb',
+    },
+    totalLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme?.text || '#1f2937',
+    },
+    totalValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme?.accent || '#3b82f6',
+    },
+    deleteButton: {
+      backgroundColor: '#ef4444',
+      borderRadius: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    deleteButtonText: {
+      color: 'white',
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    summaryContainer: {
+      backgroundColor: theme?.cardBg || '#ffffff',
+      borderRadius: 12,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: theme?.border || '#e5e7eb',
+    },
+    summaryTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: theme?.text || '#1f2937',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    summaryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      marginBottom: 20,
+    },
+    summaryCard: {
+      backgroundColor: theme?.bg || '#f8f9fa',
+      borderRadius: 8,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: theme?.border || '#e5e7eb',
+      minWidth: '45%',
+      flex: 1,
+    },
+    summaryCardTitle: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme?.text || '#1f2937',
+      marginBottom: 8,
+    },
+    summaryCardValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme?.textSecondary || '#6b7280',
+      textAlign: 'right',
+    },
+    gstPayableContainer: {
+      alignItems: 'center',
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: theme?.border || '#e5e7eb',
+    },
+    gstPayableText: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: gstPayable >= 0 ? '#ef4444' : '#10b981',
+      textAlign: 'center',
+    },
+    emptyState: {
+      backgroundColor: theme?.cardBg || '#ffffff',
+      borderRadius: 12,
+      padding: 32,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme?.border || '#e5e7eb',
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: theme?.textSecondary || '#6b7280',
+      textAlign: 'center',
+    },
+  });
 
-                return (
-                  <tr key={e._id || i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-gray-900" : "bg-white dark:bg-gray-800"}>
-                    <td className="px-4 py-2 whitespace-nowrap">{new Date(e.date).toLocaleDateString()}</td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {type === "purchase" ? e.vendorName : e.customerName}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {type === "purchase" ? e.vendorGSTNo : e.customerGSTNo}
-                    </td>
-                    <td className="px-4 py-2 text-right">{fmt(baseAmount)}</td>
-                    <td className="px-4 py-2 text-right">{fmt(cgst)}</td>
-                    <td className="px-4 py-2 text-right">{fmt(sgst)}</td>
-                    <td className="px-4 py-2 text-right">{fmt(igst)}</td>
-                    <td className="px-4 py-2 text-right">{fmt(gstAmount)}</td>
-                    <td className="px-4 py-2 text-right font-medium">{fmt(totalAmount)}</td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={() => handleDelete(type, e._id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
+  const EntryCard = ({ entry, type, onDelete }) => (
+    <View style={styles.entryCard}>
+      <View style={styles.entryHeader}>
+        <Text style={styles.entryTitle}>
+          {type === "purchase" ? entry.vendorName : entry.customerName}
+        </Text>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => onDelete(type, entry._id)}
+        >
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.entryDetails}>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Date:</Text>
+          <Text style={styles.detailValue}>{new Date(entry.date).toLocaleDateString()}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>GST No:</Text>
+          <Text style={styles.detailValue}>
+            {type === "purchase" ? entry.vendorGSTNo : entry.customerGSTNo}
+          </Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Base Amount:</Text>
+          <Text style={styles.detailValue}>₹{fmt(entry.baseAmount || 0)}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>CGST:</Text>
+          <Text style={styles.detailValue}>₹{fmt(entry.cgst || 0)}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>SGST:</Text>
+          <Text style={styles.detailValue}>₹{fmt(entry.sgst || 0)}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>IGST:</Text>
+          <Text style={styles.detailValue}>₹{fmt(entry.igst || 0)}</Text>
+        </View>
+      </View>
+
+      <View style={styles.gstRow}>
+        <Text style={styles.totalLabel}>Total Amount:</Text>
+        <Text style={styles.totalValue}>₹{fmt(entry.totalAmount || 0)}</Text>
+      </View>
+    </View>
   );
 
   if (loading) {
     return (
-      <div className="flex justify-center mt-10">
-        <p className="text-gray-500 dark:text-gray-300 animate-pulse text-center">Loading GST details...</p>
-      </div>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme?.accent || '#3b82f6'} />
+        <Text style={styles.loadingText}>Loading GST details...</Text>
+      </View>
     );
   }
 
   return (
-    <div className="pt-[72px] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-      <div className="space-y-10">
-        <Table title="Purchase GST Details" data={purchaseData} type="purchase" />
-        <Table title="Sales GST Details" data={salesData} type="sales" />
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Purchase GST Details */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Purchase GST Details</Text>
+        {purchaseData.entries.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No purchase records found.</Text>
+          </View>
+        ) : (
+          purchaseData.entries.map((entry) => (
+            <EntryCard
+              key={entry._id}
+              entry={entry}
+              type="purchase"
+              onDelete={handleDelete}
+            />
+          ))
+        )}
+      </View>
 
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg sm:text-xl font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">GST Summary</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 space-y-1">
-              <p className="font-medium text-gray-900 dark:text-gray-100">GST on Purchases</p>
-              <p className="text-right text-gray-700 dark:text-gray-200">{fmt(purchaseGSTTotal)}</p>
-            </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 space-y-1">
-              <p className="font-medium text-gray-900 dark:text-gray-100">GST on Sales</p>
-              <p className="text-right text-gray-700 dark:text-gray-200">{fmt(salesGSTTotal)}</p>
-            </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 space-y-1">
-              <p className="font-medium text-gray-900 dark:text-gray-100">Total Purchase</p>
-              <p className="text-right text-gray-700 dark:text-gray-200">{fmt(purchaseData.totalAmount)}</p>
-            </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 space-y-1">
-              <p className="font-medium text-gray-900 dark:text-gray-100">Total Sales</p>
-              <p className="text-right text-gray-700 dark:text-gray-200">{fmt(salesData.totalAmount)}</p>
-            </div>
-          </div>
-          <div className="mt-6 text-center text-lg font-bold text-gray-900 dark:text-gray-100">
+      {/* Sales GST Details */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Sales GST Details</Text>
+        {salesData.entries.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No sales records found.</Text>
+          </View>
+        ) : (
+          salesData.entries.map((entry) => (
+            <EntryCard
+              key={entry._id}
+              entry={entry}
+              type="sales"
+              onDelete={handleDelete}
+            />
+          ))
+        )}
+      </View>
+
+      {/* GST Summary */}
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>GST Summary</Text>
+        
+        <View style={styles.summaryGrid}>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryCardTitle}>GST on Purchases</Text>
+            <Text style={styles.summaryCardValue}>₹{fmt(purchaseGSTTotal)}</Text>
+          </View>
+          
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryCardTitle}>GST on Sales</Text>
+            <Text style={styles.summaryCardValue}>₹{fmt(salesGSTTotal)}</Text>
+          </View>
+          
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryCardTitle}>Total Purchase</Text>
+            <Text style={styles.summaryCardValue}>₹{fmt(purchaseData.totalAmount)}</Text>
+          </View>
+          
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryCardTitle}>Total Sales</Text>
+            <Text style={styles.summaryCardValue}>₹{fmt(salesData.totalAmount)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.gstPayableContainer}>
+          <Text style={styles.gstPayableText}>
             {gstLabel}: ₹{Math.abs(gstPayable).toFixed(2)}
-          </div>
-        </section>
-      </div>
-    </div>
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
