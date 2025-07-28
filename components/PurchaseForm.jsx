@@ -535,25 +535,27 @@ const PurchaseForm = ({ theme }) => {
               </div>
               <button
                 type="submit"
+                disabled={loading}
                 style={{
                   padding: '12px 24px',
                   borderRadius: '8px',
-                  background: theme.accent,
-                  color: 'white',
+                  background: loading ? theme.border : theme.accent,
+                  color: loading ? theme.textSecondary : 'white',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
                   fontWeight: '600',
-                  transition: 'opacity 0.2s ease'
+                  transition: 'opacity 0.2s ease',
+                  opacity: loading ? 0.6 : 1
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.opacity = '0.9';
+                  if (!loading) e.target.style.opacity = '0.9';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.opacity = '1';
+                  if (!loading) e.target.style.opacity = '1';
                 }}
               >
-                Create Purchase Order
+                {loading ? 'Creating...' : 'Create Purchase Order'}
               </button>
             </div>
           </form>
