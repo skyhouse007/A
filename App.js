@@ -9,6 +9,7 @@ import Billing from './components/Billing.jsx';
 import InventoryList from './components/InventoryList.jsx';
 import SalesList from './components/SalesList.jsx';
 import PurchaseForm from './components/PurchaseForm.jsx';
+import VendorList from './components/VendorList.jsx';
 import { AppProvider, useApp } from './context/AppContext.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -72,6 +73,8 @@ function AppContent() {
         return <SalesList theme={currentTheme} />;
       case "purchaseForm":
         return <PurchaseForm theme={currentTheme} />;
+      case "vendors":
+        return <VendorList theme={currentTheme} />;
       default:
         return <Dashboard sales={sampleSalesData} inventory={sampleInventoryData} theme={currentTheme} />;
     }
