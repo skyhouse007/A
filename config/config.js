@@ -4,7 +4,7 @@
 const config = {
   // Development environment
   development: {
-    API_BASE_URL: 'http://localhost:5000', // Your local backend
+    API_BASE_URL: 'http://localhost:5000/api', // Your local backend with /api prefix
     DATABASE_URL: 'mongodb+srv://akashkhandelwal:akash18KHAN@cluster0.mgtm1ev.mongodb.net/dataplay?retryWrites=true&w=majority',
     JWT_SECRET: 'your-dev-secret',
     CORS_ORIGIN: 'http://localhost:3000'
@@ -27,8 +27,8 @@ const config = {
   }
 };
 
-// Get current environment - force production for now to use Render backend
-const environment = 'production';
+// Get current environment - use development for local setup
+const environment = 'development';
 
 // Export current configuration
 const currentConfig = config[environment];

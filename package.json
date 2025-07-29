@@ -9,9 +9,11 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@clerk/clerk-expo": "^2.0.0",
     "@clerk/clerk-react": "^5.37.0",
     "@expo/metro-runtime": "~5.0.4",
     "expo": "~53.0.20",
+    "expo-secure-store": "~13.0.0",
     "expo-status-bar": "~2.2.3",
     "framer-motion": "^12.23.9",
     "html2canvas": "^1.4.1",

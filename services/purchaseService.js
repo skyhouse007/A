@@ -1,24 +1,24 @@
-
-
 import apiService from './api.js';
 
 class PurchaseService {
-  // Get all purchases
+  // Get all purchases with optional filters
   async getPurchases(params = {}) {
     try {
       const queryString = new URLSearchParams(params).toString();
       const endpoint = `/purchases${queryString ? `?${queryString}` : ''}`;
       return await apiService.get(endpoint);
     } catch (error) {
+      console.error('Error fetching purchases:', error);
       throw error;
     }
   }
 
-  // Get single purchase
+  // Get single purchase by ID
   async getPurchase(id) {
     try {
       return await apiService.get(`/purchases/${id}`);
     } catch (error) {
+      console.error('Error fetching purchase:', error);
       throw error;
     }
   }
@@ -28,15 +28,17 @@ class PurchaseService {
     try {
       return await apiService.post('/purchases', purchaseData);
     } catch (error) {
+      console.error('Error creating purchase:', error);
       throw error;
     }
   }
 
-  // Update purchase
+  // Update existing purchase
   async updatePurchase(id, purchaseData) {
     try {
       return await apiService.put(`/purchases/${id}`, purchaseData);
     } catch (error) {
+      console.error('Error updating purchase:', error);
       throw error;
     }
   }
@@ -46,192 +48,75 @@ class PurchaseService {
     try {
       return await apiService.delete(`/purchases/${id}`);
     } catch (error) {
+      console.error('Error deleting purchase:', error);
       throw error;
     }
   }
 
-  // Bulk delete purchases
-  async bulkDeletePurchases(ids) {
+  // Create purchase with file uploads
+  async createPurchaseWithFiles(purchaseData, files = []) {
     try {
-      return await apiService.post('/purchases/bulk-delete', { ids });
-    } catch (error) {
-      throw error;
-    }
-  }
+      const formData = new FormData();
+      
+      // Add purchase data
+      Object.keys(purchaseData).forEach(key => {
+        if (key === 'items') {
+          formData.append('items', JSON.stringify(purchaseData[key]));
+        } else {
+          formData.append(key, purchaseData[key]);
+        }
+      });
 
-  // Get purchase statistics
-  async getPurchaseStats() {
-    try {
-      return await apiService.get('/purchases/stats');
+      // Add files
+      files.forEach((file, index) => {
+        formData.append(`itemImage_${index}`, file);
+      });
+
+      return await apiService.post('/purchases', formData);
     } catch (error) {
+      console.error('Error creating purchase with files:', error);
       throw error;
     }
   }
 
   // Get purchases by vendor
-  async getPurchasesByVendor(vendorId) {
+  async getPurchasesByVendor(vendorName, params = {}) {
     try {
-      return await apiService.get(`/purchases/vendor/${vendorId}`);
+      const searchParams = { ...params, vendorName };
+      return await this.getPurchases(searchParams);
     } catch (error) {
+      console.error('Error fetching purchases by vendor:', error);
       throw error;
     }
   }
 
   // Get purchases by date range
-  async getPurchasesByDateRange(startDate, endDate) {
+  async getPurchasesByDateRange(startDate, endDate, params = {}) {
     try {
-      return await apiService.get(`/purchases/date-range?start=${startDate}&end=${endDate}`);
+      const searchParams = { 
+        ...params, 
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      };
+      return await this.getPurchases(searchParams);
     } catch (error) {
+      console.error('Error fetching purchases by date range:', error);
       throw error;
     }
   }
 
-  // Search purchases
-  async searchPurchases(query, params = {}) {
-    try {
-      const searchParams = { ...params, q: query };
-      const queryString = new URLSearchParams(searchParams).toString();
-      const endpoint = `/purchases/search${queryString ? `?${queryString}` : ''}`;
-      return await apiService.get(endpoint);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Generate PDF for purchase
-  async generatePDF(id) {
-    try {
-      return await apiService.get(`/purchases/${id}/pdf`);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Send purchase via email
-  async sendPurchaseEmail(id, emailData) {
-    try {
-      return await apiService.post(`/purchases/${id}/send-email`, emailData);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get purchase analytics
-  async getPurchaseAnalytics(params = {}) {
+  // Get purchase statistics
+  async getPurchaseStats(params = {}) {
     try {
       const queryString = new URLSearchParams(params).toString();
-      const endpoint = `/purchases/analytics${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/purchases/stats${queryString ? `?${queryString}` : ''}`;
       return await apiService.get(endpoint);
     } catch (error) {
-      throw error;
-    }
-  }
-
-  // Export purchase data
-  async exportPurchases(format = 'csv', params = {}) {
-    try {
-      const queryString = new URLSearchParams({ ...params, format }).toString();
-      const endpoint = `/purchases/export${queryString ? `?${queryString}` : ''}`;
-      return await apiService.get(endpoint);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get GST purchases
-  async getGSTPurchases(params = {}) {
-    try {
-      const queryString = new URLSearchParams({ ...params, gst: true }).toString();
-      const endpoint = `/purchases${queryString ? `?${queryString}` : ''}`;
-      return await apiService.get(endpoint);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get non-GST purchases
-  async getNonGSTPurchases(params = {}) {
-    try {
-      const queryString = new URLSearchParams({ ...params, gst: false }).toString();
-      const endpoint = `/purchases${queryString ? `?${queryString}` : ''}`;
-      return await apiService.get(endpoint);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Update purchase status
-  async updatePurchaseStatus(id, status) {
-    try {
-      return await apiService.patch(`/purchases/${id}/status`, { status });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get purchases by payment method
-  async getPurchasesByPaymentMethod(paymentMethod) {
-    try {
-      return await apiService.get(`/purchases/payment-method/${paymentMethod}`);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get pending deliveries
-  async getPendingDeliveries() {
-    try {
-      return await apiService.get('/purchases/pending-deliveries');
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Mark purchase as delivered
-  async markAsDelivered(id, deliveryData) {
-    try {
-      return await apiService.patch(`/purchases/${id}/delivered`, deliveryData);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get vendor list
-  async getVendors() {
-    try {
-      return await apiService.get('/vendors');
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Create vendor
-  async createVendor(vendorData) {
-    try {
-      return await apiService.post('/vendors', vendorData);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Update vendor
-  async updateVendor(id, vendorData) {
-    try {
-      return await apiService.put(`/vendors/${id}`, vendorData);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Delete vendor
-  async deleteVendor(id) {
-    try {
-      return await apiService.delete(`/vendors/${id}`);
-    } catch (error) {
+      console.error('Error fetching purchase stats:', error);
       throw error;
     }
   }
 }
 
 const purchaseService = new PurchaseService();
-export default purchaseService; 
+export default purchaseService;

@@ -8,48 +8,58 @@ class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
     this.token = null;
-    // Try to get token from localStorage if available
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        this.token = localStorage.getItem('authToken');
-      }
-    } catch (error) {
-      console.log('localStorage not available:', error);
-    }
+    this.getTokenCallback = null; // Callback to get fresh Clerk token
   }
 
-  // Set authentication token
+  // Set token getter callback (for Clerk integration)
+  setTokenGetter(callback) {
+    this.getTokenCallback = callback;
+  }
+
+  // Set authentication token (legacy support)
   setToken(token) {
     this.token = token;
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('authToken', token);
-      }
-    } catch (error) {
-      console.log('localStorage not available:', error);
-    }
   }
 
   // Clear authentication token
   clearToken() {
     this.token = null;
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.removeItem('authToken');
+    this.getTokenCallback = null;
+  }
+
+  // Get fresh token (prioritize Clerk callback)
+  async getFreshToken() {
+    if (this.getTokenCallback) {
+      try {
+        return await this.getTokenCallback();
+      } catch (error) {
+        console.error('Error getting fresh token:', error);
+        return null;
       }
+    }
+    return this.token;
+  }
+
+  // Test backend connection
+  async testConnection() {
+    try {
+      const response = await fetch(`${this.baseURL}/test`);
+      return response.ok;
     } catch (error) {
-      console.log('localStorage not available:', error);
+      console.error('Backend connection test failed:', error);
+      return false;
     }
   }
 
   // Get headers for requests
-  getHeaders() {
+  async getHeaders() {
     const headers = {
       'Content-Type': 'application/json',
     };
     
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = await this.getFreshToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
     
     return headers;
@@ -59,8 +69,9 @@ class ApiService {
   async request(endpoint, options = {}) {
     try {
       const url = `${this.baseURL}${endpoint}`;
+      const headers = await this.getHeaders();
       const config = {
-        headers: this.getHeaders(),
+        headers,
         ...options,
       };
 
@@ -72,6 +83,9 @@ class ApiService {
       const response = await fetch(url, config);
       
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Unauthorized - Please login again');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -79,7 +93,7 @@ class ApiService {
     } catch (error) {
       console.error('API Request Error:', error);
       // Don't throw error for initial connection attempts
-      if (endpoint === '/auth/me' && error.message.includes('fetch')) {
+      if (endpoint.includes('/dashboard') && error.message.includes('fetch')) {
         return null;
       }
       throw error;
@@ -94,7 +108,7 @@ class ApiService {
   // POST request
   async post(endpoint, data) {
     let body;
-    let headers = this.getHeaders();
+    let headers = await this.getHeaders();
     
     // Handle FormData
     if (data instanceof FormData) {

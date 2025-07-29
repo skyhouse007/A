@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useAuth, useUser } from '@clerk/clerk-expo';
 import authService from '../services/authService.js';
 import billingService from '../services/billingService.js';
 import databaseService from '../services/databaseService.js';
+import apiService from '../services/api.js';
+import salesService from '../services/salesService.js';
+import inventoryService from '../services/inventoryService.js';
+import vendorService from '../services/vendorService.js';
+import ledgerService from '../services/ledgerService.js';
+import transactionService from '../services/transactionService.js';
 
 // Initial state
 const initialState = {
@@ -142,45 +149,74 @@ const AppContext = createContext();
 // Provider component
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const auth = useAuth();
+  const user = useUser();
 
-  // Check authentication on app start
+  // Initialize services with Clerk authentication
   useEffect(() => {
-    let isMounted = true;
-    
-    const checkAuth = async () => {
-      try {
-        if (isMounted) {
-          dispatch({ type: ACTIONS.SET_LOADING, payload: true });
-        }
-        
-        if (authService.isAuthenticated()) {
-          const user = await authService.getCurrentUser();
-          if (isMounted && user) {
-            dispatch({ type: ACTIONS.SET_USER, payload: user });
-            dispatch({ type: ACTIONS.SET_AUTHENTICATED, payload: true });
-            dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: true });
-          } else if (isMounted) {
-            // Clear invalid token
-            authService.clearToken();
-            dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: false });
+    if (auth.isLoaded) {
+      // Initialize auth service with Clerk hooks
+      authService.initializeClerk(auth, user);
+      
+      // Set up API service token getter
+      if (auth.isSignedIn) {
+        apiService.setTokenGetter(async () => {
+          try {
+            return await auth.getToken();
+          } catch (error) {
+            console.error('Error getting Clerk token:', error);
+            return null;
           }
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        authService.clearToken();
-      } finally {
-        if (isMounted) {
-          dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+        });
+      }
+    }
+  }, [auth.isLoaded, auth.isSignedIn, auth, user]);
+
+  // Update state based on Clerk authentication
+  useEffect(() => {
+    if (auth.isLoaded) {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+      dispatch({ type: ACTIONS.SET_AUTHENTICATED, payload: auth.isSignedIn });
+      
+      if (auth.isSignedIn && user.user) {
+        const userData = {
+          id: user.user.id,
+          email: user.user.primaryEmailAddress?.emailAddress,
+          name: user.user.fullName || user.user.firstName,
+          firstName: user.user.firstName,
+          lastName: user.user.lastName,
+          imageUrl: user.user.imageUrl,
+        };
+        dispatch({ type: ACTIONS.SET_USER, payload: userData });
+        dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: true });
+      } else {
+        dispatch({ type: ACTIONS.SET_USER, payload: null });
+        dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: false });
+        apiService.clearToken();
+      }
+    } else {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: true });
+    }
+  }, [auth.isLoaded, auth.isSignedIn, user.user]);
+
+  // Test backend connection when authenticated
+  useEffect(() => {
+    const testConnection = async () => {
+      if (auth.isSignedIn) {
+        try {
+          const connected = await apiService.testConnection();
+          dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: connected });
+        } catch (error) {
+          console.error('Backend connection test failed:', error);
+          dispatch({ type: ACTIONS.SET_API_CONNECTED, payload: false });
         }
       }
     };
 
-    checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    if (auth.isLoaded && auth.isSignedIn) {
+      testConnection();
+    }
+  }, [auth.isLoaded, auth.isSignedIn]);
 
   // Authentication actions
   const login = async (credentials) => {
@@ -368,7 +404,17 @@ export const AppProvider = ({ children }) => {
     // Services
     authService,
     billingService,
-    databaseService
+    databaseService,
+    apiService,
+    salesService,
+    inventoryService,
+    vendorService,
+    ledgerService,
+    transactionService,
+    
+    // Clerk integration
+    clerkAuth: auth,
+    clerkUser: user
   };
 
   return (

@@ -112,7 +112,7 @@ class DatabaseService {
         return cached;
       }
 
-      const response = await apiService.get('/dashboard');
+      const response = await apiService.get('/dashboard/summary');
       this.setCache(cacheKey, response);
       return response;
     } catch (error) {

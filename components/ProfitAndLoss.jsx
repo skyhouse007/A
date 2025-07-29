@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import useAxios from "../hooks/useAxios";
+import apiService from '../services/api.js';
 
 const ProfitAndLoss = ({ theme }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showMonthSelector, setShowMonthSelector] = useState(false);
-  const axios = useAxios();
   const [month, setMonth] = useState(new Date().getMonth() + 1); // getMonth() returns 0-11, so add 1
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -15,7 +14,24 @@ const ProfitAndLoss = ({ theme }) => {
     try {
       setLoading(true);
 
-      // Mock data for demo purposes (since no backend is available)
+      // Try to fetch real data from backend
+      try {
+        const params = new URLSearchParams({
+          month: month.toString(),
+          year: year.toString()
+        });
+        
+        const response = await apiService.get(`/profit-loss?${params}`);
+        
+        if (response) {
+          setData(response);
+          return;
+        }
+      } catch (apiError) {
+        console.log('API call failed, using mock data:', apiError.message);
+      }
+
+      // Fallback to mock data if API fails
       const mockData = {
         ledgerBased: true,
         debit: {

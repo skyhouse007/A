@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
-import useAxios from "../hooks/useAxios";
+import { useApp } from '../context/AppContext.js';
 
 const CashEntryForm = ({ type, ledgers = [], theme }) => {
   const [form, setForm] = useState({
@@ -9,19 +9,38 @@ const CashEntryForm = ({ type, ledgers = [], theme }) => {
     note: "",
     date: new Date().toISOString().split("T")[0],
   });
-  const axios = useAxios();
+  const [availableLedgers, setAvailableLedgers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { transactionService, ledgerService } = useApp();
 
-  // Mock ledgers data if none provided
-  const mockLedgers = [
-    { _id: "1", name: "Cash" },
-    { _id: "2", name: "Bank Account" },
-    { _id: "3", name: "Sales" },
-    { _id: "4", name: "Expenses" },
-    { _id: "5", name: "Accounts Receivable" },
-    { _id: "6", name: "Accounts Payable" }
-  ];
+  // Load ledgers from backend
+  useEffect(() => {
+    const loadLedgers = async () => {
+      try {
+        if (ledgers.length > 0) {
+          setAvailableLedgers(ledgers);
+        } else {
+          // Try to fetch from backend
+          const fetchedLedgers = await ledgerService.getLedgers();
+          setAvailableLedgers(fetchedLedgers || []);
+        }
+      } catch (error) {
+        console.log('Failed to load ledgers, using mock data:', error);
+        // Fallback to mock data
+        const mockLedgers = [
+          { _id: "1", name: "Cash" },
+          { _id: "2", name: "Bank Account" },
+          { _id: "3", name: "Sales" },
+          { _id: "4", name: "Expenses" },
+          { _id: "5", name: "Accounts Receivable" },
+          { _id: "6", name: "Accounts Payable" }
+        ];
+        setAvailableLedgers(mockLedgers);
+      }
+    };
 
-  const availableLedgers = ledgers.length > 0 ? ledgers : mockLedgers;
+    loadLedgers();
+  }, [ledgers, ledgerService]);
 
   const handleChange = (name, value) => {
     setForm({ ...form, [name]: value });
@@ -34,24 +53,34 @@ const CashEntryForm = ({ type, ledgers = [], theme }) => {
     }
 
     const payload = {
-      ...form,
+      ledgerName: form.ledgerName,
       amount: parseFloat(form.amount),
-      type,
+      description: form.note,
+      date: form.date,
+      type: type === 'cashIn' ? 'cash_in' : 'cash_out',
+      category: type === 'cashIn' ? 'income' : 'expense'
     };
 
+    setLoading(true);
     try {
-      // Mock API call for demo purposes (since no backend is available)
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+      if (type === 'cashIn') {
+        await transactionService.createCashIn(payload);
+      } else {
+        await transactionService.createCashOut(payload);
+      }
+      
       Alert.alert("Success", "Transaction saved successfully!");
-      setForm({ 
-        ledgerName: "", 
-        amount: "", 
-        note: "", 
-        date: new Date().toISOString().split("T")[0] 
+      setForm({
+        ledgerName: "",
+        amount: "",
+        note: "",
+        date: new Date().toISOString().split("T")[0]
       });
     } catch (err) {
       console.error("Failed to save transaction:", err);
-      Alert.alert("Error", "Failed to save transaction");
+      Alert.alert("Error", err.message || "Failed to save transaction");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -220,9 +249,13 @@ const CashEntryForm = ({ type, ledgers = [], theme }) => {
         </View>
 
         {/* Submit Button */}
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <TouchableOpacity
+          style={[styles.submitButton, loading && { opacity: 0.6 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
           <Text style={styles.submitButtonText}>
-            Submit {type === "cashIn" ? "Cash In" : "Cash Out"}
+            {loading ? 'Saving...' : `Submit ${type === "cashIn" ? "Cash In" : "Cash Out"}`}
           </Text>
         </TouchableOpacity>
       </View>

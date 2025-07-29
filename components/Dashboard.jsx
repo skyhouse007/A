@@ -1,25 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import DashboardKPIs from './DashboardKPIs.jsx';
+import { useApp } from '../context/AppContext.js';
 
-const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
+const Dashboard = ({ theme, onNavigate }) => {
+  const { loadDashboardData, dashboardData, isLoading, error } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [realTimeData, setRealTimeData] = useState({
+    todayRevenue: 0,
+    activeOrders: 0,
+    lowStockItems: 0
+  });
 
+  // Load dashboard data on component mount
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  // Update current time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+    }, 60000);
     return () => clearInterval(timer);
   }, []);
 
+  // Update real-time data when dashboard data changes
+  useEffect(() => {
+    if (dashboardData) {
+      setRealTimeData({
+        todayRevenue: dashboardData.turnoverThisMonth || 0,
+        activeOrders: dashboardData.ordersToday || 0,
+        lowStockItems: dashboardData.pendingOrders || 0
+      });
+    }
+  }, [dashboardData]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setRefreshing(false);
+    try {
+      await loadDashboardData();
       setCurrentTime(new Date());
-    }, 1000);
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const quickActions = [
@@ -311,14 +338,14 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
                 color: theme.textSecondary,
                 marginBottom: 4
               }}>
-                Today's Revenue
+                This Month's Turnover
               </Text>
               <Text style={{
                 fontSize: 20,
                 fontWeight: '700',
                 color: '#10b981'
               }}>
-                $12,450
+                ₹{realTimeData.todayRevenue.toLocaleString()}
               </Text>
             </View>
             <View style={{ flex: 1, alignItems: 'center' }}>
@@ -327,14 +354,14 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
                 color: theme.textSecondary,
                 marginBottom: 4
               }}>
-                Active Orders
+                Orders Today
               </Text>
               <Text style={{
                 fontSize: 20,
                 fontWeight: '700',
                 color: '#3b82f6'
               }}>
-                23
+                {realTimeData.activeOrders}
               </Text>
             </View>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
@@ -343,14 +370,14 @@ const Dashboard = ({ sales, inventory, theme, onNavigate }) => {
                 color: theme.textSecondary,
                 marginBottom: 4
               }}>
-                Low Stock Items
+                Pending Orders
               </Text>
               <Text style={{
                 fontSize: 20,
                 fontWeight: '700',
                 color: '#f59e0b'
               }}>
-                5
+                {realTimeData.lowStockItems}
               </Text>
             </View>
           </View>
